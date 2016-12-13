@@ -1,0 +1,33 @@
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Inflaskart</title>
+  </head>
+
+  <body>
+    {% if 'cart_msge' %}
+      <p>{{ cart_msge }}</p>
+    {% endif %}
+
+    {% if 'empty_cart' %}
+      <p>{{ empty_cart }}</p>
+    {% endif %}
+
+    {% if 'del_msge' %}
+      <p>{{ del_msge }}</p>
+    {% endif %}
+
+    {% if 'in_cart' %}
+      {% for item in in_cart %}
+        <ul><li>{{ item }}</li>
+          <form action="" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Remove from cart" />
+          </form>
+        </ul>
+      {% endfor %}
+    {% endif %}
+  </body>
+
+</html>

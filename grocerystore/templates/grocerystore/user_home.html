@@ -1,0 +1,27 @@
+{% extends 'grocerystore/base.html' %}
+
+<head>
+    {% block head %}
+      <h1>Welcome {{username}}!</h1>
+    {% endblock %}
+</head>
+
+<body>
+  {% block body %}
+
+    {% if success_message %}
+      <p><b>{{ success_message }}</b></p>
+    {% endif %}
+
+    <form action="cart" method="get">
+      <input type="submit" value="View cart">
+    </form>
+
+    <form action="" method="post">
+      {% csrf_token %}
+      <p> {{ add_form.as_table }} </p>
+      <input type="submit" value="Add to cart" />
+    </form>
+
+  {% endblock %}
+</body>
