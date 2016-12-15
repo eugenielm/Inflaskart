@@ -3,14 +3,18 @@
 <head>
     {% block head %}
       <h1>Welcome to the Inflaskart login page</h1>
-      {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
     {% endblock %}
 </head>
+
 <body>
   {% block body %}
-    {% if not_loggedin %}
-      {{ not_loggedin }}
-      <a href="/grocerystore/login/">{{ 'login' }}</a>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+    </ul>
     {% endif %}
 
     <form class="form-horizontal" role="form" action="" method="post">

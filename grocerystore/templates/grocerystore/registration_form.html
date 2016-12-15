@@ -2,19 +2,20 @@
 
 <head>
     {% block head %}
-
-      {% if no_account %}
-        {{ no_account }}
-        <a href="/grocerystore/register/">{{ 'Register' }}</a>
-      {% else %}
         <h1>Welcome to the Inflaskart registration page</h1>
-      {% endif %}
-
     {% endblock %}
 </head>
 
 <body>
   {% block body %}
+
+      {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+              {{ message }}
+            {% endfor %}
+        </ul>
+      {% endif %}
 
     <form class="form-horizontal" role="form" action="" method="post">
         {% csrf_token %}

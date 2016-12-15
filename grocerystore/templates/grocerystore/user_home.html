@@ -2,26 +2,33 @@
 
 <head>
     {% block head %}
-      <h1>Welcome {{username}}!</h1>
+      <h1> {{user.username}}'s home page </h1>
+
+      {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+              {{ message }}
+            {% endfor %}
+        </ul>
+      {% endif %}
+
     {% endblock %}
 </head>
 
 <body>
   {% block body %}
 
-    {% if success_message %}
-      <p><b>{{ success_message }}</b></p>
-    {% endif %}
-
-    <form action="cart" method="get">
-      <input type="submit" value="View cart">
-    </form>
-
     <form action="" method="post">
       {% csrf_token %}
       <p> {{ add_form.as_table }} </p>
       <input type="submit" value="Add to cart" />
     </form>
+
+    <form action="cart" method="get">
+      <input type="submit" value="View cart">
+    </form>
+
+    <a href="{% url 'grocerystore:index' %}">{{ 'Inflaskart index page' }}</a>
 
   {% endblock %}
 </body>

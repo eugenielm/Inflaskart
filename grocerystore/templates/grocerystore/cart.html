@@ -3,31 +3,47 @@
   <head>
     <meta charset="UTF-8">
     <title>Inflaskart</title>
+    <h1> {{user.username}}'s cart </h1>
   </head>
 
   <body>
-    {% if 'cart_msge' %}
-      <p>{{ cart_msge }}</p>
-    {% endif %}
+
+      {% if messages %}
+      <ul class="messages">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+      </ul>
+      {% endif %}
 
     {% if 'empty_cart' %}
       <p>{{ empty_cart }}</p>
     {% endif %}
 
-    {% if 'del_msge' %}
-      <p>{{ del_msge }}</p>
+    {% if 'cart_msge' %}
+      <p>{{ cart_msge }}</p>
     {% endif %}
 
     {% if 'in_cart' %}
       {% for item in in_cart %}
         <ul><li>{{ item }}</li>
-          <form action="" method="post">
-            {% csrf_token %}
-            <input type="submit" value="Remove from cart" />
-          </form>
         </ul>
       {% endfor %}
     {% endif %}
+
+      <p>Anything you want to remove from your cart?</p>
+      <form action="" method="post">
+        {% csrf_token %}
+        <select name="del_choice">
+          {% for product in products %}
+          <option value="{{ product }}">{{ product }}</option>
+          {% endfor %}
+        </select>
+        <input type="submit" value="Remove from cart" />
+      </form>
+
+    <a href="{% url 'grocerystore:user_home' user.username %}">Continue shopping</a>
+
   </body>
 
 </html>

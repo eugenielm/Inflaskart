@@ -6,8 +6,18 @@
 {% endblock %}
 
 {% block body %}
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+    </ul>
+    {% endif %}
     <ul>
-        <li><a href="/grocerystore/register/"> Create an account </a></li>
-        <li><a href="/grocerystore/accounts/login/"> Login </a></li>
+        <li><a href="{% url 'grocerystore:register' %}"> Create an account </a></li>
+        <li><a href="{% url 'grocerystore:login' %}"> Login </a></li>
+        {% if user.username %}
+          <li><a href="{% url 'grocerystore:user_home' user.username %}"> My account </a></li>
+        {% endif %}
     </ul>
 {% endblock %}
