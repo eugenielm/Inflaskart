@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from .models import Product
 
 class RegisterForm(forms.ModelForm):
     username = forms.CharField(max_length=25, required=True)
@@ -17,6 +18,10 @@ class LoginForm(forms.ModelForm):
         model = User
         fields = ['username', 'password']
 
+CHOICES = []
+for product in Product.objects.order_by('product_name'):
+    CHOICES.append((product.product_name, product.product_name + " ($" + str(product.product_price) + " / " + product.product_unit + ")"),)
+
 class ShopForm(forms.Form):
-    product = forms.CharField(max_length=20, required=True)
-    quantity = forms.IntegerField(min_value=1, max_value=20, required=True)
+    product_name = forms.ChoiceField(label='Choose an item', choices=CHOICES)
+    quantity = forms.IntegerField(min_value=1, max_value=30, required=True)

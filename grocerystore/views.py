@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 import os
 import urllib
 from django.contrib import messages
+from .models import Product
 # from django.contrib.auth.decorators import login_required
 # from django.views.decorators.csrf import csrf_protect
 # from django.views.generic.base import TemplateView
@@ -24,6 +25,7 @@ def get_inflauser(username):
 
 def index(request):
     return render(request, 'grocerystore/index.html', {})
+
 
 class UserRegisterView(View):
     form_class = RegisterForm
@@ -51,7 +53,6 @@ class UserRegisterView(View):
                     messages.success(request, "You're now registered and logged in.")
                     return redirect('grocerystore:user_home', username=request.user.username)
 
-        # return render(request, self.template_name, {'form': form})
         messages.error(request, "This username is already used, please choose another one.")
         return redirect('grocerystore:register')
 
@@ -96,18 +97,18 @@ class UserHomeView(View):
             user = User.objects.get(username=username)
         except User.DoesNotExist:
             messages.error(request, "You need to register to start shopping.")
-            return redirect('grocerystore:index')
+            return redirect('grocerystore:register')
 
         if request.user.is_authenticated:
             add_form = self.form_class(None)
-            return render(request, 'grocerystore/user_home.html', {'username': username, 'add_form': add_form})
+            return render(request, 'grocerystore/user_home.html', {'username': username, 'add_form': add_form,})
         else:
             messages.error(request, "You need to login to start shopping.")
             return redirect('grocerystore:index')
 
     def post(self, request, username):
         form = self.form_class(request.POST)
-        product = request.POST['product']
+        product = request.POST['product_name']
         quantity = request.POST['quantity']
         infla_user = get_inflauser(username)
         infla_user.add(product, quantity)
@@ -119,7 +120,12 @@ class ShowCartView(View):
     template_name = 'grocerystore/cart.html'
 
     def get(self, request, username):
-        user = get_object_or_404(User, username=username)
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, "You need to register to start shopping.")
+            return redirect('grocerystore:register')
+
         if request.user.is_authenticated:
             infla_user = get_inflauser(username)
             cart = infla_user.list()['items']
@@ -129,15 +135,16 @@ class ShowCartView(View):
                 in_cart = []
                 products = []
                 for elt in cart:
-                    item = "%s: " % elt["name"] + "%s" % elt["qty"]
+                    product = Product.objects.get(product_name=elt["name"])
+                    item = "%s: " % elt["name"] + elt["qty"] + product.product_unit
                     in_cart.append(item)
                     products.append(elt['name'])
                 cart_msge = "Hi %s, you have the following items in your cart:" % username
-                context = {'cart_msge': cart_msge, 'in_cart': in_cart, 'products': products,}
+                context = {'cart_msge': cart_msge, 'in_cart': in_cart, 'products': products, 'username': username,}
             return render(request, 'grocerystore/cart.html', context=context)
         else:
-            messages.error(request, "You need to login or register before starting shopping.")
-            return redirect('grocerystore:index')
+            messages.error(request, "You need to login before starting shopping.")
+            return redirect('grocerystore:login')
 
     def post(self, request, username):
         user = get_object_or_404(User, username=username)
@@ -150,7 +157,6 @@ class ShowCartView(View):
 
         else:
             return redirect('grocerystore:login_form')
-
 
 
 #
