@@ -9,7 +9,7 @@ import urllib
 from django.contrib import messages
 from .models import Product
 # from django.contrib.auth.decorators import login_required
-# from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect
 # from django.views.generic.base import TemplateView
 
 
@@ -159,8 +159,8 @@ class ShowCartView(View):
             return redirect('grocerystore:login_form')
 
 
-#
-# @csrf_protect
-# def log_out(request):
-#     logout(request)
-#     return redirect('grocerystore:home')
+@csrf_protect
+def log_out(request, username):
+    logout(request)
+    messages.success(request, "You've been logged out, %s" % username)
+    return redirect('grocerystore:index')

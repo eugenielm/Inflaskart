@@ -24,11 +24,9 @@
       <input type="submit" value="Add to cart" />
     </form>
 
-    <form action="cart" method="get">
-      <input type="submit" value="View cart">
-    </form>
-
-    <a href="{% url 'grocerystore:index' %}">{{ 'Inflaskart index page' }}</a>
+    <a href="{% url 'grocerystore:cart' username %}">{{ 'View cart' }}</a><br>
+    <a href="{% url 'grocerystore:index' %}">{{ 'Inflaskart index page' }}</a><br>
+    <a href="{% url 'grocerystore:log_out' username %}">{{ 'Logout' }}</a>
 
   {% endblock %}
 </body>

@@ -14,10 +14,11 @@
     </ul>
     {% endif %}
     <ul>
-        <li><a href="{% url 'grocerystore:register' %}"> Create an account </a></li>
-        <li><a href="{% url 'grocerystore:login' %}"> Login </a></li>
         {% if user.username %}
-          <li><a href="{% url 'grocerystore:user_home' user.username %}"> My account </a></li>
+          <a href="{% url 'grocerystore:user_home' user.username %}"> My account </a>
+        {% else %}
+          <a href="{% url 'grocerystore:register' %}"> Create an account </a><br>
+          <a href="{% url 'grocerystore:login' %}"> Login </a>
         {% endif %}
     </ul>
 {% endblock %}

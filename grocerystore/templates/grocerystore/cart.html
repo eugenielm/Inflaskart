@@ -42,7 +42,9 @@
         <input type="submit" value="Remove from cart" />
       </form>
 
-    <a href="{% url 'grocerystore:user_home' user.username %}">Continue shopping</a>
+    <a href="{% url 'grocerystore:user_home' username %}">Continue shopping</a><br>
+    <a href="{% url 'grocerystore:index' %}">{{ 'Inflaskart index page' }}</a><br>
+    <a href="{% url 'grocerystore:log_out' username %}">{{ 'Logout' }}</a>
 
   </body>
 
