@@ -8,8 +8,8 @@ import os
 import urllib
 from django.contrib import messages
 from .models import Product
-# from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
+# from django.contrib.auth.decorators import login_required
 # from django.views.generic.base import TemplateView
 
 
@@ -130,18 +130,35 @@ class ShowCartView(View):
             infla_user = get_inflauser(username)
             cart = infla_user.list()['items']
             if len(cart) == 0:
-                context = {'empty_cart': "Your cart is empty, %s." % username}
+                context = {'empty_cart': "Your cart is empty, %s." % user.username}
             else:
+                cart_msge = "Hi %s, you have the following items in your cart:" % user.username
                 in_cart = []
-                products = []
+                cart_total = 0
                 for elt in cart:
                     product = Product.objects.get(product_name=elt["name"])
-                    item = "%s: " % elt["name"] + elt["qty"] + product.product_unit
+                    price = "%.2f" % (float(elt["qty"]) * float(product.product_price))
+                    item = [elt["name"], elt["qty"], product.product_unit, price]
                     in_cart.append(item)
-                    products.append(elt['name'])
-                cart_msge = "Hi %s, you have the following items in your cart:" % username
-                context = {'cart_msge': cart_msge, 'in_cart': in_cart, 'products': products, 'username': username,}
-            return render(request, 'grocerystore/cart.html', context=context)
+                    cart_total += float(price)
+                cart_total = "%.2f" % cart_total
+                context = {'cart_msge': cart_msge, 'in_cart': in_cart, 'cart_total': cart_total}
+                return render(request, 'grocerystore/cart.html', context=context)
+
+
+
+            #     in_cart = []
+            #     products = []
+            #     for elt in cart:
+            #         product = Product.objects.get(product_name=elt["name"])
+            #         item = "%s: " % elt["name"] + elt["qty"] + product.product_unit
+            #         in_cart.append(item)
+            #         products.append(elt['name'])
+            #     cart_msge = "Hi %s, you have the following items in your cart:" % username
+            #     context = {'cart_msge': cart_msge, 'in_cart': in_cart, 'products': products, 'username': username,}
+            # return render(request, 'grocerystore/cart.html', context=context)
+
+
         else:
             messages.error(request, "You need to login before starting shopping.")
             return redirect('grocerystore:login')

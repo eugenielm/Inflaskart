@@ -15,4 +15,6 @@ urlpatterns = [
     url(r'^(?P<username>[0-9a-zA-Z]+)/cart/$', views.ShowCartView.as_view(), name='cart'),
     # grocerystore/eglelek/logout/
     url(r'^(?P<username>[0-9a-zA-Z]+)/logout/$', views.log_out, name='log_out'),
+    # # grocerystore/eglelek/checkout/
+    # url(r'^(?P<username>[0-9a-zA-Z]+)/checkout/$', views.Checkout.as_view(), name='checkout'),
 ]

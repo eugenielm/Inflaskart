@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Inflaskart</title>
-    <h1> {{username}}'s cart </h1>
+    <h1> {{user.username}}'s cart </h1>
   </head>
 
   <body>
@@ -24,14 +24,16 @@
       <p>{{ cart_msge }}</p>
     {% endif %}
 
+
     {% if 'in_cart' %}
       {% for item in in_cart %}
-        <ul><li>{{ item }}</li>
-        </ul>
+        <ul><li> {{ item.0 }}: {{ item.1 }} {{ item.2 }}, Total = ${{ item.3 }} </li></ul>
       {% endfor %}
+      <p> Cart total: ${{ cart_total }} </p>
     {% endif %}
 
-      <p>Anything you want to remove from your cart?</p>
+
+      <!-- <p>Anything you want to remove from your cart?</p>
       <form action="" method="post">
         {% csrf_token %}
         <select name="del_choice">
@@ -40,11 +42,11 @@
           {% endfor %}
         </select>
         <input type="submit" value="Remove from cart" />
-      </form>
+      </form> -->
 
-    <a href="{% url 'grocerystore:user_home' username %}">Continue shopping</a><br>
+    <a href="{% url 'grocerystore:user_home' user.username %}">Continue shopping</a><br>
     <a href="{% url 'grocerystore:index' %}">{{ 'Inflaskart index page' }}</a><br>
-    <a href="{% url 'grocerystore:log_out' username %}">{{ 'Logout' }}</a>
+    <a href="{% url 'grocerystore:log_out' user.username %}">{{ 'Logout' }}</a>
 
   </body>
 
