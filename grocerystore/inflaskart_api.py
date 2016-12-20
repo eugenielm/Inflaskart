@@ -13,16 +13,6 @@ class InflaskartClient:
         self.url = url
         self.user = user
 
-    # def __repr__(self):
-    #     cart = self.list()
-    #     pretty = ["Here is %s's cart: " % self.user]
-    #     for i, elt in enumerate(cart["items"]):
-    #         line = "item %d: " % (i+1) + "%s, " % elt["name"]\
-    #                + "quantity: %s" % elt["qty"]
-    #         pretty.append(line)
-    #     lines = '\n'.join(pretty)
-    #     return lines
-
     def __repr__(self):
         cart = self.list()
         in_cart = []
@@ -35,6 +25,7 @@ class InflaskartClient:
         cart = self.list()
 
     def list(self):
+        """cart = {'items': ["name": "x", "qty": y]} where "x" is a string and 'y' is an integer"""
         r = requests.get(self.url)
         cart = r.json()
         return cart

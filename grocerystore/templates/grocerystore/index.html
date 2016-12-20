@@ -15,7 +15,8 @@
     {% endif %}
     <ul>
         {% if user.username %}
-          <a href="{% url 'grocerystore:user_home' user.username %}"> My account </a>
+          <a href="{% url 'grocerystore:user_home' user.username %}"> My account </a><br>
+          <a href="{% url 'grocerystore:log_out' user.username %}"> Logout </a>
         {% else %}
           <a href="{% url 'grocerystore:register' %}"> Create an account </a><br>
           <a href="{% url 'grocerystore:login' %}"> Login </a>

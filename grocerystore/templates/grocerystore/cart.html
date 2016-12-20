@@ -27,26 +27,24 @@
 
     {% if 'in_cart' %}
       {% for item in in_cart %}
-        <ul><li> {{ item.0 }}: {{ item.1 }} {{ item.2 }}, Total = ${{ item.3 }} </li></ul>
+        <ul><li> {{ item.0 }}: {{ item.1 }} {{ item.2 }}, Total = ${{ item.3 }}
+          <form action="" method="post">
+            {% csrf_token %}
+            <select name="{{item.0}}">
+              {% for quantity in quantity_set %}
+                <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}> {{ quantity }}</option>
+              {% endfor %}
+            </select>
+            <input type="submit" value="Update quantity" />
+          </form>
+        </li></ul>
       {% endfor %}
       <p> Cart total: ${{ cart_total }} </p>
     {% endif %}
 
-
-      <!-- <p>Anything you want to remove from your cart?</p>
-      <form action="" method="post">
-        {% csrf_token %}
-        <select name="del_choice">
-          {% for product in products %}
-          <option value="{{ product }}">{{ product }}</option>
-          {% endfor %}
-        </select>
-        <input type="submit" value="Remove from cart" />
-      </form> -->
-
     <a href="{% url 'grocerystore:user_home' user.username %}">Continue shopping</a><br>
-    <a href="{% url 'grocerystore:index' %}">{{ 'Inflaskart index page' }}</a><br>
-    <a href="{% url 'grocerystore:log_out' user.username %}">{{ 'Logout' }}</a>
+    <a href="{% url 'grocerystore:index' %}"> Inflaskart index page </a><br>
+    <a href="{% url 'grocerystore:log_out' user.username %}"> Logout </a>
 
   </body>
 

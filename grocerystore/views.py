@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.shortcuts import redirect, render, get_object_or_404
 from inflaskart_api import InflaskartClient
 from django.contrib.auth import authenticate, login, logout
@@ -9,8 +10,8 @@ import urllib
 from django.contrib import messages
 from .models import Product
 from django.views.decorators.csrf import csrf_protect
+from django.utils.encoding import python_2_unicode_compatible
 # from django.contrib.auth.decorators import login_required
-# from django.views.generic.base import TemplateView
 
 
 CART_HOST = "http://127.0.0.1:5000/"
@@ -138,26 +139,12 @@ class ShowCartView(View):
                 for elt in cart:
                     product = Product.objects.get(product_name=elt["name"])
                     price = "%.2f" % (float(elt["qty"]) * float(product.product_price))
-                    item = [elt["name"], elt["qty"], product.product_unit, price]
+                    item = [elt["name"], int(elt["qty"]), product.product_unit, price]
                     in_cart.append(item)
                     cart_total += float(price)
                 cart_total = "%.2f" % cart_total
-                context = {'cart_msge': cart_msge, 'in_cart': in_cart, 'cart_total': cart_total}
+                context = {'cart_msge': cart_msge, 'in_cart': in_cart, 'cart_total': cart_total, 'quantity_set': range(21),}
                 return render(request, 'grocerystore/cart.html', context=context)
-
-
-
-            #     in_cart = []
-            #     products = []
-            #     for elt in cart:
-            #         product = Product.objects.get(product_name=elt["name"])
-            #         item = "%s: " % elt["name"] + elt["qty"] + product.product_unit
-            #         in_cart.append(item)
-            #         products.append(elt['name'])
-            #     cart_msge = "Hi %s, you have the following items in your cart:" % username
-            #     context = {'cart_msge': cart_msge, 'in_cart': in_cart, 'products': products, 'username': username,}
-            # return render(request, 'grocerystore/cart.html', context=context)
-
 
         else:
             messages.error(request, "You need to login before starting shopping.")
@@ -167,9 +154,19 @@ class ShowCartView(View):
         user = get_object_or_404(User, username=username)
         if request.user.is_authenticated:
             infla_user = get_inflauser(username)
-            product_to_remove = request.POST.get('del_choice', False)
-            infla_user.delete(product_to_remove)
-            messages.success(request, "%s has been removed from your cart." % product_to_remove)
+            cart = infla_user.list()['items'] # get a dictonnary whose keys are "name" and "qty"
+            for item in cart:
+                product_to_update = item["name"]
+                try:
+                    qty_to_change = int(request.POST.get(item["name"]))
+                except TypeError:
+                    continue
+                if qty_to_change == 0:
+                    infla_user.delete(product_to_update)
+                    messages.success(request, "%s has been removed from your cart." % product_to_update)
+                else:
+                    infla_user.add(product_to_update, qty_to_change)
+                    messages.success(request, "%s quantity has been updated." % product_to_update)
             return redirect('grocerystore:cart', username=username)
 
         else:
