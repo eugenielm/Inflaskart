@@ -17,4 +17,6 @@ urlpatterns = [
     url(r'^(?P<username>[0-9a-zA-Z]+)/logout/$', views.log_out, name='log_out'),
     # # grocerystore/eglelek/checkout/
     # url(r'^(?P<username>[0-9a-zA-Z]+)/checkout/$', views.Checkout.as_view(), name='checkout'),
+    # grocerystore/eglelek/search/searcheditem/
+    url(r'^(?P<username>[0-9a-zA-Z]+)/search/(?P<searched_item>[0-9a-zA-Z%]+)/$', views.SearchView.as_view(), name='search'),
 ]

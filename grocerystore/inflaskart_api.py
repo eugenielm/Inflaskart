@@ -13,13 +13,18 @@ class InflaskartClient:
         self.url = url
         self.user = user
 
-    def __repr__(self):
-        cart = self.list()
-        in_cart = []
-        for elt in cart["items"]:
-            item = "%s: " % elt["name"] + "%s" % elt["qty"]
-            in_cart.append(item)
-        return in_cart
+    # def __repr__(self):
+    #     cart = self.list()
+    #     if len(cart['items']) == 0:
+    #         return "Your cart is empty %s, "  % self.user
+    #     else:
+    #         pretty = ["Here is %s's cart: " % self.user]
+    #         for i, elt in enumerate(cart["items"]):
+    #             line = "item %d: " % (i+1) + "%s, " % elt["name"]\
+    #                    + "quantity: %s" % elt["qty"]
+    #             pretty.append(line)
+    #         lines = '\n'.join(pretty)
+    #         return lines
 
     def __repr__(self):
         cart = self.list()
@@ -40,5 +45,13 @@ class InflaskartClient:
     def delete(self, item):
         url = os.path.join(self.url,'product', item)
         r = requests.delete(url)
+        cart = r.json()
+        return cart
+
+    def empty_cart(self):
+        items_in_cart = self.list()['items']
+        for item in items_in_cart:
+            url = os.path.join(self.url,'product', item["name"])
+            r = requests.delete(url)
         cart = r.json()
         return cart

@@ -2,7 +2,7 @@
 
 <head>
     {% block head %}
-      <h1> {{username}}'s home page </h1>
+      <h1> {{user.username}}'s home page </h1>
 
       {% if messages %}
         <ul class="messages">
@@ -24,9 +24,16 @@
       <input type="submit" value="Add to cart" />
     </form>
 
-    <a href="{% url 'grocerystore:cart' username %}"> View cart </a><br>
+    <form action="" method="post">
+      {% csrf_token %}
+      <label for="search">Look for an item:</label>
+      <input id="search" name="search" type="text">
+      <input type="submit" value="Search" />
+    </form>
+
+    <a href="{% url 'grocerystore:cart' user.username %}"> View cart </a><br>
     <a href="{% url 'grocerystore:index' %}"> Inflaskart index page </a><br>
-    <a href="{% url 'grocerystore:log_out' username %}"> Logout </a>
+    <a href="{% url 'grocerystore:log_out' user.username %}"> Logout </a>
 
   {% endblock %}
 </body>

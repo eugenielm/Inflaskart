@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from inflaskart_api import InflaskartClient
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic import View
+# from django.views.generic.list import ListView
 from .forms import RegisterForm, LoginForm, ShopForm
 from django.contrib.auth.models import User
 import os
@@ -85,7 +86,7 @@ class UserLoginForm(View):
                     messages.success(request, "You are now logged in, %s." % username)
                     return redirect('grocerystore:user_home', username=request.user.username)
         except AttributeError:
-            messages.error(request, 'You entered the wrong password.') #ne fonctionne pas
+            messages.error(request, 'You entered the wrong password.')
             return redirect('grocerystore:login')
 
 
@@ -109,12 +110,18 @@ class UserHomeView(View):
 
     def post(self, request, username):
         form = self.form_class(request.POST)
-        product = request.POST['product_name']
-        quantity = request.POST['quantity']
-        infla_user = get_inflauser(username)
-        infla_user.add(product, quantity)
-        messages.success(request, "%s successfully added to your cart" % product)
-        return redirect('grocerystore:user_home', username=username)
+        try:
+            product = request.POST['product_name']
+            quantity = request.POST['quantity']
+            infla_user = get_inflauser(username)
+            infla_user.add(product, quantity)
+            messages.success(request, "%s successfully added to your cart" % product)
+            return redirect('grocerystore:user_home', username=username)
+        except:
+            searched_item = request.POST['search']
+            messages.info(request, "You're looking for %s:" % searched_item)
+            searched_item = urllib.quote(searched_item)
+            return redirect('grocerystore:search', username=username, searched_item=searched_item)
 
 
 class ShowCartView(View):
@@ -155,6 +162,7 @@ class ShowCartView(View):
         if request.user.is_authenticated:
             infla_user = get_inflauser(username)
             cart = infla_user.list()['items'] # get a dictonnary whose keys are "name" and "qty"
+
             for item in cart:
                 product_to_update = item["name"]
                 try:
@@ -168,6 +176,56 @@ class ShowCartView(View):
                     infla_user.add(product_to_update, qty_to_change)
                     messages.success(request, "%s quantity has been updated." % product_to_update)
             return redirect('grocerystore:cart', username=username)
+
+        else:
+            return redirect('grocerystore:login_form')
+
+
+def search_item(item):
+    """Returns a list of Product instances whose 'product_name' contains at least
+    one word in commun with the sought item passed in as a parameter"""
+    searched_words = item.split(" ")
+    products_available = Product.objects.all()
+    search_result = []
+    for word in searched_words:
+        for product in products_available:
+            if word.lower() in product.product_name.lower():
+                search_result.append(product)
+    return search_result
+
+
+class SearchView(View):
+    template_name = 'grocerystore/search.html'
+
+    def get(self, request, username, searched_item):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, "You need to register to start shopping.")
+            return redirect('grocerystore:register')
+
+        if request.user.is_authenticated:
+            searched_item = urllib.unquote(searched_item)
+            search_result = search_item(searched_item)
+            context = {'search_result': search_result, 'quantity_set': range(21),}
+            return render(request, 'grocerystore/search.html', context=context)
+
+    def post(self, request, username, searched_item):
+        user = get_object_or_404(User, username=username)
+        if request.user.is_authenticated:
+            infla_user = get_inflauser(username)
+            searched_item = urllib.unquote(searched_item)
+            search_result = search_item(searched_item)
+
+            for product in search_result:
+                product_to_add = product.product_name
+                try:
+                    quantity_to_add = int(request.POST.get(product.product_name))
+                except TypeError:
+                    continue
+                infla_user.add(product_to_add, quantity_to_add)
+                messages.success(request, "%s successfully added to your cart" % product_to_add)
+            return redirect('grocerystore:user_home', username=username)
 
         else:
             return redirect('grocerystore:login_form')
