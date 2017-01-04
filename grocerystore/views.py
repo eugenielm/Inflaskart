@@ -12,6 +12,7 @@ from django.contrib import messages
 from .models import Product
 from django.views.decorators.csrf import csrf_protect
 from django.utils.encoding import python_2_unicode_compatible
+from django.contrib.auth.mixins import LoginRequiredMixin
 # from django.contrib.auth.decorators import login_required
 
 
@@ -39,6 +40,12 @@ class UserRegisterView(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
+        try:
+            user = User.objects.get(username=request.POST['username'])
+            messages.error(request, "This username is already used, please choose another one.")
+            return redirect('grocerystore:register')
+        except:
+            pass
 
         if form.is_valid():
             user = form.save(commit=False)
@@ -55,7 +62,7 @@ class UserRegisterView(View):
                     messages.success(request, "You're now registered and logged in.")
                     return redirect('grocerystore:user_home', username=request.user.username)
 
-        messages.error(request, "This username is already used, please choose another one.")
+        messages.error(request, "Please use allowed characters in your username")
         return redirect('grocerystore:register')
 
 
@@ -83,30 +90,23 @@ class UserLoginForm(View):
             if user.is_authenticated:
                 if user.is_active:
                     login(request, user)
-                    messages.success(request, "You are now logged in, %s." % username)
+                    messages.success(request, "You are now logged in, %s." % user.username)
                     return redirect('grocerystore:user_home', username=request.user.username)
         except AttributeError:
-            messages.error(request, 'You entered the wrong password.')
+            messages.error(request, 'Forgot your password?')
             return redirect('grocerystore:login')
 
 
-class UserHomeView(View):
+class UserHomeView(LoginRequiredMixin, View):
     form_class = ShopForm
     template_name = 'grocerystore/user_home.html'
+    login_url = 'grocerystore:login'
+    redirect_field_name = 'redirect_to'
 
     def get(self, request, username):
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            messages.error(request, "You need to register to start shopping.")
-            return redirect('grocerystore:register')
-
-        if request.user.is_authenticated:
-            add_form = self.form_class(None)
-            return render(request, 'grocerystore/user_home.html', {'username': username, 'add_form': add_form,})
-        else:
-            messages.error(request, "You need to login to start shopping.")
-            return redirect('grocerystore:index')
+        # user = User.objects.get(username=username)
+        add_form = self.form_class(None)
+        return render(request, 'grocerystore/user_home.html', {'username': username, 'add_form': add_form,})
 
     def post(self, request, username):
         form = self.form_class(request.POST)
@@ -124,61 +124,51 @@ class UserHomeView(View):
             return redirect('grocerystore:search', username=username, searched_item=searched_item)
 
 
-class ShowCartView(View):
+class ShowCartView(LoginRequiredMixin, View):
     template_name = 'grocerystore/cart.html'
+    login_url = 'grocerystore:login'
+    redirect_field_name = 'redirect_to'
 
     def get(self, request, username):
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            messages.error(request, "You need to register to start shopping.")
-            return redirect('grocerystore:register')
+        user = User.objects.get(username=username)
+        infla_user = get_inflauser(username)
+        cart = infla_user.list()['items']
 
-        if request.user.is_authenticated:
-            infla_user = get_inflauser(username)
-            cart = infla_user.list()['items']
-            if len(cart) == 0:
-                context = {'empty_cart': "Your cart is empty, %s." % user.username}
-            else:
-                cart_msge = "Hi %s, you have the following items in your cart:" % user.username
-                in_cart = []
-                cart_total = 0
-                for elt in cart:
-                    product = Product.objects.get(product_name=elt["name"])
-                    price = "%.2f" % (float(elt["qty"]) * float(product.product_price))
-                    item = [elt["name"], int(elt["qty"]), product.product_unit, price]
-                    in_cart.append(item)
-                    cart_total += float(price)
-                cart_total = "%.2f" % cart_total
-                context = {'cart_msge': cart_msge, 'in_cart': in_cart, 'cart_total': cart_total, 'quantity_set': range(21),}
-                return render(request, 'grocerystore/cart.html', context=context)
-
+        if len(cart) == 0:
+            context = {'empty_cart': "Your cart is empty, %s." % user.username}
         else:
-            messages.error(request, "You need to login before starting shopping.")
-            return redirect('grocerystore:login')
+            cart_msge = "Hi %s, you have the following items in your cart:" % user.username
+            in_cart = []
+            cart_total = 0
+            for elt in cart:
+                product = Product.objects.get(product_name=elt["name"])
+                price = "%.2f" % (float(elt["qty"]) * float(product.product_price))
+                item = [elt["name"], int(elt["qty"]), product.product_unit, price]
+                in_cart.append(item)
+                cart_total += float(price)
+            cart_total = "%.2f" % cart_total
+            context = {'username': user.username, 'cart_msge': cart_msge, 'in_cart': in_cart, 'cart_total': cart_total, 'quantity_set': range(21),}
+            return render(request, 'grocerystore/cart.html', context=context)
+
 
     def post(self, request, username):
-        user = get_object_or_404(User, username=username)
-        if request.user.is_authenticated:
-            infla_user = get_inflauser(username)
-            cart = infla_user.list()['items'] # get a dictonnary whose keys are "name" and "qty"
+        user = User.objects.get(username=username)
+        infla_user = get_inflauser(username)
+        cart = infla_user.list()['items'] # get a dictonnary whose keys are "name" and "qty"
 
-            for item in cart:
-                product_to_update = item["name"]
-                try:
-                    qty_to_change = int(request.POST.get(item["name"]))
-                except TypeError:
-                    continue
-                if qty_to_change == 0:
-                    infla_user.delete(product_to_update)
-                    messages.success(request, "%s has been removed from your cart." % product_to_update)
-                else:
-                    infla_user.add(product_to_update, qty_to_change)
-                    messages.success(request, "%s quantity has been updated." % product_to_update)
-            return redirect('grocerystore:cart', username=username)
-
-        else:
-            return redirect('grocerystore:login_form')
+        for item in cart:
+            product_to_update = item["name"]
+            try:
+                qty_to_change = int(request.POST.get(item["name"]))
+            except TypeError:
+                continue
+            if qty_to_change == 0:
+                infla_user.delete(product_to_update)
+                messages.success(request, "%s has been removed from your cart." % product_to_update)
+            else:
+                infla_user.add(product_to_update, qty_to_change)
+                messages.success(request, "%s quantity has been updated." % product_to_update)
+        return redirect('grocerystore:cart', username=user.username)
 
 
 def search_item(item):

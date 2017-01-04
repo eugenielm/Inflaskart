@@ -8,7 +8,7 @@ urlpatterns = [
     #grocerystore/register/
     url(r'^register/$', views.UserRegisterView.as_view(), name='register'),
     # grocerystore/accounts/login/
-    url(r'^accounts/login/$', views.UserLoginForm.as_view(), name='login'),
+    url(r'^login/$', views.UserLoginForm.as_view(), name='login'),
     # grocerystore/eglelek/
     url(r'^(?P<username>[0-9a-zA-Z]+)/$', views.UserHomeView.as_view(), name='user_home'),
     # grocerystore/eglelek/cart/

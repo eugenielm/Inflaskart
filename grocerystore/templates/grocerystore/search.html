@@ -1,0 +1,41 @@
+{% extends 'grocerystore/base.html' %}
+
+<head>
+    {% block head %}
+
+      {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+              {{ message }}
+            {% endfor %}
+        </ul>
+      {% endif %}
+
+    {% endblock %}
+</head>
+
+<body>
+  {% block body %}
+
+    {% for product in search_result %}
+      <ul><li> {{ product.product_name }}: {{ product.product_price }} / {{ product.product_unit }}
+        <form action="" method="post">
+          {% csrf_token %}
+          <select name="{{product.product_name}}">
+            {% for quantity in quantity_set %}
+              <option value="{{quantity}}"> {{ quantity }}</option>
+            {% endfor %}
+          </select>
+          <input type="submit" value="Add item in cart" />
+        </form>
+      </li></ul>
+    {% endfor %}
+
+
+    <a href="{% url 'grocerystore:cart' user.username %}"> View cart </a><br>
+    <a href="{% url 'grocerystore:user_home' user.username %}">Continue shopping</a><br>
+    <a href="{% url 'grocerystore:index' %}"> Inflaskart index page </a><br>
+    <a href="{% url 'grocerystore:log_out' user.username %}"> Logout </a>
+
+  {% endblock %}
+</body>
