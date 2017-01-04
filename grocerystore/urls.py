@@ -10,7 +10,7 @@ urlpatterns = [
     # grocerystore/accounts/login/
     url(r'^login/$', views.UserLoginForm.as_view(), name='login'),
     # grocerystore/eglelek/
-    url(r'^(?P<username>[0-9a-zA-Z]+)/$', views.UserHomeView.as_view(), name='user_home'),
+    url(r'^(?P<username>[0-9a-zA-Z]+)/$', views.UserShopView.as_view(), name='user_shop'),
     # grocerystore/eglelek/cart/
     url(r'^(?P<username>[0-9a-zA-Z]+)/cart/$', views.ShowCartView.as_view(), name='cart'),
     # grocerystore/eglelek/logout/

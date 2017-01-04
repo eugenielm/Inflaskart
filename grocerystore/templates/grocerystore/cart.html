@@ -46,7 +46,7 @@
 
     <p> {{ cart_total }} </p><br>
 
-    <a href="{% url 'grocerystore:user_home' user.username %}">Let's shop</a><br>
+    <a href="{% url 'grocerystore:user_shop' user.username %}">Let's shop</a><br>
     <a href="{% url 'grocerystore:index' %}"> Inflaskart index page </a><br>
     <a href="{% url 'grocerystore:log_out' user.username %}"> Logout </a>
 

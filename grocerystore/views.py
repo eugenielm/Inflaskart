@@ -60,7 +60,7 @@ class UserRegisterView(View):
                 if user.is_active:
                     login(request, user)
                     messages.success(request, "You're now registered and logged in.")
-                    return redirect('grocerystore:user_home', username=request.user.username)
+                    return redirect('grocerystore:user_shop', username=request.user.username)
 
         messages.error(request, "Please use allowed characters in your username")
         return redirect('grocerystore:register')
@@ -91,22 +91,22 @@ class UserLoginForm(View):
                 if user.is_active:
                     login(request, user)
                     messages.success(request, "You are now logged in, %s." % user.username)
-                    return redirect('grocerystore:user_home', username=request.user.username)
+                    return redirect('grocerystore:user_shop', username=request.user.username)
         except AttributeError:
             messages.error(request, 'Forgot your password?')
             return redirect('grocerystore:login')
 
 
-class UserHomeView(LoginRequiredMixin, View):
+class UserShopView(LoginRequiredMixin, View):
     form_class = ShopForm
-    template_name = 'grocerystore/user_home.html'
+    template_name = 'grocerystore/user_shop.html'
     login_url = 'grocerystore:login'
     redirect_field_name = 'redirect_to'
 
     def get(self, request, username):
         # user = User.objects.get(username=username)
         add_form = self.form_class(None)
-        return render(request, 'grocerystore/user_home.html', {'username': username, 'add_form': add_form,})
+        return render(request, 'grocerystore/user_shop.html', {'username': username, 'add_form': add_form,})
 
     def post(self, request, username):
         form = self.form_class(request.POST)
@@ -116,12 +116,16 @@ class UserHomeView(LoginRequiredMixin, View):
             infla_user = get_inflauser(username)
             infla_user.add(product, quantity)
             messages.success(request, "%s successfully added to your cart" % product)
-            return redirect('grocerystore:user_home', username=username)
+            return redirect('grocerystore:user_shop', username=username)
         except:
             searched_item = request.POST['search']
-            messages.info(request, "You're looking for %s:" % searched_item)
-            searched_item = urllib.quote(searched_item)
-            return redirect('grocerystore:search', username=username, searched_item=searched_item)
+            if not searched_item.isalpha():
+                messages.error(request, "You must type in only alphabetical characters")
+                return redirect('grocerystore:user_shop', username=username)
+            else:
+                messages.info(request, "You're looking for '%s':" % searched_item)
+                searched_item = urllib.quote(searched_item.encode('utf8'))
+                return redirect('grocerystore:search', username=username, searched_item=searched_item)
 
 
 class ShowCartView(LoginRequiredMixin, View):
@@ -202,6 +206,12 @@ class SearchView(View):
         if request.user.is_authenticated:
             searched_item = urllib.unquote(searched_item)
             search_result = search_item(searched_item)
+            if len(search_result) > 15:
+                messages.error(request, "too many items match your research... Please be more specific.")
+                return redirect('grocerystore:user_shop', username=username)
+            if len(search_result) == 0:
+                messages.error(request, "unfortunately no available item matches your research...")
+                return redirect('grocerystore:user_shop', username=username)
             context = {'search_result': search_result, 'quantity_set': range(21),}
             return render(request, 'grocerystore/search.html', context=context)
 
@@ -220,7 +230,7 @@ class SearchView(View):
                     continue
                 infla_user.add(product_to_add, quantity_to_add)
                 messages.success(request, "%s successfully added to your cart" % product_to_add)
-            return redirect('grocerystore:user_home', username=username)
+            return redirect('grocerystore:user_shop', username=username)
 
         else:
             return redirect('grocerystore:login_form')
