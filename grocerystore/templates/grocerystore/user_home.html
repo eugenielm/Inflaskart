@@ -31,9 +31,9 @@
       <input type="submit" value="Search" />
     </form>
 
-    <a href="{% url 'grocerystore:cart' user.username %}"> View cart </a><br>
+    <a href="{% url 'grocerystore:cart' username %}"> View cart </a><br>
     <a href="{% url 'grocerystore:index' %}"> Inflaskart index page </a><br>
-    <a href="{% url 'grocerystore:log_out' user.username %}"> Logout </a>
+    <a href="{% url 'grocerystore:log_out' username %}"> Logout </a>
 
   {% endblock %}
 </body>

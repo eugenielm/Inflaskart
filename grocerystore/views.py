@@ -135,7 +135,7 @@ class ShowCartView(LoginRequiredMixin, View):
         cart = infla_user.list()['items']
 
         if len(cart) == 0:
-            context = {'empty_cart': "Your cart is empty, %s." % user.username}
+            context = {'cart_total': "Your cart is empty, %s." % user.username, 'username': user.username,}
         else:
             cart_msge = "Hi %s, you have the following items in your cart:" % user.username
             in_cart = []
@@ -146,15 +146,20 @@ class ShowCartView(LoginRequiredMixin, View):
                 item = [elt["name"], int(elt["qty"]), product.product_unit, price]
                 in_cart.append(item)
                 cart_total += float(price)
-            cart_total = "%.2f" % cart_total
+            cart_total = "Cart total: $%.2f" % cart_total
             context = {'username': user.username, 'cart_msge': cart_msge, 'in_cart': in_cart, 'cart_total': cart_total, 'quantity_set': range(21),}
-            return render(request, 'grocerystore/cart.html', context=context)
+        return render(request, 'grocerystore/cart.html', context=context)
 
 
     def post(self, request, username):
         user = User.objects.get(username=username)
         infla_user = get_inflauser(username)
         cart = infla_user.list()['items'] # get a dictonnary whose keys are "name" and "qty"
+
+        if request.POST['empty']:
+            if len(cart) > 0:
+                cart = infla_user.empty_cart()
+            return redirect('grocerystore:cart', username=user.username)
 
         for item in cart:
             product_to_update = item["name"]

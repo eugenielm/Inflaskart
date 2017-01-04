@@ -24,7 +24,6 @@
       <p>{{ cart_msge }}</p>
     {% endif %}
 
-
     {% if 'in_cart' %}
       {% for item in in_cart %}
         <ul><li> {{ item.0 }}: {{ item.1 }} {{ item.2 }}, Total = ${{ item.3 }}
@@ -39,10 +38,15 @@
           </form>
         </li></ul>
       {% endfor %}
-      <p> Cart total: ${{ cart_total }} </p>
+          <form action="" method="post">
+            {% csrf_token %}
+            <input name="empty" type="submit" value="Empty cart" />
+          </form>
     {% endif %}
 
-    <a href="{% url 'grocerystore:user_home' user.username %}">Continue shopping</a><br>
+    <p> {{ cart_total }} </p><br>
+
+    <a href="{% url 'grocerystore:user_home' user.username %}">Let's shop</a><br>
     <a href="{% url 'grocerystore:index' %}"> Inflaskart index page </a><br>
     <a href="{% url 'grocerystore:log_out' user.username %}"> Logout </a>
 
