@@ -27,7 +27,8 @@ class InflaskartClient:
     #         return lines
 
     def __repr__(self):
-        cart = self.list()
+        cart = self.list()['items']
+        return cart
 
     def list(self):
         """cart = {'items': ["name": "x", "qty": y]} where "x" is a string and 'y' is an integer"""

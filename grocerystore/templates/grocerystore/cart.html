@@ -38,13 +38,14 @@
           </form>
         </li></ul>
       {% endfor %}
-          <form action="" method="post">
-            {% csrf_token %}
-            <input name="empty" type="submit" value="Empty cart" />
-          </form>
     {% endif %}
 
     <p> {{ cart_total }} </p><br>
+
+    <form action="" method="post">
+      {% csrf_token %}
+      <input name="empty" type="submit" value="Empty cart" />
+    </form>
 
     <a href="{% url 'grocerystore:user_shop' user.username %}">Let's shop</a><br>
     <a href="{% url 'grocerystore:index' %}"> Inflaskart index page </a><br>

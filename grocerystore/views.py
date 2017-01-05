@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import re
 from django.shortcuts import redirect, render, get_object_or_404
 from inflaskart_api import InflaskartClient
 from django.contrib.auth import authenticate, login, logout
@@ -111,21 +112,23 @@ class UserShopView(LoginRequiredMixin, View):
     def post(self, request, username):
         form = self.form_class(request.POST)
         try:
-            product = request.POST['product_name']
+            product_pk = request.POST['product_name']
+            product = Product.objects.get(pk=product_pk).product_name
             quantity = request.POST['quantity']
             infla_user = get_inflauser(username)
             infla_user.add(product, quantity)
-            messages.success(request, "%s successfully added to your cart" % product)
+            messages.success(request, "'%s' successfully added to your cart" % product)
             return redirect('grocerystore:user_shop', username=username)
         except:
             searched_item = request.POST['search']
-            if not searched_item.isalpha():
-                messages.error(request, "You must type in only alphabetical characters")
-                return redirect('grocerystore:user_shop', username=username)
-            else:
+            # only albabetic (including accented) characters and whitespaces are allowed in the search
+            if re.search(r'([\w+]+[\s]*)', searched_item):
                 messages.info(request, "You're looking for '%s':" % searched_item)
                 searched_item = urllib.quote(searched_item.encode('utf8'))
                 return redirect('grocerystore:search', username=username, searched_item=searched_item)
+            else:
+                messages.error(request, "You must type in only alphabetical characters")
+                return redirect('grocerystore:user_shop', username=username)
 
 
 class ShowCartView(LoginRequiredMixin, View):
@@ -160,9 +163,10 @@ class ShowCartView(LoginRequiredMixin, View):
         infla_user = get_inflauser(username)
         cart = infla_user.list()['items'] # get a dictonnary whose keys are "name" and "qty"
 
-        if request.POST['empty']:
+        if request.POST.get('empty'):
             if len(cart) > 0:
                 cart = infla_user.empty_cart()
+                messages.success(request, "You've just emptied your cart.")
             return redirect('grocerystore:cart', username=user.username)
 
         for item in cart:
@@ -173,12 +177,12 @@ class ShowCartView(LoginRequiredMixin, View):
                 continue
             if qty_to_change == 0:
                 infla_user.delete(product_to_update)
-                messages.success(request, "%s has been removed from your cart." % product_to_update)
+                messages.success(request, "'%s' has been removed from your cart." % product_to_update)
             else:
                 infla_user.add(product_to_update, qty_to_change)
-                messages.success(request, "%s quantity has been updated." % product_to_update)
-        return redirect('grocerystore:cart', username=user.username)
+                messages.success(request, "'%s' quantity has been updated." % product_to_update)
 
+        return redirect('grocerystore:cart', username=user.username)
 
 def search_item(item):
     """Returns a list of Product instances whose 'product_name' contains at least
@@ -206,7 +210,7 @@ class SearchView(View):
         if request.user.is_authenticated:
             searched_item = urllib.unquote(searched_item)
             search_result = search_item(searched_item)
-            if len(search_result) > 15:
+            if len(search_result) > 25:
                 messages.error(request, "too many items match your research... Please be more specific.")
                 return redirect('grocerystore:user_shop', username=username)
             if len(search_result) == 0:
@@ -229,7 +233,7 @@ class SearchView(View):
                 except TypeError:
                     continue
                 infla_user.add(product_to_add, quantity_to_add)
-                messages.success(request, "%s successfully added to your cart" % product_to_add)
+                messages.success(request, "'%s' successfully added to your cart" % product_to_add)
             return redirect('grocerystore:user_shop', username=username)
 
         else:

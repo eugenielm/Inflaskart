@@ -18,12 +18,14 @@ class LoginForm(forms.ModelForm):
         model = User
         fields = ['username', 'password']
 
-def get_choices():
-    choices = []
-    for product in Product.objects.order_by('product_name'):
-        choices.append((product.product_name, product.product_name + " ($" + str(product.product_price) + " / " + product.product_unit + ")"),)
-    return choices
-
 class ShopForm(forms.Form):
-    product_name = forms.ChoiceField(label='Choose an item', choices=get_choices())
+    product_name = forms.ModelChoiceField(label='Choose an item', queryset=Product.objects.order_by('product_name'), empty_label="--Choose below--")
     quantity = forms.IntegerField(min_value=1, max_value=20, required=True)
+
+
+# class ShopForm(forms.Form):
+#     CHOICES = []
+#     for product in Product.objects.order_by('product_name'):
+#         CHOICES.append((product.product_name, product.product_name + " ($" + str(product.product_price) + " / " + product.product_unit + ")"),)
+#     product_name = forms.ChoiceField(label='Choose an item', choices=CHOICES)
+#     quantity = forms.IntegerField(min_value=1, max_value=20, required=True)
