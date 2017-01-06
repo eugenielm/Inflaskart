@@ -77,8 +77,8 @@ class UserRegisterView(View):
     def post(self, request):
         form = self.form_class(request.POST)
         try:
-            user = User.objects.get(username=request.POST['username'])
-            messages.error(request, "This username is already used, please choose another one.")
+            user = User.objects.get(username=self.request.POST['username'])
+            messages.error(self.request, "This username is already used, please choose another one.")
             return redirect('grocerystore:register')
         except:
             pass
@@ -94,8 +94,11 @@ class UserRegisterView(View):
             user = authenticate(username=username, password=password)
             if user is not None:
                 if user.is_active:
-                    login(request, user)
-                    messages.success(request, "You're now registered and logged in, %s." % request.user.username)
+                    infla_user = get_inflauser(user.username)
+                    for elt in self.request.session.keys():
+                        infla_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
+                    login(self.request, user)
+                    messages.success(self.request, "You're now registered and logged in, %s" % user.username)
                     return redirect('grocerystore:index')
 
         messages.error(request, "Please use allowed characters in your username")
@@ -112,9 +115,8 @@ class UserLoginForm(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
-        username = request.POST['username']
-        password = request.POST['password']
-
+        username = self.request.POST['username']
+        password = self.request.POST['password']
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
@@ -125,8 +127,11 @@ class UserLoginForm(View):
             user = authenticate(username=username, password=password)
             if user.is_authenticated:
                 if user.is_active:
-                    login(request, user)
-                    messages.success(request, "You are now logged in, %s." % user.username)
+                    infla_user = get_inflauser(user.username)
+                    for elt in self.request.session.keys():
+                        infla_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
+                    login(self.request, user)
+                    messages.success(self.request, "You are now logged in, %s." % user.username)
                     return redirect('grocerystore:index')
         except AttributeError:
             messages.error(request, 'Forgot your password?')
@@ -144,7 +149,7 @@ class CartView(View):
                 infla_user = get_inflauser(self.request.user.username)
                 cart = infla_user.list()['items']
                 if len(cart) == 0:
-                    context = {'cart_total': "Your cart is empty, %s." % self.request.user.username, 'username': self.request.user.username,}
+                    context = {'cart_total': "Your cart is empty.", 'username': self.request.user.username,}
                 else:
                     for elt in cart:
                         product = Product.objects.get(product_name=elt["name"])
