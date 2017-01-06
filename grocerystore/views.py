@@ -4,7 +4,6 @@ from django.shortcuts import redirect, render, get_object_or_404
 from inflaskart_api import InflaskartClient
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic import View
-# from django.views.generic.list import ListView
 from .forms import RegisterForm, LoginForm, ShopForm
 from django.contrib.auth.models import User
 import os
@@ -14,6 +13,7 @@ from .models import Product
 from django.views.decorators.csrf import csrf_protect
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.sessions.models import Session
 # from django.contrib.auth.decorators import login_required
 
 
@@ -33,38 +33,36 @@ class IndexView(View):
 
     def get(self, request):
         shop_form = self.form_class(None)
-        return render(request, 'grocerystore/index.html', {'shop_form': shop_form,})
+        return render(self.request, 'grocerystore/index.html', {'shop_form': shop_form,})
 
     def post(self, request):
-        form = self.form_class(request.POST)
-        try:
-            product_pk = request.POST['product_name']
+        form = self.form_class(self.request.POST)
+        try:#if the user chooses an item from the multiple choice menu
+            product_pk = self.request.POST['product_name']
             product_to_add = Product.objects.get(pk=product_pk).product_name
-            quantity_to_add = request.POST['quantity']
-            if request.user.is_authenticated:
-                if request.user.is_active:
-                    infla_user = get_inflauser(request.user.username)
+            quantity_to_add = self.request.POST['quantity']
+            if self.request.user.is_authenticated:
+                if self.request.user.is_active:
+                    infla_user = get_inflauser(self.request.user.username)
                     infla_user.add(product_to_add, quantity_to_add)
-                    messages.success(request, "Congrats, '%s' successfully added to your cart" % product_to_add)
-                    return redirect('grocerystore:index')
+                    messages.success(self.request, "'%s' successfully added to your cart, %s." % (product_to_add, self.request.user.username))
                 else:
-                    messages.error(request, "You must activate your account")
-                    return redirect('grocerystore:index')
+                    messages.error(self.request, "You must activate your account.")
             else:
                 res = {'name': product_to_add, 'qty': quantity_to_add}
-                request.session[product_pk] = res
-                messages.success(request, "%s was successfully added in your cart." % product_to_add)
-                return redirect('grocerystore:index')
+                self.request.session[product_pk] = res
+                messages.success(self.request, "'%s' successfully added in your cart." % product_to_add)
+            return redirect('grocerystore:index')
 
-        except:
-            searched_item = request.POST.get('search')
-            if re.search(r'([\w+]+[\s]*)', searched_item):
-            # if searched_item.isalpha():
-                messages.info(request, "You're looking for '%s':" % searched_item)
+        except:#if the user uses the search tool
+            searched_item = self.request.POST.get('search')
+            # if re.search(r'([\w+]+[\s]*)', searched_item):
+            if searched_item.isalpha():
+                messages.info(self.request, "You're looking for '%s':" % searched_item)
                 searched_item = urllib.quote(searched_item.encode('utf8'))
                 return redirect('grocerystore:search', searched_item=searched_item)
             else:
-                messages.error(request, "You must type in only alphabetical characters")
+                messages.error(self.request, "You must type in only alphabetical characters")
                 return redirect('grocerystore:index')
 
 
@@ -135,106 +133,19 @@ class UserLoginForm(View):
             return redirect('grocerystore:login')
 
 
-# class UserShopView(LoginRequiredMixin, View):
-#     form_class = ShopForm
-#     template_name = 'grocerystore/user_shop.html'
-#     login_url = 'grocerystore:login'
-#     redirect_field_name = 'redirect_to'
-#
-#     def get(self, request, username):
-#         # user = User.objects.get(username=username)
-#         shop_form = self.form_class(None)
-#         return render(request, 'grocerystore/user_shop.html', {'username': username, 'shop_form': shop_form,})
-#
-#     def post(self, request, username):
-#         form = self.form_class(request.POST)
-#         try:
-#             product_pk = request.POST['product_name']
-#             product = Product.objects.get(pk=product_pk).product_name
-#             quantity = request.POST['quantity']
-#             infla_user = get_inflauser(username)
-#             infla_user.add(product, quantity)
-#             messages.success(request, "'%s' successfully added to your cart" % product)
-#             return redirect('grocerystore:user_shop', username=username)
-#         except:
-#             searched_item = request.POST['search']
-#             # only albabetic (including accented) characters and whitespaces are allowed in the search
-#             if re.search(r'([\w+]+[\s]*)', searched_item):
-#                 messages.info(request, "You're looking for '%s':" % searched_item)
-#                 searched_item = urllib.quote(searched_item.encode('utf8'))
-#                 return redirect('grocerystore:search', username=username, searched_item=searched_item)
-#             else:
-#                 messages.error(request, "You must type in only alphabetical characters")
-#                 return redirect('grocerystore:user_shop', username=username)
-
-
-# class ShowCartView(LoginRequiredMixin, View):
-#     template_name = 'grocerystore/cart.html'
-#     login_url = 'grocerystore:login'
-#     redirect_field_name = 'redirect_to'
-#
-#     def get(self, request, username):
-#         user = User.objects.get(username=username)
-#         infla_user = get_inflauser(username)
-        # cart = infla_user.list()['items']
-        #
-        # if len(cart) == 0:
-        #     context = {'cart_total': "Your cart is empty, %s." % user.username, 'username': user.username,}
-        # else:
-        #     cart_msge = "Hi %s, you have the following items in your cart:" % user.username
-        #     in_cart = []
-        #     cart_total = 0
-        #     for elt in cart:
-        #         product = Product.objects.get(product_name=elt["name"])
-        #         price = "%.2f" % (float(elt["qty"]) * float(product.product_price))
-        #         item = [elt["name"], int(elt["qty"]), product.product_unit, price]
-        #         in_cart.append(item)
-        #         cart_total += float(price)
-        #     cart_total = "Cart total: $%.2f" % cart_total
-        #     context = {'username': user.username, 'cart_msge': cart_msge, 'in_cart': in_cart, 'cart_total': cart_total, 'quantity_set': range(21),}
-        # return render(request, 'grocerystore/cart.html', context=context)
-#
-#
-#     def post(self, request, username):
-#         user = User.objects.get(username=username)
-#         infla_user = get_inflauser(username)
-#         cart = infla_user.list()['items'] # get a dictonnary whose keys are "name" and "qty"
-#
-#         if request.POST.get('empty'):
-#             if len(cart) > 0:
-#                 cart = infla_user.empty_cart()
-#                 messages.success(request, "You've just emptied your cart.")
-#             return redirect('grocerystore:cart', username=user.username)
-#
-#         for item in cart:
-#             product_to_update = item["name"]
-#             try:
-#                 qty_to_change = int(request.POST.get(item["name"]))
-#             except TypeError:
-#                 continue
-#             if qty_to_change == 0:
-#                 infla_user.delete(product_to_update)
-#                 messages.success(request, "'%s' has been removed from your cart." % product_to_update)
-#             else:
-#                 infla_user.add(product_to_update, qty_to_change)
-#                 messages.success(request, "'%s' quantity has been updated." % product_to_update)
-#
-#         return redirect('grocerystore:cart', username=user.username)
-
-
 class CartView(View):
     template_name = 'grocerystore/cart.html'
 
     def get(self, request):
-        if request.user.is_authenticated:
-            if request.user.is_active:
-                infla_user = get_inflauser(request.user.username)
+        in_cart = []
+        cart_total = 0
+        if self.request.user.is_authenticated:
+            if self.request.user.is_active:
+                infla_user = get_inflauser(self.request.user.username)
                 cart = infla_user.list()['items']
                 if len(cart) == 0:
-                    context = {'cart_total': "Your cart is empty, %s." % request.user.username, 'username': request.user.username,}
+                    context = {'cart_total': "Your cart is empty, %s." % self.request.user.username, 'username': self.request.user.username,}
                 else:
-                    in_cart = []
-                    cart_total = 0
                     for elt in cart:
                         product = Product.objects.get(product_name=elt["name"])
                         price = "%.2f" % (float(elt["qty"]) * float(product.product_price))
@@ -242,50 +153,79 @@ class CartView(View):
                         in_cart.append(item)
                         cart_total += float(price)
                     cart_total = "Cart total: $%.2f" % cart_total
-                    context = {'username': request.user.username, 'in_cart': in_cart, 'cart_total': cart_total, 'quantity_set': range(21),}
-                return render(request, 'grocerystore/cart.html', context=context)
+                    context = {'username': self.request.user.username, 'in_cart': in_cart, 'cart_total': cart_total, 'quantity_set': range(21),}
+                return render(self.request, 'grocerystore/cart.html', context=context)
             else:
-                messages.error(request, "Your account is inactive, please activate it.")
+                messages.error(self.request, "Your account is inactive, please activate it.")
                 return redirect('grocerystore:index')
         else:
             try:
-                for elt in request.session:
-                    product = Product.objects.get(product_name=elt["name"])
-                    price = "%.2f" % (float(elt["qty"]) * float(product.product_price))
-                    item = [elt["name"], int(elt["qty"]), product.product_unit, price]
+                for elt in self.request.session.keys():
+                    product_name = self.request.session[elt]["name"]
+                    product_qty = self.request.session[elt]["qty"]
+                    product = Product.objects.get(product_name=product_name)
+                    price = "%.2f" % (float(product_qty) * float(product.product_price))
+                    item = [product_name, int(product_qty), product.product_unit, price]
                     in_cart.append(item)
                     cart_total += float(price)
                 cart_total = "Cart total: $%.2f" % cart_total
                 context = {'in_cart': in_cart, 'cart_total': cart_total, 'quantity_set': range(21),}
             except KeyError:
                 context = {'cart_total': "Your cart is empty.",}
-            return render(request, 'grocerystore/cart.html', context=context)
-
+            return render(self.request, 'grocerystore/cart.html', context=context)
 
     def post(self, request):
-        infla_user = get_inflauser(request.user.username)
-        cart = infla_user.list()['items'] # get a dictonnary whose keys are "name" and "qty"
+        if self.request.user.is_authenticated:
+            if self.request.user.is_active:
+                infla_user = get_inflauser(self.request.user.username)
+                cart = infla_user.list()['items'] # get a dictionary of dictionaries whose keys are "name" and "qty"
 
-        if request.POST.get('empty'):
-            if len(cart) > 0:
-                cart = infla_user.empty_cart()
-                messages.success(request, "You've just emptied your cart, %s." % request.user.username)
+                if self.request.POST.get('empty'):# if the user press the "empty" button
+                    if len(cart) > 0:
+                        cart = infla_user.empty_cart()
+                        messages.success(request, "You've just emptied your cart, %s." % self.request.user.username)
+                    return redirect('grocerystore:cart')
+
+                for elt in cart:# if the user wants to update an item quantity
+                    product_to_update = elt["name"]
+                    try:
+                        qty_to_change = int(self.request.POST.get(elt["name"]))
+                    except TypeError:# loops in the cart until it hits the product to update
+                        continue
+                    if qty_to_change == 0:
+                        infla_user.delete(product_to_update)
+                        messages.success(self.request, "'%s' has been removed from your cart." % product_to_update)
+                    else:
+                        infla_user.add(product_to_update, qty_to_change)
+                        messages.success(self.request, "'%s' quantity has been updated." % product_to_update)
+                return redirect('grocerystore:cart')
+
+            else:
+                messages.error(self.request, "Your account is inactive, please activate it.")
+                return redirect('grocerystore:index')
+
+        else:# if anonymous user/session
+            if self.request.POST.get('empty'):
+                cart = Session.objects.all()
+                if len(cart) > 0:
+                    cart.delete()
+                    messages.success(self.request, "You've just emptied your cart.")
+                return redirect('grocerystore:cart')
+
+            for elt in self.request.session.keys():
+                product_to_update = self.request.session[elt]["name"]
+                try:
+                    qty_to_change = int(self.request.POST.get(self.request.session[elt]["name"]))
+                except TypeError:
+                    continue
+                if qty_to_change == 0:
+                    del self.request.session[elt]
+                    messages.success(self.request, "'%s' has been removed from your cart." % product_to_update)
+                else:
+                    self.request.session[elt] = {"name": product_to_update, "qty": qty_to_change}
+                    messages.success(self.request, "'%s' quantity has been updated." % product_to_update)
             return redirect('grocerystore:cart')
 
-        for item in cart:
-            product_to_update = item["name"]
-            try:
-                qty_to_change = int(request.POST.get(item["name"]))
-            except TypeError:
-                continue
-            if qty_to_change == 0:
-                infla_user.delete(product_to_update)
-                messages.success(request, "'%s' has been removed from your cart." % product_to_update)
-            else:
-                infla_user.add(product_to_update, qty_to_change)
-                messages.success(request, "'%s' quantity has been updated." % product_to_update)
-
-        return redirect('grocerystore:cart')
 
 def search_item(item):
     """Returns a list of Product instances whose 'product_name' contains at least
@@ -318,13 +258,13 @@ class SearchView(View):
     def post(self, request, searched_item):
         searched_item = urllib.unquote(searched_item)
         search_result = search_item(searched_item)
-        if request.user.is_authenticated:
-            if request.user.is_active:
-                infla_user = get_inflauser(request.user.username)
+        if self.request.user.is_authenticated:
+            if self.request.user.is_active:
+                infla_user = get_inflauser(self.request.user.username)
                 for product in search_result:
                     product_to_add = product.product_name
                     try:
-                        quantity_to_add = int(request.POST.get(product.product_name))
+                        quantity_to_add = int(self.request.POST.get(product.product_name))
                     except TypeError:
                         continue
                     infla_user.add(product_to_add, quantity_to_add)
@@ -337,15 +277,13 @@ class SearchView(View):
             for product in search_result:
                 product_to_add = product.product_name
                 try:
-                    quantity_to_add = int(request.POST.get(product.product_name))
+                    quantity_to_add = int(self.request.POST.get(product.product_name))
                 except TypeError:
                     continue
                 res = {'name': product_to_add, 'qty': quantity_to_add}
-                request.session[product.pk] = res
+                self.request.session[product.pk] = res
                 messages.success(request, "%s was successfully added in your cart." % product_to_add)
             return redirect('grocerystore:index')
-
-
 
 
 @csrf_protect
