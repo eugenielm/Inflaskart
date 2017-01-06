@@ -2,7 +2,7 @@
 
 <head>
     {% block head %}
-      <h1> {{user.username}}'s home page </h1>
+      <h1> {{username}}'s home page </h1>
 
       {% if messages %}
         <ul class="messages">
@@ -20,7 +20,7 @@
 
     <form action="" method="post">
       {% csrf_token %}
-      <p> {{ add_form.as_table }} </p>
+      <p> {{ shop_form.as_table }} </p>
       <input type="submit" value="Add to cart" />
     </form>
 

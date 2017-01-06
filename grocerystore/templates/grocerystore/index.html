@@ -1,10 +1,13 @@
 {% extends 'grocerystore/base.html' %}
 
+<head>
 {% block head %}
     <h1>Welcome to the Inflaskart home page</h1>
     <h3>Inflaskart is a revolutionary app to shop your groceries on line!</h3>
 {% endblock %}
+</head>
 
+<body>
 {% block body %}
     {% if messages %}
     <ul class="messages">
@@ -13,14 +16,32 @@
         {% endfor %}
     </ul>
     {% endif %}
-    <ul>
-        {% if user.username %}
-          <a href="{% url 'grocerystore:user_shop' user.username %}"> Let's shop </a><br>
-          <a href="{% url 'grocerystore:cart' user.username %}"> View cart </a><br>
-          <a href="{% url 'grocerystore:log_out' user.username %}"> Logout </a>
-        {% else %}
-          <a href="{% url 'grocerystore:register' %}"> Create an account </a><br>
-          <a href="{% url 'grocerystore:login' %}"> Login </a>
-        {% endif %}
-    </ul>
+
+</br>
+</br>
+    <form action="" method="post">
+      {% csrf_token %}
+      <label for="search">Look for an item:</label>
+      <input id="search" name="search" type="text">
+      <input type="submit" value="Search" />
+    </form><br>
+
+
+    <form action="" method="post">
+      {% csrf_token %}
+      <p> {{ shop_form.as_table }} </p>
+      <input type="submit" value="Add to cart" />
+    </form><br>
+
+
+
+    <ul><a href="{% url 'grocerystore:cart' %}"> View your cart </a><br>
+    <a href="{% url 'grocerystore:register' %}"> Create an account </a><br>
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'grocerystore:log_out' %}"> Logout </a>
+    {% else %}
+      <a href="{% url 'grocerystore:login' %}"> Login </a>
+    {% endif %}
 {% endblock %}
+
+</body>

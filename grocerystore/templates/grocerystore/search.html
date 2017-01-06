@@ -31,11 +31,8 @@
       </li></ul>
     {% endfor %}
 
-
-    <a href="{% url 'grocerystore:cart' user.username %}"> View cart </a><br>
-    <a href="{% url 'grocerystore:user_shop' user.username %}"> Let's shop </a><br>
-    <a href="{% url 'grocerystore:index' %}"> Inflaskart index page </a><br>
-    <a href="{% url 'grocerystore:log_out' user.username %}"> Logout </a>
+    <a href="{% url 'grocerystore:index' %}"> Let's shop </a><br>
+    <a href="{% url 'grocerystore:log_out' %}"> Logout </a>
 
   {% endblock %}
 </body>
