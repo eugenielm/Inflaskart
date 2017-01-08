@@ -6,15 +6,17 @@ app_name = 'grocerystore'
 urlpatterns = [
     # grocerystore/
     url(r'^$', views.IndexView.as_view(), name='index'),
+    # grocerystore/register/
     url(r'^register/$', views.UserRegisterView.as_view(), name='register'),
+    # grocerystore/login/
     url(r'^login/$', views.UserLoginForm.as_view(), name='login'),
-    # url(r'^(?P<username>[0-9a-zA-Z]+)/cart/$', views.ShowCartView.as_view(), name='cart'), -> remplacé par:
+    # grocerystore/cart/
     url(r'^cart/$', views.CartView.as_view(), name='cart'),
-    # url(r'^(?P<username>[0-9a-zA-Z]+)/logout/$', views.log_out, name='log_out'), -> remplacé par:
+    # grocerystore/logout/
     url(r'^logout/$', views.log_out, name='log_out'),
-    # url(r'^(?P<username>[0-9a-zA-Z]+)/search/(?P<searched_item>[0-9a-zA-Z%]+)/$', views.SearchView.as_view(), name='search') -> remplacé par:,
+    # grocerystore/search/anyitemurlencoded/
     url(r'^search/(?P<searched_item>[0-9a-zA-Z%]+)/$', views.SearchView.as_view(), name='search'),
-        # # grocerystore/eglelek/checkout/
-        # url(r'^(?P<username>[0-9a-zA-Z]+)/checkout/$', views.Checkout.as_view(), name='checkout'),
-
+    # grocerystore/checkout/
+    url(r'^checkout/$', views.CheckoutView.as_view(), name='checkout'),
+    url(r'^congrats/$', views.congrats, name='congrats'),
 ]

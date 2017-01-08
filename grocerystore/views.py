@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from inflaskart_api import InflaskartClient
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic import View
-from .forms import RegisterForm, LoginForm, ShopForm
+from .forms import RegisterForm, LoginForm, ShopForm, PaymentForm
 from django.contrib.auth.models import User
 import os
 import urllib
@@ -95,11 +95,14 @@ class UserRegisterView(View):
             if user is not None:
                 if user.is_active:
                     infla_user = get_inflauser(user.username)
-                    for elt in self.request.session.keys():
-                        infla_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
+                    try:
+                        for elt in self.request.session.keys():
+                            infla_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
+                    except TypeError:
+                        pass
                     login(self.request, user)
                     messages.success(self.request, "You're now registered and logged in, %s" % user.username)
-                    return redirect('grocerystore:index')
+                    return redirect('grocerystore:cart')
 
         messages.error(request, "Please use allowed characters in your username")
         return redirect('grocerystore:register')
@@ -128,11 +131,14 @@ class UserLoginForm(View):
             if user.is_authenticated:
                 if user.is_active:
                     infla_user = get_inflauser(user.username)
-                    for elt in self.request.session.keys():
-                        infla_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
+                    try:
+                        for elt in self.request.session.keys():
+                            infla_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
+                    except TypeError:
+                        pass
                     login(self.request, user)
                     messages.success(self.request, "You are now logged in, %s." % user.username)
-                    return redirect('grocerystore:index')
+                    return redirect('grocerystore:cart')
         except AttributeError:
             messages.error(request, 'Forgot your password?')
             return redirect('grocerystore:login')
@@ -257,7 +263,7 @@ class SearchView(View):
         if len(search_result) == 0:
             messages.error(request, "unfortunately no available item matches your research...")
             return redirect('grocerystore:index')
-        context = {'search_result': search_result, 'quantity_set': range(21),}
+        context = {'search_result': search_result, 'quantity_set': range(1, 21),}
         return render(request, 'grocerystore/search.html', context=context)
 
     def post(self, request, searched_item):
@@ -290,6 +296,25 @@ class SearchView(View):
                 messages.success(request, "%s was successfully added in your cart." % product_to_add)
             return redirect('grocerystore:index')
 
+
+class CheckoutView(LoginRequiredMixin, View):
+    form_class = PaymentForm
+    template_name = 'grocerystore/checkout.html'
+    login_url = 'grocerystore:login'
+    # next_url = 'grocerystore:checkout'
+    # redirect_field_name = 'redirect_to'
+
+    def get(self, request):
+        payment_form = self.form_class(None)
+        context = {'username': self.request.user.username, 'payment_form': payment_form,}
+        return render(self.request, "grocerystore/checkout.html", context=context)
+
+    def post(self, request):
+        return redirect('grocerystore:congrats')
+
+def congrats(request):
+    messages.success(request, "Congratulations %s, your order was successfully processed." % request.user.username)
+    return render(request, 'grocerystore/congrats.html')
 
 @csrf_protect
 def log_out(request):

@@ -32,6 +32,9 @@
           </form>
         </li></ul>
       {% endfor %}
+
+
+
     {% endif %}
 
     <p> {{ cart_total }} </p><br>
@@ -41,11 +44,12 @@
       <input name="empty" type="submit" value="Empty cart" />
     </form>
 
-    <a href="{% url 'grocerystore:index' %}"> Let's shop </a><br>
+    <a href="{% url 'grocerystore:index' %}">Let's shop</a><br>
+    <a href="{% url 'grocerystore:checkout' %}">Checkout</a><br>
     {% if username %}
-      <a href="{% url 'grocerystore:log_out' %}"> Logout </a>
+      <a href="{% url 'grocerystore:log_out' %}">Logout</a>
     {% else %}
-      <a href="{% url 'grocerystore:login' %}"> Log in </a>
+      <a href="{% url 'grocerystore:login' %}">Log in</a>
     {% endif %}
 
   </body>

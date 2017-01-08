@@ -1,0 +1,33 @@
+<html>
+  <head>
+      {% block head %}
+
+        {% if username %}
+          <p> Hi {{username}}, please enter your checkout information below: </p>
+        {% endif %}
+
+      {% endblock %}
+  </head>
+  <body>
+
+      {% if messages %}
+      <ul class="messages">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+      </ul>
+      {% endif %}
+
+    <form action="" method="post">
+      {% csrf_token %}
+      <p> {{ payment_form.as_table }} </p>
+      <input type="submit" value="Submit" />
+    </form><br>
+
+    <a href="{% url 'grocerystore:index' %}">Let's shop</a><br>
+    <a href="{% url 'grocerystore:checkout' %}">Checkout</a><br>
+    <a href="{% url 'grocerystore:log_out' %}">Logout</a>
+
+  </body>
+
+</html>
