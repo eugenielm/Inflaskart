@@ -19,13 +19,13 @@ from django.contrib.sessions.models import Session
 
 CART_HOST = "http://127.0.0.1:5000/"
 
-def get_inflauser(username):
+def get_flaskuser(username):
     """Returns an instance of the InflaskartClient class whose username is the
     one passed in as a parameter"""
     username_encoded = urllib.quote(urllib.quote(username))
-    infla_user_url = os.path.join(CART_HOST, username_encoded)
-    infla_user = InflaskartClient(infla_user_url, username.decode('utf8'))
-    return infla_user
+    flask_user_url = os.path.join(CART_HOST, username_encoded)
+    flask_user = InflaskartClient(flask_user_url, username.decode('utf8'))
+    return flask_user
 
 class IndexView(View):
     form_class = ShopForm
@@ -43,8 +43,8 @@ class IndexView(View):
             quantity_to_add = self.request.POST['quantity']
             if self.request.user.is_authenticated:
                 if self.request.user.is_active:
-                    infla_user = get_inflauser(self.request.user.username)
-                    infla_user.add(product_to_add, quantity_to_add)
+                    flask_user = get_flaskuser(self.request.user.username)
+                    flask_user.add(product_to_add, quantity_to_add)
                     messages.success(self.request, "'%s' successfully added to your cart, %s." % (product_to_add, self.request.user.username))
                 else:
                     messages.error(self.request, "You must activate your account.")
@@ -94,10 +94,10 @@ class UserRegisterView(View):
             user = authenticate(username=username, password=password)
             if user is not None:
                 if user.is_active:
-                    infla_user = get_inflauser(user.username)
+                    flask_user = get_flaskuser(user.username)
                     try:
                         for elt in self.request.session.keys():
-                            infla_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
+                            flask_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
                     except TypeError:
                         pass
                     login(self.request, user)
@@ -130,10 +130,10 @@ class UserLoginForm(View):
             user = authenticate(username=username, password=password)
             if user.is_authenticated:
                 if user.is_active:
-                    infla_user = get_inflauser(user.username)
+                    flask_user = get_flaskuser(user.username)
                     try:
                         for elt in self.request.session.keys():
-                            infla_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
+                            flask_user.add(self.request.session[elt]["name"], self.request.session[elt]["qty"])
                     except TypeError:
                         pass
                     login(self.request, user)
@@ -152,8 +152,8 @@ class CartView(View):
         cart_total = 0
         if self.request.user.is_authenticated:
             if self.request.user.is_active:
-                infla_user = get_inflauser(self.request.user.username)
-                cart = infla_user.list()['items']
+                flask_user = get_flaskuser(self.request.user.username)
+                cart = flask_user.list()['items']
                 if len(cart) == 0:
                     context = {'cart_total': "Your cart is empty.", 'username': self.request.user.username,}
                 else:
@@ -188,12 +188,12 @@ class CartView(View):
     def post(self, request):
         if self.request.user.is_authenticated:
             if self.request.user.is_active:
-                infla_user = get_inflauser(self.request.user.username)
-                cart = infla_user.list()['items'] # get a dictionary of dictionaries whose keys are "name" and "qty"
+                flask_user = get_flaskuser(self.request.user.username)
+                cart = flask_user.list()['items'] # get a dictionary of dictionaries whose keys are "name" and "qty"
 
                 if self.request.POST.get('empty'):# if the user press the "empty" button
                     if len(cart) > 0:
-                        cart = infla_user.empty_cart()
+                        cart = flask_user.empty_cart()
                         messages.success(request, "You've just emptied your cart, %s." % self.request.user.username)
                     return redirect('grocerystore:cart')
 
@@ -204,10 +204,10 @@ class CartView(View):
                     except TypeError:# loops in the cart until it hits the product to update
                         continue
                     if qty_to_change == 0:
-                        infla_user.delete(product_to_update)
+                        flask_user.delete(product_to_update)
                         messages.success(self.request, "'%s' has been removed from your cart." % product_to_update)
                     else:
-                        infla_user.add(product_to_update, qty_to_change)
+                        flask_user.add(product_to_update, qty_to_change)
                         messages.success(self.request, "'%s' quantity has been updated." % product_to_update)
                 return redirect('grocerystore:cart')
 
@@ -271,14 +271,14 @@ class SearchView(View):
         search_result = search_item(searched_item)
         if self.request.user.is_authenticated:
             if self.request.user.is_active:
-                infla_user = get_inflauser(self.request.user.username)
+                flask_user = get_flaskuser(self.request.user.username)
                 for product in search_result:
                     product_to_add = product.product_name
                     try:
                         quantity_to_add = int(self.request.POST.get(product.product_name))
                     except TypeError:
                         continue
-                    infla_user.add(product_to_add, quantity_to_add)
+                    flask_user.add(product_to_add, quantity_to_add)
                     messages.success(request, "'%s' successfully added to your cart" % product_to_add)
                 return redirect('grocerystore:index')
             else:
