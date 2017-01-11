@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Product
+from .models import Product, ProductCategory, Dietary, Store, Address, Availability, Inflauser
 from datetime import date, datetime
 from calendar import monthrange
 
@@ -11,7 +11,7 @@ class RegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'password', 'first_name', 'last_name', 'email']
 
 class LoginForm(forms.ModelForm):
     password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput)
@@ -22,7 +22,10 @@ class LoginForm(forms.ModelForm):
 
 class ShopForm(forms.Form):
     product_name = forms.ModelChoiceField(label='Choose an item', queryset=Product.objects.order_by('product_name'), empty_label="--Choose below--")
-    quantity = forms.IntegerField(min_value=1, max_value=20, required=True)
+    # product_category = forms.ModelChoiceField(label='Choose a category', queryset=ProductCategory.objects.all(), empty_label="--Choose below--")
+    # product_subcategory = forms.ModelChoiceField(label='Choose a sub-category', queryset=ProductSubCategory.objects.filter(category=product_category), empty_label="--Choose below--")
+    # quantity = forms.IntegerField(min_value=1, max_value=20, required=True)
+
 
 class CheckoutForm(forms.Form):
     card_digits = forms.DecimalField(max_digits=16, decimal_places=0, required=True)

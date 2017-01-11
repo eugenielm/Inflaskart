@@ -5,10 +5,73 @@ from django.db import models
 
 
 @python_2_unicode_compatible
+class ProductCategory(models.Model):
+    top_category = models.CharField(max_length=30)
+    def __str__(self):
+        return self.top_category
+    class Meta:
+        ordering = ['top_category',]
+
+
+@python_2_unicode_compatible
+class ProductSubCategory(models.Model):
+    top_category = models.ForeignKey(ProductCategory, blank=True, default=None)
+    sub_category_1 = models.CharField(max_length=30, blank=True, default=None)
+    def __str__(self):
+        return self.top_category.top_category + " / " + self.sub_category_1
+    class Meta:
+        ordering = ['top_category', 'sub_category_1']
+
+
+@python_2_unicode_compatible
+class ProductSubSubCategory(models.Model):
+    parent_category = models.ForeignKey(ProductCategory, default=None)
+    sub_category_1 = models.ForeignKey(ProductSubCategory, blank=True, default=None)
+    sub_category_2 = models.CharField(max_length=30, blank=True, default=None)
+    def __str__(self):
+        return self.parent_category.top_category + " / " + self.sub_category_1.sub_category_1 + " / " + self.sub_category_2
+    class Meta:
+        ordering = ['parent_category', 'sub_category_1', 'sub_category_2']
+
+
+@python_2_unicode_compatible
+class Dietary(models.Model):
+    name = models.CharField(max_length=30)
+    def __str__(self):
+        return self.name
+    class Meta:
+        ordering = ['name']
+
+
+@python_2_unicode_compatible
 class Product(models.Model):
     product_name = models.CharField(max_length=60)
+    product_category = models.ForeignKey(ProductSubSubCategory, default=None)
+    # product_category = models.ForeignKey(ProductCategory, default=None)
+    # product_subcat1 = models.ForeignKey(ProductSubCategory, default=None, blank=True, null=True)
+    # product_subcat2 = models.ForeignKey(ProductSubSubCategory, default=None, blank=True, null=True)
+    product_dietary = models.ManyToManyField(Dietary, blank=True)
+    product_brand_or_variety = models.CharField(max_length=50, blank=True)
+    product_description = models.TextField(blank=True)
+    product_pic = models.ImageField(blank=True)
+
     def __str__(self):
-        return self.product_name
+        if len(self.product_dietary.all()) == 0:
+            if not self.product_brand_or_variety:
+                return self.product_name
+            else:
+                return self.product_name + " - " + self.product_brand_or_variety
+        else:
+            dietaries = ""
+            for dietary in self.product_dietary.all():
+                dietaries += (dietary.name + " ")
+            if not self.product_brand_or_variety:
+                return str(self.product_name) + " - " + dietaries
+            else:
+                return str(self.product_name) + " - " + self.product_brand_or_variety + " - " + dietaries
+
+    class Meta:
+        ordering = ['product_name']
 
 
 @python_2_unicode_compatible
@@ -119,10 +182,10 @@ class Store(models.Model):
         (DISTRICT_OF_COLUMBIA, 'District of Columbia'),
     )
 
+    products = models.ManyToManyField(Product, through='Availability')
     store_name = models.CharField(max_length=30)
     store_location = models.CharField(max_length=30, default=None)
     store_city = models.CharField(max_length=30)
-    products = models.ManyToManyField(Product, through='Availability')
     store_state = models.CharField(max_length=30, choices=US_STATES)
     store_country = models.CharField(max_length=30, default="USA")
     store_pic = models.ImageField(blank=True)
@@ -131,33 +194,6 @@ class Store(models.Model):
         return self.store_name + " (" + self.store_location + ")"
 
 
-@python_2_unicode_compatible
-class ProductCategory(models.Model):
-    name = models.CharField(max_length=30)
-    def __str__(self):
-        return self.name
-    class Meta:
-        ordering = ['name']
-
-
-@python_2_unicode_compatible
-class ProductSubCategory(models.Model):
-    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
-    def __str__(self):
-        return self.name
-    class Meta:
-        ordering = ['name']
-
-
-@python_2_unicode_compatible
-class Dietary(models.Model):
-    name = models.CharField(max_length=30)
-    def __str__(self):
-        return self.name
-    class Meta:
-        ordering = ['name']
-
 
 @python_2_unicode_compatible
 class Availability(models.Model):
@@ -165,18 +201,44 @@ class Availability(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
     product_unit = models.CharField(max_length=20)
     product_price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
-    product_category = models.ManyToManyField(ProductCategory)
-    product_dietary = models.ManyToManyField(Dietary, blank=True)
-    product_brand_or_variety = models.CharField(max_length=50, blank=True)
-    product_description = models.TextField(blank=True)
-    product_pic = models.ImageField(blank=True)
 
     def __str__(self):
-        return self.product_price + " / " + self.product_unit
+        price = "$" + str(self.product_price) + " / " + self.product_unit +\
+        " @ " + self.store.store_name + " (" + self.store.store_location + ")"
+
+        if len(self.product.product_dietary.all()) == 0:
+            if not self.product.product_brand_or_variety:
+                return self.product.product_name + ": " + price
+            else:
+                return self.product.product_name + " - " + self.product.product_brand_or_variety + ": " + price
+        else:
+            dietaries = ""
+            for dietary in self.product.product_dietary.all():
+                dietaries += (dietary.name + " ")
+            if not self.product.product_brand_or_variety:
+                return str(self.product.product_name) + " - " + dietaries + ": " + price
+            else:
+                return str(self.product.product_name) + " - " + self.product.product_brand_or_variety +\
+                dietaries + ": " + price
+
+    class Meta:
+        ordering = ['product__product_name']
+
+@python_2_unicode_compatible
+class Inflauser(models.Model):
+    infla_user = models.OneToOneField(User)
+    inflauser_birth = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.infla_user.username
+
+    class Meta:
+        ordering = ['infla_user__username']
 
 
 @python_2_unicode_compatible
 class Address(models.Model):
+    inflauser = models.ForeignKey(Inflauser, on_delete=models.CASCADE, default=None)
     address_name = models.CharField(max_length=20)
     street_adress = models.CharField(max_length=100)
     apt_nb = models.IntegerField(null=True, blank=True)
@@ -187,17 +249,7 @@ class Address(models.Model):
     country = models.CharField(max_length=30)
 
     def __str__(self):
-        return self.address_name
-
-
-@python_2_unicode_compatible
-class Inflauser(models.Model):
-    infla_user = models.OneToOneField(User)
-    inflauser_address = models.ManyToManyField(Address)
-    inflauser_birth = models.DateField(null=True, blank=True)
-
-    def __str__(self):
-        return self.infla_user.username
+        return self.inflauser.infla_user.username + " - " + self.address_name
 
     class Meta:
-        ordering = ['infla_user__username']
+        ordering = ['inflauser__infla_user__username', 'address_name']
