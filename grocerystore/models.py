@@ -11,6 +11,7 @@ class ProductCategory(models.Model):
         return self.top_category
     class Meta:
         ordering = ['top_category',]
+        verbose_name_plural = "product categories"
 
 
 @python_2_unicode_compatible
@@ -21,6 +22,8 @@ class ProductSubCategory(models.Model):
         return self.top_category.top_category + " / " + self.sub_category_1
     class Meta:
         ordering = ['top_category', 'sub_category_1']
+        verbose_name = "product sub-category"
+        verbose_name_plural = "product sub-categories"
 
 
 @python_2_unicode_compatible
@@ -32,6 +35,8 @@ class ProductSubSubCategory(models.Model):
         return self.parent_category.top_category + " / " + self.sub_category_1.sub_category_1 + " / " + self.sub_category_2
     class Meta:
         ordering = ['parent_category', 'sub_category_1', 'sub_category_2']
+        verbose_name = "product sub-sub-category"
+        verbose_name_plural = "product sub-sub-categories"
 
 
 @python_2_unicode_compatible
@@ -41,15 +46,13 @@ class Dietary(models.Model):
         return self.name
     class Meta:
         ordering = ['name']
+        verbose_name_plural = "dietaries"
 
 
 @python_2_unicode_compatible
 class Product(models.Model):
     product_name = models.CharField(max_length=60)
     product_category = models.ForeignKey(ProductSubSubCategory, default=None)
-    # product_category = models.ForeignKey(ProductCategory, default=None)
-    # product_subcat1 = models.ForeignKey(ProductSubCategory, default=None, blank=True, null=True)
-    # product_subcat2 = models.ForeignKey(ProductSubSubCategory, default=None, blank=True, null=True)
     product_dietary = models.ManyToManyField(Dietary, blank=True)
     product_brand_or_variety = models.CharField(max_length=50, blank=True)
     product_description = models.TextField(blank=True)
@@ -223,6 +226,8 @@ class Availability(models.Model):
 
     class Meta:
         ordering = ['product__product_name']
+        verbose_name_plural = "availabilities"
+
 
 @python_2_unicode_compatible
 class Inflauser(models.Model):
@@ -253,3 +258,4 @@ class Address(models.Model):
 
     class Meta:
         ordering = ['inflauser__infla_user__username', 'address_name']
+        verbose_name_plural = "addresses"
