@@ -1,0 +1,47 @@
+{% extends 'grocerystore/base.html' %}
+
+<head>
+{% block head %}
+    <h3>You're shopping at {{ store_name }}</h3>
+{% endblock %}
+</head>
+
+<body>
+{% block body %}
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</br>
+
+    {% for product in available_products %}
+      <ul><li> {{ product.product }} available in this store for ${{ product.product_price }} /
+         {{ product.product_unit }}
+        <form action="" method="post">
+          {% csrf_token %}
+          <select name="{{product.pk}}">
+            {% for quantity in quantity_set %}
+              <option value="{{quantity}}"> {{ quantity }}</option>
+            {% endfor %}
+          </select>
+          <input type="submit" value="Add item in cart" />
+        </form>
+      </li></ul>
+    {% endfor %}
+
+</br>
+
+    <ul><a href="{% url 'grocerystore:cart' store_id %}">View your cart in this store</a><br>
+    <a href="{% url 'grocerystore:register' %}">Create an account</a><br>
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'grocerystore:log_out' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'grocerystore:login' %}">Login</a>
+    {% endif %}
+{% endblock %}
+
+</body>

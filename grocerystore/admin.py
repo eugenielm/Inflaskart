@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Product, Store, Availability, Inflauser, Address, Dietary,\
-                    ProductCategory, ProductSubCategory, ProductSubSubCategory
+                    ProductCategory, ProductSubCategory
 
 # class StoreAdmin(admin.ModelAdmin):
 #     fieldsets = [
@@ -19,4 +19,3 @@ admin.site.register(Address)
 admin.site.register(Dietary)
 admin.site.register(ProductCategory)
 admin.site.register(ProductSubCategory)
-admin.site.register(ProductSubSubCategory)
