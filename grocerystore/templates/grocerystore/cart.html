@@ -2,19 +2,12 @@
 <head>
     {% block head %}
 
-      <h3>You're shopping at {{ user_store }}</h3>
+      <h5>You're shopping at {{ user_store }}</h5>
 
     {% endblock %}
 </head>
   <body>
 
-      {% if messages %}
-      <ul class="messages">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-      </ul>
-      {% endif %}
 
     {% if 'in_cart' %}
 
@@ -22,6 +15,14 @@
         <p> Hi {{username}}, here is your cart: </p>
       {% else %}
         <p> Hi, here is your cart: </p>
+      {% endif %}
+
+      {% if messages %}
+      <ul class="messages">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+      </ul>
       {% endif %}
 
       {% for item in in_cart %}
@@ -48,13 +49,13 @@
     </form>
 
 
-    <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a><br>
+    <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a> -
     <a href="{% url 'grocerystore:index' %}">Change store</a><br>
     <a href="{% url 'grocerystore:checkout' store_id %}">Checkout</a><br>
     {% if username %}
       <a href="{% url 'grocerystore:log_out' %}">Logout</a>
     {% else %}
-      <a href="{% url 'grocerystore:login' %}">Log in</a><br>
+      <a href="{% url 'grocerystore:login' %}">Log in</a> -
       <a href="{% url 'grocerystore:register' %}">Create an account</a>
     {% endif %}
 

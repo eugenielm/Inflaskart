@@ -2,12 +2,15 @@
 
 <head>
 {% block head %}
-    <h3>You're shopping at {{ store_name }}</h3>
+    <h5>You're shopping at {{ store }} in {{store.store_city}}</h5>
 {% endblock %}
 </head>
 
 <body>
 {% block body %}
+
+    <h3>Here is what's available in the '{{ subcategory }}' section:</h3>
+
     {% if messages %}
     <ul class="messages">
         {% for message in messages %}
@@ -16,14 +19,12 @@
     </ul>
     {% endif %}
 
-</br>
-
-    {% for product in available_products %}
-      <ul><li> {{ product.product }} available in this store for ${{ product.product_price }} /
-         {{ product.product_unit }}
-        <form action="" method="post">
+    {% for availability in available_products %}
+      <ul><li><a href="{% url 'grocerystore:detail' store_id availability.product.pk %}">
+        {{ availability.product }}</a>: ${{ availability.product_price }} / {{ availability.product_unit }}
+        <form id="available_products" action="" method="post">
           {% csrf_token %}
-          <select name="{{product.pk}}">
+          <select name="{{availability.pk}}">
             {% for quantity in quantity_set %}
               <option value="{{quantity}}"> {{ quantity }}</option>
             {% endfor %}
@@ -35,12 +36,15 @@
 
 </br>
 
-    <ul><a href="{% url 'grocerystore:cart' store_id %}">View your cart in this store</a><br>
-    <a href="{% url 'grocerystore:register' %}">Create an account</a><br>
+    <a href="{% url 'grocerystore:cart' store_id %}">View your cart in this store</a><br>
+    <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a> -
+    <a href="{% url 'grocerystore:index' %}">Change store</a><br>
+    <a href="{% url 'grocerystore:checkout' store_id %}">Checkout</a><br><br>
     {% if request.user.is_authenticated %}
       <a href="{% url 'grocerystore:log_out' %}">Logout</a>
     {% else %}
-      <a href="{% url 'grocerystore:login' %}">Login</a>
+      <a href="{% url 'grocerystore:login' %}">Login</a> -
+      <a href="{% url 'grocerystore:register' %}">Create an account</a>
     {% endif %}
 {% endblock %}
 

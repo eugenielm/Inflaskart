@@ -2,7 +2,7 @@
 
 <head>
 {% block head %}
-    <h3>Welcome to {{ store }} !</h3>
+    <h3>Welcome to {{ store }} in {{store.store_city}} !</h3>
 {% endblock %}
 </head>
 
@@ -25,19 +25,19 @@
       <input type="submit" value="Search" />
     </form><br>
 
-    <form action="" method="post">
+    <form id="category_form" action="" method="post">
       {% csrf_token %}
-      <p> {{ category_form.as_table }} <input type="submit" value="Let's see what we have!" /></p>
+      <p> {{ category_form.as_table }} </p>
     </form><br>
 
 
-    <ul><a href="{% url 'grocerystore:cart' store_id %}">View your cart</a><br>
-    <a href="{% url 'grocerystore:index' %}">Change store</a><br>
-    <a href="{% url 'grocerystore:register' %}">Create an account</a><br>
+    <a href="{% url 'grocerystore:cart' store_id %}">View your cart</a><br>
+    <a href="{% url 'grocerystore:index' %}">Change store</a><br><br>
     {% if request.user.is_authenticated %}
       <a href="{% url 'grocerystore:log_out' %}">Logout</a>
     {% else %}
-      <a href="{% url 'grocerystore:login' %}">Login</a>
+      <a href="{% url 'grocerystore:login' %}">Login</a> -
+      <a href="{% url 'grocerystore:register' %}">Create an account</a>
     {% endif %}
 {% endblock %}
 

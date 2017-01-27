@@ -1,3 +1,4 @@
+#-*- coding: UTF-8 -*-
 from __future__ import unicode_literals
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
@@ -155,6 +156,9 @@ class Store(models.Model):
     def __str__(self):
         return self.store_name + " (" + self.store_location + ")"
 
+    class Meta:
+        ordering = ['store_name', 'store_city', 'store_location']
+
 
 @python_2_unicode_compatible
 class ProductCategory(models.Model):
@@ -168,12 +172,12 @@ class ProductCategory(models.Model):
 
 @python_2_unicode_compatible
 class ProductSubCategory(models.Model):
-    top_category = models.ForeignKey(ProductCategory, blank=True, default=None)
-    sub_category_1 = models.CharField(max_length=30, blank=True, default=None)
+    parent = models.ForeignKey(ProductCategory, blank=True, default=None)
+    sub_category_name = models.CharField(max_length=30, blank=True, default=None)
     def __str__(self):
-        return self.top_category.top_category + " / " + self.sub_category_1
+        return self.parent.top_category + " / " + self.sub_category_name
     class Meta:
-        ordering = ['top_category', 'sub_category_1']
+        ordering = ['parent', 'sub_category_name']
         verbose_name = "product sub-category"
         verbose_name_plural = "product sub-categories"
 
@@ -231,7 +235,7 @@ class Availability(models.Model):
 
         if len(self.product.product_dietary.all()) == 0:
             if not self.product.product_brand_or_variety:
-                return self.product.product_name + " - " + price + ")"
+                return self.product.product_name + " - " + price
             else:
                 return self.product.product_name + " (" + self.product.product_brand_or_variety +\
                        " - " + price + ")"

@@ -17,12 +17,10 @@
         </ul>
       {% endif %}
 
-    <form class="form-horizontal" role="form" action="" method="post">
+    <form id="registration_form" class="form-horizontal" role="form" action="" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        {% if form %}
-          <input type="submit" value="Submit" />
-        {% endif %}
+        {{ registration_form.as_p }}
+        <input type="submit" value="Submit" />
     </form>
 
     <a href="{% url 'grocerystore:index' %}">Inflaskart index page</a><br>

@@ -2,8 +2,7 @@
 
 <head>
 {% block head %}
-    <h1>Welcome to the Inflaskart home page</h1>
-    <h3>Inflaskart is a revolutionary app to shop your groceries on line!</h3>
+    <h5>You're shopping at {{ store }} in {{store.store_city}}</h5>
 {% endblock %}
 </head>
 
@@ -21,19 +20,22 @@
 
     <ul>
     {% for subcategory in subcategories %}
-        <li><a href="{% url 'grocerystore:instock' store_id category_id subcategory.pk %}"> {{ subcategory.sub_category_1 }} </a></li><br>
+        <li><a href="{% url 'grocerystore:instock' store_id category_id subcategory.pk %}"> {{ subcategory.sub_category_name }} </a></li><br>
     {% endfor %}
     </ul>
 
 </br>
 
 
-    <ul><a href="{% url 'grocerystore:cart' store_id %}"> View your cart </a><br>
-    <a href="{% url 'grocerystore:register' %}"> Create an account </a><br>
+    <a href="{% url 'grocerystore:cart' store_id %}">View your cart in this store</a><br>
+    <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a> -
+    <a href="{% url 'grocerystore:index' %}">Change store</a><br>
+    <a href="{% url 'grocerystore:checkout' store_id %}">Checkout</a><br><br>
     {% if request.user.is_authenticated %}
-      <a href="{% url 'grocerystore:log_out' %}"> Logout </a>
+      <a href="{% url 'grocerystore:log_out' %}">Logout</a>
     {% else %}
-      <a href="{% url 'grocerystore:login' %}"> Login </a>
+      <a href="{% url 'grocerystore:login' %}">Login</a> -
+      <a href="{% url 'grocerystore:register' %}">Create an account</a>
     {% endif %}
 {% endblock %}
 

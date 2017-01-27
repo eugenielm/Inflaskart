@@ -17,14 +17,16 @@
     </ul>
     {% endif %}
 
-    <form class="form-horizontal" role="form" action="" method="post">
+
+    <form id="login_form" class="form-horizontal" role="form" action="" method="post">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-        {{ form.as_p }}
+        {{ login_form.as_p }}
         <input type="submit" value="Submit" />
     </form>
 
-    <a href="{% url 'grocerystore:index' %}"> Inflaskart index page </a><br>
+    <a href="{% url 'grocerystore:index' %}">Choose a store</a><br>
+    <a href="{% url 'grocerystore:register' %}">Create an account</a><br>
 
   {% endblock %}
 </body>

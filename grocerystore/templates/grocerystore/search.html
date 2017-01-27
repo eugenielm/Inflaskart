@@ -2,7 +2,7 @@
 
 <head>
     {% block head %}
-
+      <h5>You're shopping at {{ store }} in {{store.store_city}}</h5>
       {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -18,8 +18,8 @@
   {% block body %}
 
     {% for product in available_products %}
-      <ul><li> {{ product.0 }}: ${{ product.1 }} / {{ product.2 }}
-        <form action="" method="post">
+      <ul><li><a href="{% url 'grocerystore:detail' store_id product.3 %}">{{ product.0.product }}</a>: ${{ product.1 }} / {{ product.2 }}
+        <form id="product_selection" action="" method="post">
           {% csrf_token %}
           <select id="{{product.0.pk}}" name="{{product.0.pk}}">
             {% for quantity in quantity_set %}
@@ -31,13 +31,15 @@
       </li></ul>
     {% endfor %}
 
-    <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a><br>
+    <a href="{% url 'grocerystore:cart' store_id %}">View your cart in this store</a><br>
+    <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a> -
     <a href="{% url 'grocerystore:index' %}">Change store</a><br>
-    <a href="{% url 'grocerystore:checkout' store_id %}">Checkout</a><br>
-    {% if self.request.user.is_authenticated %}
-      <a href="{% url 'grocerystore:log_out' %}">Log out</a>
+    <a href="{% url 'grocerystore:checkout' store_id %}">Checkout</a><br><br>
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'grocerystore:log_out' %}">Logout</a>
     {% else %}
-      <a href="{% url 'grocerystore:login' %}">Log in</a>
+      <a href="{% url 'grocerystore:login' %}">Login</a> -
+      <a href="{% url 'grocerystore:register' %}">Create an account</a>
     {% endif %}
   {% endblock %}
 </body>

@@ -1,0 +1,75 @@
+{% extends 'grocerystore/base.html' %}
+
+<head>
+    {% block head %}
+      <h5>You're shopping at {{ store }} in {{store.store_city}}</h5>
+      {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+              {{ message }}
+            {% endfor %}
+        </ul>
+      {% endif %}
+
+    {% endblock %}
+</head>
+
+<body>
+  {% block body %}
+
+        <h2>{{ product.product_name }}</h2>
+        <form id="quantity_selection" action="" method="post">
+          {% csrf_token %}
+          <select id="{{product.pk}}" name="{{product.pk}}">
+            {% for quantity in quantity_set %}
+              <option value="{{quantity}}"> {{ quantity }}</option>
+            {% endfor %}
+          </select>
+          <input type="submit" value="Add item in cart" />
+        </form>
+        <p>Price: ${{ product_availability.product_price }} / {{ product_availability.product_unit }}</p>
+        <p>Category: {{ product.product_category }}</p>
+        {% if product_dietaries %}
+          <p>Dietary: {% for diet in product_dietaries %} {{ diet }}</p>{% endfor %}
+        {% endif %}
+        {% if product_brand_or_variety %}
+          <p>Brand / variety: {{ product_brand_or_variety }}</p>
+        {% endif %}
+        {% if product_description %}
+          <p>Description: {{ product_description }}</p>
+        {% endif %}
+        {% if product_pic %}
+          <p>{{ product_pic }}</p>
+        {% endif %}
+        {% if user_id_required %}
+          <p>The customer must be over 21 to buy this product.</p>
+        {% endif %}
+
+<br>
+<br>
+<br>
+
+    {% if other_availabilities %}
+      <p>A similar '{{ product.product_name }}' is also available in the store(s) below:</p>
+      {% for availability in other_availabilities %}
+        <li>At <a href="{% url 'grocerystore:instock' availability.store.pk availability.product.product_category.parent.pk availability.product.product_category.pk %}">
+            {{availability.store}}</a>: ${{availability.product_price}} / {{availability.product_unit}}</li>
+      {% endfor %}
+    {% endif %}
+
+<br>
+<br>
+<br>
+
+    <a href="{% url 'grocerystore:cart' store_id %}">View your cart in this store</a><br>
+    <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a> -
+    <a href="{% url 'grocerystore:index' %}">Change store</a><br>
+    <a href="{% url 'grocerystore:checkout' store_id %}">Checkout</a><br><br>
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'grocerystore:log_out' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'grocerystore:login' %}">Login</a> -
+      <a href="{% url 'grocerystore:register' %}">Create an account</a>
+    {% endif %}
+  {% endblock %}
+</body>

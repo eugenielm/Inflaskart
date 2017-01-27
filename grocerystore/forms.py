@@ -1,3 +1,4 @@
+#-*- coding: UTF-8 -*-
 from django import forms
 from django.contrib.auth.models import User
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, Store, Address, Availability, Inflauser
@@ -21,10 +22,19 @@ class LoginForm(forms.ModelForm):
         fields = ['username', 'password']
 
 class StoreForm(forms.Form):
-    stores = forms.ModelChoiceField(label='Choose a store', queryset=Store.objects.all(), empty_label="--Choose below--")
+    """Displays a drop down menu with all stores available on the Inflaskart index page"""
+    stores = forms.ModelChoiceField(label='Choose a store', queryset=Store.objects.all(),
+                                    empty_label="--Choose below--",
+                                    widget=forms.Select(attrs={'onChange':'submit();'}))
+
 
 class SelectCategory(forms.Form):
-    category = forms.ModelChoiceField(label='Choose a category', queryset=ProductCategory.objects.all(), empty_label="--Choose below--")
+    """Displays a drop down menu with all the product categories available
+    in a given store"""
+    category = forms.ModelChoiceField(label='Choose a category',
+                                      queryset=ProductCategory.objects.all(),
+                                      empty_label="--Choose below--",
+                                      widget=forms.Select(attrs={'onChange':'submit();'}))
 
 
 class CheckoutForm(forms.Form):
@@ -107,21 +117,3 @@ class PaymentForm(forms.Form):
             self._errors["expire_year"] = self.error_class(["The expiration date you entered is in the past."])
 
         return cleaned_data
-
-
-# Piste pour recherche de produits multi menus dans formulaire:
-#     product_category = forms.ModelChoiceField(label='Choose a category', queryset=ProductCategory.objects.all(), empty_label="--Choose below--")
-#     product_subcategory1 = forms.ModelChoiceField(label='Choose a sub-category', queryset=ProductSubCategory.objects.none(), empty_label="--Choose below--")
-#     product_subcategory2 = forms.ModelChoiceField(label='Choose a sub-sub-category', queryset=ProductSubSubCategory.objects.none(), empty_label="--Choose below--")
-#     final_choice = forms.ModelChoiceField(label='Choose an item', queryset=Product.objects.none(), empty_label="--Choose below--")
-#     quantity = forms.IntegerField(min_value=1, max_value=20, required=True)
-#
-#     def __init__(self, *args, **kwargs):
-#         super(ShopForm, self).__init__(self, *args, **kwargs)
-#         product_category = forms.ModelChoiceField(label='Choose a category', queryset=ProductCategory.objects.all(), empty_label="--Choose below--")
-#         if product_category:
-#             self.fields['product_subcategory1'] = forms.ModelChoiceField(label='Choose a sub-category', queryset=ProductSubCategory.objects.filter(top_category__top_category=product_category.top_category), empty_label="--Choose below--")
-#         if product_subcategory1:
-#             self.fields['product_subcategory2'] = forms.ModelChoiceField(label='Choose a sub-sub-category', queryset=ProductSubSubCategory.objects.filter(sub_category_1=product_subcategory1), empty_label="--Choose below--")
-#         if product_subcategory2:
-#             self.fields['final_choice'] = forms.ModelChoiceField(label='Choose an item', queryset=Product.objects.filter(product_category=product_subcategory2), empty_label="--Choose below--")
