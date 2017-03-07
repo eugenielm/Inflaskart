@@ -2,54 +2,63 @@
 <head>
     {% block head %}
 
-      {% if username %}
-        <p> Hi {{username}}, here is your cart: </p>
-      {% endif %}
+      <h5>You're shopping at {{ user_store }}</h5>
 
     {% endblock %}
 </head>
   <body>
 
-      {% if messages %}
-      <ul class="messages">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-      </ul>
-      {% endif %}
 
-    {% if 'in_cart' %}
-      {% for item in in_cart %}
-        <ul><li> {{ item.0 }}: {{ item.1 }} {{ item.2 }}, Total = ${{ item.3 }}
-          <form action="" method="post">
-            {% csrf_token %}
-            <select name="{{item.0}}">
-              {% for quantity in quantity_set %}
-                <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}> {{ quantity }}</option>
-              {% endfor %}
-            </select>
-            <input type="submit" value="Update quantity" />
-          </form>
-        </li></ul>
-      {% endfor %}
-
-
-
+    {% if not_empty %}
+        {% if username %}
+          <p> Hi {{username}}, here is your cart: </p>
+        {% else %}
+          <p> Hi, here is your cart: </p>
+        {% endif %}
     {% endif %}
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% for item in in_cart %}
+      <ul><li><a href="{% url 'grocerystore:detail' store_id item.5 %}">{{ item.0 }}</a>: {{ item.1 }} x {{ item.2 }}, <br>Total = ${{ item.3 }}
+        <form action="" method="post">
+          {% csrf_token %}
+          <select name="{{item.4}}">
+            {% for quantity in quantity_set %}
+              <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}> {{ quantity }}</option>
+            {% endfor %}
+          </select>
+          <input type="submit" value="Update quantity" />
+        </form>
+      </li></ul>
+    {% endfor %}
 
     <p> {{ cart_total }} </p><br>
 
+    {% if not_empty %}
     <form action="" method="post">
       {% csrf_token %}
       <input name="empty" type="submit" value="Empty cart" />
     </form>
+    {% endif %}
 
-    <a href="{% url 'grocerystore:index' %}">Let's shop</a><br>
-    <a href="{% url 'grocerystore:checkout' %}">Checkout</a><br>
+
+    <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a> -
+    <a href="{% url 'grocerystore:index' %}">Change store</a><br>
+    {% if cart_total != 'Your cart is empty.' %}
+      <a href="{% url 'grocerystore:checkout' store_id %}">Checkout</a><br>
+    {% endif %}
     {% if username %}
       <a href="{% url 'grocerystore:log_out' %}">Logout</a>
     {% else %}
-      <a href="{% url 'grocerystore:login' %}">Log in</a>
+      <a href="{% url 'grocerystore:login' %}">Log in</a> -
+      <a href="{% url 'grocerystore:register' %}">Create an account</a>
     {% endif %}
 
   </body>

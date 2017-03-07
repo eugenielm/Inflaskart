@@ -1,6 +1,7 @@
+#-*- coding: UTF-8 -*-
 from django import forms
 from django.contrib.auth.models import User
-from .models import Product
+from .models import Product, ProductCategory, ProductSubCategory, Dietary, Store, Address, Availability, Inflauser
 from datetime import date, datetime
 from calendar import monthrange
 
@@ -11,7 +12,7 @@ class RegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'password', 'first_name', 'last_name', 'email']
 
 class LoginForm(forms.ModelForm):
     password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput)
@@ -20,9 +21,21 @@ class LoginForm(forms.ModelForm):
         model = User
         fields = ['username', 'password']
 
-class ShopForm(forms.Form):
-    product_name = forms.ModelChoiceField(label='Choose an item', queryset=Product.objects.order_by('product_name'), empty_label="--Choose below--")
-    quantity = forms.IntegerField(min_value=1, max_value=20, required=True)
+class StoreForm(forms.Form):
+    """Displays a drop down menu with all stores available on the Inflaskart index page"""
+    stores = forms.ModelChoiceField(label='Choose a store', queryset=Store.objects.all(),
+                                    empty_label="--Choose below--",
+                                    widget=forms.Select(attrs={'onChange':'submit();'}))
+
+
+class SelectCategory(forms.Form):
+    """Displays a drop down menu with all the product categories available
+    in a given store"""
+    category = forms.ModelChoiceField(label='Choose a category',
+                                      queryset=ProductCategory.objects.all(),
+                                      empty_label="--Choose below--",
+                                      widget=forms.Select(attrs={'onChange':'submit();'}))
+
 
 class CheckoutForm(forms.Form):
     card_digits = forms.DecimalField(max_digits=16, decimal_places=0, required=True)

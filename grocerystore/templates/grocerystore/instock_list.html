@@ -1,27 +1,30 @@
 {% extends 'grocerystore/base.html' %}
 
 <head>
-    {% block head %}
-      <h5>You're shopping at {{ store }} in {{store.store_city}}</h5>
-      {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-              {{ message }}
-            {% endfor %}
-        </ul>
-      {% endif %}
-
-    {% endblock %}
+{% block head %}
+    <h5>You're shopping at {{ store }} in {{store.store_city}}</h5>
+{% endblock %}
 </head>
 
 <body>
-  {% block body %}
+{% block body %}
 
-    {% for product in available_products %}
-      <ul><li><a href="{% url 'grocerystore:detail' store_id product.3 %}">{{ product.0.product }}</a>: ${{ product.1 }} / {{ product.2 }}
-        <form id="product_selection" action="" method="post">
+    <h3>Here is what's available in the '{{ subcategory }}' section:</h3>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% for availability in available_products %}
+      <ul><li><a href="{% url 'grocerystore:detail' store_id availability.product.pk %}">
+        {{ availability.product }}</a>: ${{ availability.product_price }} / {{ availability.product_unit }}
+        <form id="available_products" action="" method="post">
           {% csrf_token %}
-          <select id="{{product.0.pk}}" name="{{product.0.pk}}">
+          <select name="{{availability.pk}}">
             {% for quantity in quantity_set %}
               <option value="{{quantity}}"> {{ quantity }}</option>
             {% endfor %}
@@ -30,6 +33,8 @@
         </form>
       </li></ul>
     {% endfor %}
+
+</br>
 
     <a href="{% url 'grocerystore:cart' store_id %}">View your cart in this store</a><br>
     <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a> -
@@ -40,5 +45,6 @@
       <a href="{% url 'grocerystore:login' %}">Login</a> -
       <a href="{% url 'grocerystore:register' %}">Create an account</a>
     {% endif %}
-  {% endblock %}
+{% endblock %}
+
 </body>

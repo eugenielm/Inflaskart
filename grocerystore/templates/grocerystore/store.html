@@ -1,0 +1,44 @@
+{% extends 'grocerystore/base.html' %}
+
+<head>
+{% block head %}
+    <h3>Welcome to {{ store }} in {{store.store_city}} !</h3>
+{% endblock %}
+</head>
+
+<body>
+{% block body %}
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</br>
+</br>
+    <form action="" method="post">
+      {% csrf_token %}
+      <label for="search">Look for an item:</label>
+      <input id="search" name="search" type="text">
+      <input type="submit" value="Search" />
+    </form><br>
+
+    <form id="category_form" action="" method="post">
+      {% csrf_token %}
+      <p> {{ category_form.as_table }} </p>
+    </form><br>
+
+
+    <a href="{% url 'grocerystore:cart' store_id %}">View your cart</a><br>
+    <a href="{% url 'grocerystore:index' %}">Change store</a><br><br>
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'grocerystore:log_out' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'grocerystore:login' %}">Login</a> -
+      <a href="{% url 'grocerystore:register' %}">Create an account</a>
+    {% endif %}
+{% endblock %}
+
+</body>
