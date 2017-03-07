@@ -1,0 +1,13 @@
+django==1.10.6
+
+# for images
+pillow==4.0.0
+
+# for inflaskart_api
+requests==2.13.0
+
+# for flask_server
+flask==0.12
+
+# for leveldb
+leveldb==0.20

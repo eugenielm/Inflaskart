@@ -1,10 +1,9 @@
 #-*- coding: UTF-8 -*-
 from __future__ import unicode_literals
-import re
 import os
+import sys
 import urllib
-from django.shortcuts import redirect, render, get_object_or_404
-from django.http import HttpResponse
+from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic import View
 from django.views.generic.list import ListView
@@ -21,13 +20,32 @@ from inflaskart_api import InflaskartClient
 # from django.contrib.auth.decorators import login_required
 
 
-CART_HOST = "http://127.0.0.1:5000/"
+"""
+This module contains 4 functions and 10 classes:
+- search_item()
+- get_flaskcart()
+- congrats()
+- log_out()
+- IndexView
+- StoreView
+- SubcategoriesList
+- InstockList
+- UserRegisterView
+- UserLoginView
+- CartView
+- SearchView
+- ProductDetailView
+- CheckoutView
+"""
 
+
+# the cart server is running locally on port 5000
+CART_HOST = "http://127.0.0.1:5000/"
 
 
 def search_item(searched_item, store_id):
     """Returns a list of Availability instances whose 'product__product_name'
-    contains at least one word in common with the searched item passed in as a parameter"""
+    contains at least one word in common with the searched item"""
     searched_words = searched_item.split(" ")
     user_store = Store.objects.get(pk=store_id)
     available_products = user_store.availability_set.all()
@@ -48,6 +66,18 @@ def get_flaskcart(username):
     return flask_cart
 
 
+def congrats(request):
+    messages.success(request, "Congratulations %s, your order was successfully processed." % request.user.username)
+    return render(request, 'grocerystore/congrats.html')
+
+
+@csrf_protect
+def log_out(request):
+    messages.success(request, "You've been logged out, %s. See ya!" % request.user.username)
+    logout(request)
+    return redirect('grocerystore:index')
+
+
 class IndexView(View):
     """This is the Inflaskart index page, where the user chooses a store to shop in.
     Displays a search tool to look for a store, and a drop down menu with all
@@ -62,9 +92,9 @@ class IndexView(View):
     def post(self, request):
         form = self.form_class(self.request.POST)
         try:
-            store_id = self.request.POST['stores'] #type unicode
+            store_id = self.request.POST['stores'] # type unicode
             return redirect('grocerystore:store', store_id=store_id)
-        except:#in case the user selects the --Choose below-- label
+        except: # in case the user selects the --Choose below-- label
             return redirect('grocerystore:index')
 
 
@@ -81,13 +111,13 @@ class StoreView(View):
             store = Store.objects.get(pk=store_id)
             context = {'category_form': category_form, 'store_id': store_id, 'store': store}
             return render(self.request, 'grocerystore/store.html', context=context)
-        except:#if the user try to access a non-existent store page
+        except: # if the user try to access a non-existent store page
             messages.error(self.request, "The url you requested doesn't exist.")
             return redirect('grocerystore:index')
 
     def post(self, request, store_id):
         form = self.form_class(self.request.POST)
-        try:#if the user uses the search tool
+        try: # if the user uses the search tool
             searched_item = self.request.POST.get('search')
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 search_result = search_item(searched_item, store_id)
@@ -103,11 +133,11 @@ class StoreView(View):
             else:
                 messages.error(self.request, "You must type in only alphabetical characters")
                 return redirect('grocerystore:store', store_id=store_id)
-        except:# if the user uses the category drop down menu
+        except: # if the user uses the category drop down menu
             try:
                 category_id = self.request.POST.get('category')
                 return redirect('grocerystore:subcategories', store_id=store_id, category_id=category_id)
-            except:#in case the user selects the --Choose below-- label
+            except: # in case the user selects the --Choose below-- label
                 return redirect('grocerystore:store', store_id=store_id)
 
 
@@ -117,12 +147,12 @@ class SubcategoriesList(ListView):
     context_object_name = 'subcategories'
 
     def get(self, request, store_id, category_id):
-        try:#check if the store_id does exist
+        try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
             messages.error(self.request, "Sorry, the requested url doesn't exist")
             return redirect('grocerystore:index')
-        try:#check if the category_id does exist
+        try: # check if the category_id does exist
             category = ProductCategory.objects.get(pk=category_id)
         except:
             messages.error(self.request, "Sorry, the requested url doesn't exist")
@@ -150,17 +180,17 @@ class InstockList(ListView):
     context_object_name = 'available_products'
 
     def get(self, request, store_id, category_id, subcategory_id):
-        try:#check if the store_id does exist
+        try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
             messages.error(self.request, "Sorry, the requested store doesn't exist")
             return redirect('grocerystore:index')
-        try:#check if the category_id does exist
+        try: # check if the category_id does exist
             category = ProductCategory.objects.get(pk=category_id)
         except:
             messages.error(self.request, "Sorry, the requested category doesn't exist")
             return redirect('grocerystore:store', store_id=store_id)
-        try:#check if the subcategory_id does exist
+        try: # check if the subcategory_id does exist
             subcategory = ProductSubCategory.objects.get(pk=subcategory_id)
         except:
             messages.error(self.request, "Sorry, the requested sub-category doesn't exist")
@@ -205,7 +235,7 @@ class InstockList(ListView):
                 else:
                     messages.info(request, "You need to activate your account to proceed.")
                     return redirect('grocerystore:index')
-            else: #if the user isn't authenticated
+            else: # if the user isn't authenticated
                 res = {'name': str(product_availability_pk), 'qty': quantity_to_add}
                 self.request.session[product_availability_pk] = res #pk of the Availability object
             return redirect('grocerystore:store', store_id=store_id)
@@ -223,7 +253,7 @@ class UserRegisterView(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
-        try:#check if the username typed in is available
+        try: # check if the username typed in is available
             user = User.objects.get(username=self.request.POST['username'])
             messages.error(self.request, "This username is already used, please choose another one.")
             return redirect('grocerystore:register')
@@ -243,20 +273,20 @@ class UserRegisterView(View):
                     flask_cart = get_flaskcart(user.username)
 
 ################################# TO BE TESTED #################################
-                    # try:
-                    #     for item in flask_cart.list()['items']:#if the cart isn't empty
-                    #         try:
-                    #             int(item['name'])
-                    #         except:#and if there're old products in the cart that are not available anymore
-                    #             deleted = []
-                    #             deleted.append(item)
-                    #     pretty = "Sorry, we had to deleted the following products from your cart because there're not available anymore:\n"
-                    #     for elt in deleted:
-                    #         flask_cart.delete(elt['name'])
-                    #         pretty += elt['qty'] + " " + elt['name'] + "\n"
-                    #     messages.info(self.request, pretty)
-                    # except:#if the cart is empty, there's nothing to delete
-                    #     pass
+            # try:
+            #     for item in flask_cart.list()['items']:#if the cart isn't empty
+            #         try:
+            #             int(item['name'])
+            #         except: # if there're old products in the cart that are not available anymore
+            #             deleted = []
+            #             deleted.append(item)
+            #     pretty = "Sorry, we had to deleted the following products from your cart because there're not available anymore:\n"
+            #     for elt in deleted:
+            #         flask_cart.delete(elt['name'])
+            #         pretty += elt['qty'] + " " + elt['name'] + "\n"
+            #     messages.info(self.request, pretty)
+            # except: # if the cart is empty, there's nothing to delete
+            #     pass
 ################################# TO BE TESTED #################################
 
                     try:
@@ -267,8 +297,10 @@ class UserRegisterView(View):
                         pass
                     login(self.request, user)
                     messages.success(self.request, "You're now registered and logged in, %s" % user.username)
-                    return redirect('grocerystore:index')
-                    # return redirect('grocerystore:cart', store_id=store_id)
+                    try:
+                        return redirect(self.request.GET['redirect_to'])
+                    except:
+                        return redirect('grocerystore:index')
 
         messages.error(request, "Please use allowed characters in your username")
         return redirect('grocerystore:register')
@@ -281,7 +313,7 @@ class UserLoginView(View):
 
     def get(self, request):
         login_form = self.form_class(None)
-        return render(request, self.template_name, {'login_form': login_form})
+        return render(self.request, self.template_name, {'login_form': login_form})
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -290,8 +322,11 @@ class UserLoginView(View):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            messages.error(request, 'Lost your password?')
-            return redirect('grocerystore:login')
+            try:
+                redirect_to = self.request.GET['redirect_to']
+                return redirect('/grocerystore/register/' + "?redirect_to=" + str(redirect_to))
+            except:
+                return redirect('grocerystore:register')
 
         try:
             user = authenticate(username=username, password=password)
@@ -300,22 +335,21 @@ class UserLoginView(View):
                     flask_cart = get_flaskcart(user.username)
 
 ################################# TO BE TESTED #################################
-                    # try:
-                    #     for item in flask_cart.list()['items']:#if the cart isn't empty
-                    #         try:
-                    #             int(item['name'])
-                    #         except:#and if there're old products in the cart that are not available anymore
-                    #             deleted = []
-                    #             deleted.append(item)
-                    #     pretty = "Sorry, we had to deleted the following products from your cart because there're not available anymore:\n"
-                    #     for elt in deleted:
-                    #         flask_cart.delete(elt['name'])
-                    #         pretty += elt['qty'] + " " + elt['name'] + "\n"
-                    #     messages.info(self.request, pretty)
-                    # except:#if the cart is empty, there's nothing to delete
-                    #     pass
+            # try:
+            #     for item in flask_cart.list()['items']: # if the cart isn't empty
+            #         try:
+            #             int(item['name'])
+            #         except: # and if there're old products in the cart that are not available anymore
+            #             deleted = []
+            #             deleted.append(item)
+            #     pretty = "Sorry, we had to deleted the following products from your cart because there're not available anymore:\n"
+            #     for elt in deleted:
+            #         flask_cart.delete(elt['name'])
+            #         pretty += elt['qty'] + " " + elt['name'] + "\n"
+            #     messages.info(self.request, pretty)
+            # except: # if the cart is empty, there's nothing to delete
+            #     pass
 ################################# TO BE TESTED #################################
-
 
                     try:
                         for elt in self.request.session.keys():
@@ -325,30 +359,30 @@ class UserLoginView(View):
                         pass
                     login(self.request, user)
                     messages.success(self.request, "You are now logged in, %s." % user.username)
-                    # return redirect('grocerystore:cart', store_id=store_id)
-                    return redirect('grocerystore:index')
+                    try:
+                        return redirect(self.request.GET['redirect_to'])
+                    except:
+                        return redirect('grocerystore:index')
         except AttributeError:
             messages.error(request, 'Forgot your password?')
             return redirect('grocerystore:login')
 
 
 class CartView(View):
-    """Displays what's in the cart of the user depending on which store they're
-    shopping in"""
+    """Display what's in the cart of the store the user's shopping in."""
     template_name = 'grocerystore/cart.html'
 
     def get(self, request, store_id):
-        """List the products in the current store cart
-        (i.e: products from another store cart won't appear)"""
+        """List the products in the current store cart.
+        (i.e: products from another store cart won't be listed)"""
         # self.request.session['store_id'] = store_id
         user_store = Store.objects.get(pk=store_id)
         in_cart = []
         cart_total = 0
         if self.request.user.is_authenticated:
             if self.request.user.is_active:
+                print get_flaskcart(self.request.user.username).list()
                 user_cart = get_flaskcart(self.request.user.username).list()['items']
-                # flask_user = get_flaskuser(self.request.user.username)
-                # cart = user_cart.list()['items']
                 if len(user_cart) == 0:
                     context = {'cart_total': "Your cart is empty.",
                               'username': self.request.user.username,
@@ -359,8 +393,9 @@ class CartView(View):
                     for elt in user_cart:
                         product_in_cart = Availability.objects.get(pk=int(elt['name']))
                         if product_in_cart.store.pk == int(store_id):
+                            product_id = product_in_cart.product.pk
                             price = "%.2f" % (float(elt["qty"]) * float(product_in_cart.product_price))
-                            item = [product_in_cart.product, elt["qty"], product_in_cart.product_unit, price, product_in_cart.pk]
+                            item = [product_in_cart.product, elt["qty"], product_in_cart.product_unit, price, product_in_cart.pk, product_id]
                             in_cart.append(item)
                             cart_total += float(price)
                         else:
@@ -372,19 +407,21 @@ class CartView(View):
                               'quantity_set': range(21),
                               'store_id': store_id,
                               'user_store': user_store,
+                              'not_empty': True,
                               }
                 return render(self.request, 'grocerystore/cart.html', context=context)
             else:
                 messages.error(self.request, "Your account is inactive, please activate it.")
                 return redirect('grocerystore:index')
-        else:
+        else: # if user is anonymous
             try:
                 for elt in self.request.session.keys():
                     product_in_cart = Availability.objects.get(pk=int(self.request.session[elt]['name']))
                     if product_in_cart.store.pk == int(store_id):
                         qty_in_cart = self.request.session[elt]["qty"]
+                        product_id = product_in_cart.product.pk
                         price = "%.2f" % (float(qty_in_cart) * float(product_in_cart.product_price))
-                        item = [product_in_cart, int(qty_in_cart), product_in_cart.product_unit, price, product_in_cart.pk]
+                        item = [product_in_cart, int(qty_in_cart), product_in_cart.product_unit, price, product_in_cart.pk, product_id]
                         in_cart.append(item)
                         cart_total += float(price)
                     else:
@@ -395,6 +432,7 @@ class CartView(View):
                           'quantity_set': range(21),
                           'store_id': store_id,
                           'user_store': user_store,
+                          'not_empty': True,
                           }
             except KeyError:
                 context = {'cart_total': "Your cart is empty.", 'store_id': store_id, 'user_store': user_store,}
@@ -433,7 +471,7 @@ class CartView(View):
                 messages.error(self.request, "Your account is inactive, please activate it.")
                 return redirect('grocerystore:index', store_id=store_id)
 
-        else:# if anonymous user/session
+        else: # if anonymous user/session
             if self.request.POST.get('empty'):
                 try:
                     for item in self.request.session.keys():
@@ -482,7 +520,7 @@ class SearchView(View):
                       'store': store,
                       }
             return render(self.request, 'grocerystore/search.html', context=context)
-        else:#in case the search result is empty but still the user types the searched_item in the url
+        else: # in case the search result is empty but still the user types the searched_item in the url
             messages.error(self.request, "unfortunately no available item matches your research at %s" % store)
             return redirect('grocerystore:store', store_id=store_id)
 
@@ -506,7 +544,7 @@ class SearchView(View):
             else:
                 messages.info(request, "You need to activate your account to proceed.")
                 return redirect('grocerystore:index')
-        else:# if the user is anonymous
+        else: # if the user is anonymous
             for product_to_add in search_result:
                 try:
                     quantity_to_add = int(self.request.POST.get(str(product_to_add.pk)))
@@ -515,7 +553,7 @@ class SearchView(View):
                     continue
                 product_availability_pk = product_to_add.pk
                 res = {'name': str(product_availability_pk), 'qty': quantity_to_add}
-                self.request.session[product_to_add.pk] = res #pk of the Availability object
+                self.request.session[product_to_add.pk] = res # pk of the Availability object
             return redirect('grocerystore:store', store_id=store_id)
 
 
@@ -574,23 +612,24 @@ class CheckoutView(LoginRequiredMixin, View):
     form_class = PaymentForm
     template_name = 'grocerystore/checkout.html'
     login_url = 'grocerystore:login'
-    # next_url = 'grocerystore:checkout'
-    # redirect_field_name = 'redirect_to'
+    redirect_field_name = 'redirect_to'
 
     def get(self, request, store_id):
         payment_form = self.form_class(None)
-        context = {'username': self.request.user.username, 'payment_form': payment_form,}
+        user_cart = get_flaskcart(self.request.user.username).list()['items']
+        cart_total = 0
+        for elt in user_cart:
+            product_in_cart = Availability.objects.get(pk=int(elt['name']))
+            if product_in_cart.store.pk == int(store_id):
+                product_id = product_in_cart.product.pk
+                price = "%.2f" % (float(elt["qty"]) * float(product_in_cart.product_price))
+                cart_total += float(price)
+
+        context = {'username': self.request.user.username,
+                  'payment_form': payment_form,
+                  'amount_to_pay': cart_total,
+                  'store': Store.objects.get(pk=store_id),}
         return render(self.request, "grocerystore/checkout.html", context=context)
 
     def post(self, request, store_id):
         return redirect('grocerystore:congrats')
-
-def congrats(request):
-    messages.success(request, "Congratulations %s, your order was successfully processed." % request.user.username)
-    return render(request, 'grocerystore/congrats.html')
-
-@csrf_protect
-def log_out(request):
-    messages.success(request, "You've been logged out, %s. See ya!" % request.user.username)
-    logout(request)
-    return redirect('grocerystore:index')

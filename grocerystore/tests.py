@@ -1,4 +1,5 @@
 #-*- coding: UTF-8 -*-
+import sys
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.contrib.auth.models import AnonymousUser, User
@@ -9,7 +10,6 @@ from .views import IndexView, StoreView, SubcategoriesList, InstockList,\
                    get_flaskcart, search_item
 from inflaskart_api import InflaskartClient
 import urllib
-# from rest_framework.test import APIRequestFactory, APITestCase
 
 
 class SearchItemTest(TestCase):
@@ -121,7 +121,7 @@ class StoreViewTest(TestCase):
         pass
 
     def test_post_with_unauthorized_characters_in_search_tool(self):
-        """Checks url redirection if the user enters unauthorized characters in """
+        """Checks url redirection if the user enters unauthorized characters in"""
         pass
 
     def test_post_with_drop_down_menu_tool(self):
@@ -155,7 +155,6 @@ class SubcategoriesListTest(TestCase):
         self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:cart', kwargs={'store_id': 1}))
         self.assertContains(response, reverse('grocerystore:store', kwargs={'store_id': 1}))
-        self.assertContains(response, reverse('grocerystore:checkout', kwargs={'store_id': 1}))
 
     def test_get_with_non_existent_category_or_store(self):
         """Proper redirection if the user tries to get to a non-existent category or store"""
@@ -206,7 +205,6 @@ class InstockListTest(TestCase):
         self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:cart', kwargs={'store_id': 1}))
         self.assertContains(response, reverse('grocerystore:store', kwargs={'store_id': 1}))
-        self.assertContains(response, reverse('grocerystore:checkout', kwargs={'store_id': 1}))
 
     def test_get_with_non_existent_subcategory_or_category_or_store(self):
         """Proper redirection if the user tries to get to a non-existent category, sub-category or store"""
@@ -293,6 +291,45 @@ class UserLoginViewTest(TestCase):
         self.assertContains(response, reverse('grocerystore:register'))
 
 
+class CartViewTest(TestCase):
+    def setUp(self):
+        test_user = User.objects.create_user(username='toto', email='tata@gmail.com', password='azertyui')
+        test_store = Store.objects.create(store_name='Leclerc', store_location='ZAC', store_city='Loudéac', store_state='Brittany')
+        test_category = ProductCategory.objects.create(top_category='Alcohol')
+        test_subcategory = ProductSubCategory.objects.create(parent=test_category, sub_category_name='Beer')
+        test_product = Product.objects.create(product_name='Lager beer', product_category=test_subcategory)
+        test_availability = Availability.objects.create(product=test_product, store=test_store, product_unit='6x12floz', product_price=7.89)
+
+    def test_get(self):
+        """Checks if all elements are displayed"""
+        response = self.client.get(reverse('grocerystore:cart', kwargs={'store_id': 1}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You're shopping at Leclerc (ZAC)")
+        self.assertContains(response, "Hi, here is your cart")
+        self.assertContains(response, reverse('grocerystore:index'))
+        self.assertContains(response, reverse('grocerystore:store', kwargs={'store_id': 1}))
+        self.assertContains(response, reverse('grocerystore:checkout', kwargs={'store_id': 1}))
+
+    def test_get_when_user_logged_in(self):
+        """Checks that there's a logout link if the user is logged in"""
+        self.client.login(username='toto', password='azertyui')
+        response = self.client.get(reverse('grocerystore:cart', kwargs={'store_id': 1,}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Hi toto, here is your cart")
+        self.assertContains(response, reverse('grocerystore:log_out'))
+        #adding a product to the cart
+        flask_cart = get_flaskcart('toto')
+        flask_cart.add(str(1), 3)
+        self.assertContains(response, reverse('grocerystore:detail', kwargs={'store_id': 1, 'product_id': 1}))
+
+    def test_get_when_anonymous_user(self):
+        """Checks that there's a login and a register link if the user isn't logged in"""
+        self.client.logout()
+        response = self.client.get(reverse('grocerystore:cart', kwargs={'store_id': 1,}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse('grocerystore:login'))
+        self.assertContains(response, reverse('grocerystore:register'))
+
 class SearchViewTest(TestCase):
     def setUp(self):
         test_user = User.objects.create_user(username='toto', email='tata@gmail.com', password='azertyui')
@@ -314,7 +351,6 @@ class SearchViewTest(TestCase):
         self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:cart', kwargs={'store_id': 1}))
         self.assertContains(response, reverse('grocerystore:store', kwargs={'store_id': 1}))
-        self.assertContains(response, reverse('grocerystore:checkout', kwargs={'store_id': 1}))
 
     def test_get_when_user_logged_in(self):
         """Checks that there's a logout link if the user is logged in"""
@@ -368,7 +404,6 @@ class ProductDetailViewTest(TestCase):
         self.assertContains(response, reverse('grocerystore:cart', kwargs={'store_id': store_id1}))
         self.assertContains(response, reverse('grocerystore:store', kwargs={'store_id': store_id1}))
         self.assertContains(response, reverse('grocerystore:index'))
-        self.assertContains(response, reverse('grocerystore:checkout', kwargs={'store_id': store_id1}))
 
     def test_get_when_user_logged_in(self):
         """Checks that there's a logout link if the user is logged in"""

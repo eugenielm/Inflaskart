@@ -34,7 +34,6 @@
     <a href="{% url 'grocerystore:cart' store_id %}">View your cart in this store</a><br>
     <a href="{% url 'grocerystore:store' store_id %}">Continue shopping in this store</a> -
     <a href="{% url 'grocerystore:index' %}">Change store</a><br>
-    <a href="{% url 'grocerystore:checkout' store_id %}">Checkout</a><br><br>
     {% if request.user.is_authenticated %}
       <a href="{% url 'grocerystore:log_out' %}">Logout</a>
     {% else %}
