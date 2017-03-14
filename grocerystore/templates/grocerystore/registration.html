@@ -1,0 +1,33 @@
+{% extends 'grocerystore/base.html' %}
+
+    {% block head %}
+        <title>Inflaskart | Registration</title>
+    {% endblock %}
+
+<body>
+  {% block body %}
+
+    <header>
+        <h1>Welcome to the Inflaskart registration page</h1>
+    </header>
+
+    {% if messages %}
+      <ul class="messages">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form id="registration_form" class="form-horizontal" role="form" action="" method="post">
+        {% csrf_token %}
+        {{ user_form.as_p }}
+        {{ address_form.as_p }}
+        <input type="submit" value="Submit" />
+    </form>
+
+    <a href="{% url 'grocerystore:index' %}">Choose an area to shop</a><br>
+    <a href="{% url 'grocerystore:login' %}">Log in</a>
+
+  {% endblock %}
+</body>

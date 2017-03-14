@@ -1,16 +1,18 @@
 <html>
-  <head>
-      {% block head %}
 
-        {% if username %}
-          <p> Hi {{username}}, you're checking out at {{store}}'s.</p>
-          <p> The total amount is ${{amount_to_pay}}.</p>
-          <p> Please enter your checkout information below: </p>
-        {% endif %}
+  {% block head %}
+  <title>Inflaskart | Checkout</title>
+  {% endblock %}
 
-      {% endblock %}
-  </head>
   <body>
+    {% block body %}
+      <header>
+            {% if username %}
+              <p> Hi {{username}}, you're checking out at {{store}}'s.</p>
+              <p> The total amount is ${{amount_to_pay}}.</p>
+              <p> Please enter your checkout information below: </p>
+            {% endif %}
+      </header>
 
       {% if messages %}
       <ul class="messages">
@@ -26,9 +28,13 @@
       <input type="submit" value="Submit" />
     </form><br>
 
-    <a href="{% url 'grocerystore:index' %}">Let's shop</a><br>
-    <a href="{% url 'grocerystore:log_out' %}">Logout</a>
 
+    <a href="{% url 'grocerystore:cart' zipcode store_id %}">View my cart in this store</a> -
+    <a href="{% url 'grocerystore:store' zipcode store_id %}">Continue shopping in this store</a> -
+    <a href="{% url 'grocerystore:start' zipcode %}">Change store</a> -
+    <a href="{% url 'grocerystore:logout' %}">Logout</a>
+
+    {% endblock %}
   </body>
 
 </html>

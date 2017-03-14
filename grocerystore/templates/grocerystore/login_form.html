@@ -1,13 +1,15 @@
 {% extends 'grocerystore/base.html' %}
 
-<head>
     {% block head %}
-      <h1>Welcome to the Inflaskart login page</h1>
+        <title>Inflaskart | Login</title>
     {% endblock %}
-</head>
 
 <body>
   {% block body %}
+
+    <header>
+        <h1>Welcome to the Inflaskart login page</h1>
+    </header>
 
     {% if messages %}
     <ul class="messages">
@@ -25,7 +27,7 @@
         <input type="submit" value="Submit" />
     </form>
 
-    <a href="{% url 'grocerystore:index' %}">Choose a store</a><br>
+    <a href="{% url 'grocerystore:index' %}">Choose an area to shop</a><br>
     <a href="{% url 'grocerystore:register' %}">Create an account</a><br>
 
   {% endblock %}
