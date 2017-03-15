@@ -2,4 +2,5 @@
 .*.sw?
 .DS_Store
 db.sqlite3
+grocerystore/migrations/0*
 
