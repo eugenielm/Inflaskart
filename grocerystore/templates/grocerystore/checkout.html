@@ -31,7 +31,8 @@
 
     <a href="{% url 'grocerystore:cart' zipcode store_id %}">View my cart in this store</a> -
     <a href="{% url 'grocerystore:store' zipcode store_id %}">Continue shopping in this store</a> -
-    <a href="{% url 'grocerystore:start' zipcode %}">Change store</a> -
+    <a href="{% url 'grocerystore:start' zipcode %}">Change store</a><br>
+    <a href="{% url 'grocerystore:profile' %}">Your profile</a><br>
     <a href="{% url 'grocerystore:logout' %}">Logout</a>
 
     {% endblock %}

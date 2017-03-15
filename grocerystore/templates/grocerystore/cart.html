@@ -7,7 +7,7 @@
   <body>
 
     <header>
-        <h3>You're shopping at {{ store.store_name }}</h3>
+        <h3>You're shopping at {{ user_store }}</h3>
     </header>
 
     {% if not_empty %}
@@ -56,6 +56,7 @@
       <a href="{% url 'grocerystore:checkout' zipcode store_id %}">Checkout</a><br>
     {% endif %}
     {% if username %}
+      <a href="{% url 'grocerystore:profile' %}">View your profile</a><br>
       <a href="{% url 'grocerystore:logout' %}">Logout</a>
     {% else %}
       <a href="{% url 'grocerystore:index' %}">Shop in another area</a><br>

@@ -1,0 +1,28 @@
+{% extends 'grocerystore/base.html' %}
+
+{% block head %}
+    <title>Inflaskart | Profile</title>
+{% endblock %}
+
+<body>
+  {% block body %}
+
+      <header>
+          <h1>Your information</h1>
+      </header>
+    <p>Username: {{ request.user.username }}</p>
+    <form id="profile" class="form-horizontal" role="form" action="" method="post">
+        {% csrf_token %}
+        <label for='first_name'>First name: </label>
+        <input type="text" name="first_name" id="first_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.first_name }}"><br>
+        <label for='last_name'>Last name: </label>
+        <input type="text" name="last_name" id="last_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.last_name }}"><br>
+        {{ address_form.as_p }}
+        <input type="submit" value="Update profile" />
+    </form>
+
+    <a href="{% url 'grocerystore:index' %}">Start shopping</a><br>
+    <a href="{% url 'grocerystore:logout' %}">Log out</a>
+
+  {% endblock %}
+</body>

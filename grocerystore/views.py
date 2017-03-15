@@ -20,10 +20,12 @@ from inflaskart_api import InflaskartClient, search_item, get_flaskcart, remove_
 
 
 """
-This module contains 12 views:
+This module contains 14 views:
 - UserRegisterView
 - UserLoginView
 - log_out()
+- ProfileView
+- ProfileUpdateView
 - IndexView
 - StartView
 - StoreView
@@ -59,8 +61,7 @@ class UserRegisterView(View):
         form2 = self.form_class2(self.request.POST)
         try: # check if the username typed in is available
             user = User.objects.get(username=self.request.POST['username'])
-            messages.error(self.request, "This username is already used, please choose another one.")
-            return redirect('grocerystore:register')
+            return render(request, self.template_name, {'user_form': form1, 'address_form': form2})
         except:
             pass
 
@@ -90,9 +91,17 @@ class UserRegisterView(View):
 
                     # updating the user's cart if they added products in their cart
                     # before registering
+                    inflauser_zipcode = Inflauser.objects.get(infla_user=user).inflauser_address.zip_code
+                    not_available = False
                     for elt in self.request.session.keys():
                         product_availability_pk = self.request.session[elt]["name"]
                         flask_cart.add(product_availability_pk, self.request.session[elt]["qty"])
+                        if not Availability.objects.get(pk=int(self.request.session[elt]["name"]))\
+                               .store.delivery_area.all().filter(zipcode=inflauser_zipcode):
+                            not_available = True
+                    if not_available:
+                        messages.info(self.request, "Before logging in, you shopped "\
+                        "items in a store that doesn't deliver your current address.")
 
                     login(self.request, user)
                     messages.success(self.request, "You're now registered and logged in, %s" % user.username)
@@ -111,7 +120,7 @@ class UserRegisterView(View):
 
 
 class UserLoginView(View):
-    """Allows the user to login if they're already registered"""
+    """Allows the user to login if they're already registered."""
     form_class = LoginForm
     template_name = 'grocerystore/login_form.html'
 
@@ -146,9 +155,19 @@ class UserLoginView(View):
                             msge += "\n" + item['qty'] + " " + item['name']
                         messages.info(self.request, msge)
 
+                    # updating the user's cart if they added products in their cart
+                    # before registering
+                    inflauser_zipcode = Inflauser.objects.get(infla_user=user).inflauser_address.zip_code
+                    not_available = False
                     for elt in self.request.session.keys():
                         product_availability_pk = self.request.session[elt]["name"]
                         flask_cart.add(product_availability_pk, self.request.session[elt]["qty"])
+                        if not Availability.objects.get(pk=int(self.request.session[elt]["name"]))\
+                               .store.delivery_area.all().filter(zipcode=inflauser_zipcode):
+                            not_available = True
+                    if not_available:
+                        messages.info(self.request, "Before logging in, you shopped "\
+                        "items in a store that doesn't deliver your current address.")
 
                     login(self.request, user)
                     messages.success(self.request, "You're now registered and logged in, %s" % user.username)
@@ -177,6 +196,51 @@ def log_out(request):
     messages.success(request, "You've been logged out, %s. See ya!" % request.user.username)
     logout(request)
     return redirect('grocerystore:index')
+
+
+class ProfileView(LoginRequiredMixin, View):
+    template_name = 'grocerystore/profile.html'
+    login_url = 'grocerystore:login'
+    redirect_field_name = 'redirect_to'
+
+    def get(self, request):
+        inflauser = Inflauser.objects.get(infla_user=self.request.user)
+        return render(self.request, 'grocerystore/profile.html', {'user_address': inflauser.inflauser_address})
+
+    def post(self, request):
+        return redirect('grocerystore:profile_update')
+
+
+class ProfileUpdateView(LoginRequiredMixin, View):
+    """Allows an authenticated user to see and edit their profile."""
+    template_name = 'grocerystore/profile_update.html'
+    login_url = 'grocerystore:login'
+    redirect_field_name = 'redirect_to'
+    form_class = AddressForm
+
+    def get(self, request):
+        inflauser = Inflauser.objects.get(infla_user=self.request.user)
+        inflauser_address = Inflauser.objects.get(infla_user=self.request.user).inflauser_address
+        address_form = self.form_class(instance=inflauser_address)
+        return render(self.request, 'grocerystore/profile_update.html', {'address_form': address_form})
+
+    def post(self, request):
+        new_first_name = self.request.POST['first_name']
+        new_last_name = self.request.POST['last_name']
+        user = self.request.user
+        user.first_name = new_first_name
+        user.last_name = new_last_name
+        user.save()
+
+        inflauser_address = Inflauser.objects.get(infla_user=user).inflauser_address
+        new_address = self.form_class(self.request.POST, instance=inflauser_address)
+        if new_address.is_valid():
+            inflauser_address = new_address
+            inflauser_address.save()
+            return redirect('grocerystore:profile')
+
+        messages.error(self.request, "Please make sure you enter valid information.")
+        return render(self.request, 'grocerystore/profile_update.html', {'address_form': new_address})
 
 
 class IndexView(View):

@@ -36,6 +36,7 @@
     <a href="{% url 'grocerystore:store' zipcode store_id %}">Continue shopping in this store</a> -
     <a href="{% url 'grocerystore:start' zipcode %}">Change store</a></br>
     {% if request.user.is_authenticated %}
+      <a href="{% url 'grocerystore:profile' %}">View your profile</a><br>
       <a href="{% url 'grocerystore:logout' %}">Logout</a>
     {% else %}
       <a href="{% url 'grocerystore:index' %}">Shop in another area</a><br>

@@ -6,6 +6,21 @@ from django.contrib.auth.models import User
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
                     Store, Address, Availability, Inflauser, State, Zipcode
 
+"""
+This module contains 8 forms:
+
+- UserForm: 1st part of the user registration template;
+- AddressForm: 2nd part of the user registration template;
+- LoginForm
+- ProfileForm
+- SelectCategory: used to select a product top category
+#################
+- CheckoutForm: where the user enters their credit card information
+- CreditCardField / PaymentForm
+#################
+
+"""
+
 class UserForm(forms.ModelForm):
     password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput)
     email = forms.EmailField(required=True)
@@ -13,18 +28,25 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'password', 'email', 'first_name', 'last_name']
+        help_texts = {
+            'username': None,
+        }
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
 
+
 class AddressForm(forms.ModelForm):
-    zip_code = forms.RegexField(max_length=5, min_length=4, regex=r'^[0-9]{4,5}$', error_messages={'invalid': "Please enter a valid ZIP code.", 'required': "Please fill in this field."})
+    zip_code = forms.RegexField(max_length=5, min_length=4, regex=r'^[0-9]{4,5}$',
+               error_messages={'invalid': "Please enter a valid ZIP code.",
+                               'required': "Please fill in this field."})
 
     class Meta:
         model = Address
         fields = '__all__'
+
 
 class LoginForm(forms.ModelForm):
     password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput)
@@ -32,6 +54,7 @@ class LoginForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'password']
+
 
 class SelectCategory(forms.Form):
     """Displays a drop down menu with all the product categories available
@@ -41,10 +64,12 @@ class SelectCategory(forms.Form):
                                       empty_label="--Choose below--",
                                       widget=forms.Select(attrs={'onChange':'submit();'}))
 
+
 class CheckoutForm(forms.Form):
     card_digits = forms.RegexField(regex=r'^[1-9][0-9]{12,15}$') # the number of digits limitation doesn't work
     exp_date = forms.DateField(required=True)
     secure_digits = forms.DecimalField(max_digits=3, decimal_places=0)
+
 
 class CreditCardField(forms.IntegerField):
     """ copied and pasted from http://codekarate.com/blog/django-credit-card-payment-form"""
@@ -82,6 +107,7 @@ class CreditCardField(forms.IntegerField):
             raise forms.ValidationError("Please enter in a Visa, Master Card"+\
                   "Discover, or American Express credit card number.")
         return super(CreditCardField, self).clean(value)
+
 
 class PaymentForm(forms.Form):
     number = CreditCardField(required = True, label = "Card Number")

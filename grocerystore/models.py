@@ -26,7 +26,7 @@ class Address(models.Model):
     other = models.CharField(max_length=50, blank=True, verbose_name="Floor, building, etc.")
     city = models.CharField(max_length=30)
     zip_code = models.PositiveIntegerField(error_messages={'invalid': "Please enter a valid ZIP code."})
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
+    state = models.ForeignKey(State, on_delete=models.CASCADE, error_messages={'invalid': "Please enter a valid ZIP code."})
 
     def __str__(self):
         return self.street_adress1 + ", " + str(self.zip_code)

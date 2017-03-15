@@ -27,7 +27,7 @@
     <form id="zipcode" action="" method="post">
       {% csrf_token %}
       <label for='zipcode'>Enter a zip code: </label>
-      <input type="text" name="zipcode" id="zipcode" pattern="[0-9z]{4,5}" maxlength="5">
+      <input type="text" name="zipcode" id="zipcode" pattern="[0-9]{4,5}" maxlength="5">
       <input type="submit" value="ok">
     </form>
     <br>

@@ -1,0 +1,34 @@
+{% extends 'grocerystore/base.html' %}
+
+{% block head %}
+    <title>Inflaskart | Profile</title>
+{% endblock %}
+
+<body>
+  {% block body %}
+
+      <header>
+          <h1>Your information</h1>
+      </header>
+
+    <p>Username: {{ request.user.username }}</p>
+    <p>First name: {{ request.user.first_name }}</p>
+    <p>Last name: {{ request.user.last_name }}</p>
+    <p>Address: {{ user_address.street_adress1 }}</p>
+    <p>Address (line 2): {{ user_address.street_adress2 }}</p>
+    <p>Apt/Unit: {{ user_address.apt_nb }}</p>
+    <p>Floor, building, etc.: {{ user_address.other }}</p>
+    <p>City: {{ user_address.city }}</p>
+    <p>ZIP code: {{ user_address.zip_code }}</p>
+    <p>State: {{ user_address.state }}</p>
+
+    <form name="edit_profile" action="" method="post">
+        {% csrf_token %}
+        <input type="submit" name="edit_profile" value="Edit profile" />
+    </form>
+
+    <a href="{% url 'grocerystore:start' user_address.zip_code %}">Start shopping</a><br>
+    <a href="{% url 'grocerystore:logout' %}">Log out</a>
+
+  {% endblock %}
+</body>
