@@ -33,6 +33,8 @@
       {% endfor %}
     </form><br>
 
+
+    <a href="{% url 'grocerystore:cart' zipcode %}">View your cart</a>
     {% if request.user.is_authenticated %}
       <a href="{% url 'grocerystore:logout' %}">Logout</a>
       <a href="{% url 'grocerystore:profile' %}">View your profile</a>

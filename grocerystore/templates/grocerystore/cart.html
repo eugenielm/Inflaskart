@@ -1,22 +1,14 @@
 <html>
 
   {% block head %}
-    <title>Inflaskart | {{ user_store }}</title>
+    <title>Inflaskart | Your cart</title>
   {% endblock %}
 
   <body>
 
     <header>
-        <h3>You're shopping at {{ user_store }}</h3>
+        <h3>Your cart in the {{ zipcode }} area</h3>
     </header>
-
-    {% if not_empty %}
-        {% if username %}
-          <p> Hi {{username}}, here is your cart: </p>
-        {% else %}
-          <p> Hi, here is your cart: </p>
-        {% endif %}
-    {% endif %}
 
     {% if messages %}
     <ul class="messages">
@@ -26,35 +18,44 @@
     </ul>
     {% endif %}
 
-    {% for item in in_cart %}
-      <ul><li><a href="{% url 'grocerystore:detail' zipcode store_id item.5 %}">{{ item.0 }}</a>: {{ item.1 }} x {{ item.2 }}, <br>Total = ${{ item.3 }}
-        <form action="" method="post">
-          {% csrf_token %}
-          <select name="{{item.4}}">
-            {% for quantity in quantity_set %}
-              <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}> {{ quantity }}</option>
-            {% endfor %}
-          </select>
-          <input type="submit" value="Update quantity" />
-        </form>
-      </li></ul>
-    {% endfor %}
+{% if all_carts %}
 
-    <p> {{ cart_total }} </p><br>
+  {% for key, values in all_carts.items %}
 
-    {% if not_empty %}
-    <form action="" method="post">
-      {% csrf_token %}
-      <input name="empty" type="submit" value="Empty cart" />
-    </form>
-    {% endif %}
+    <section name="{{ key.pk }}" id="single_cart">
 
+      <p>Here is your cart at <a href="{% url 'grocerystore:store' zipcode key.pk %}">{{ key }}:</a></p>
 
-    <a href="{% url 'grocerystore:store' zipcode store_id %}">Continue shopping in this store</a> -
-    <a href="{% url 'grocerystore:start' zipcode %}">Change store</a><br>
-    {% if cart_total != 'Your cart is empty.' %}
-      <a href="{% url 'grocerystore:checkout' zipcode store_id %}">Checkout</a><br>
-    {% endif %}
+      {% for item in values|slice:":-1" %}
+        <ul><li><a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">{{ item.0 }}</a>: {{ item.1 }} x {{ item.2 }}, <br>Total = ${{ item.3 }}
+          <form action="" method="post">
+            {% csrf_token %}
+            <select name="{{item.4}}">
+              {% for quantity in quantity_set %}
+                <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}> {{ quantity }}</option>
+              {% endfor %}
+            </select>
+            <input type="submit" value="Update quantity" />
+          </form>
+        </li></ul>
+      {% endfor %}
+
+      <p>Cart total: ${{ values|last }} </p><br>
+
+      <form action="" method="post">
+        {% csrf_token %}
+        <input name="empty {{key.pk}}" type="submit" value="Empty cart" />
+      </form>
+
+    </section>
+
+  {% endfor %}
+
+{% else %}
+  <p>Your cart is empty.</p>
+{% endif %}
+
+    <a href="{% url 'grocerystore:start' zipcode %}">Choose a store</a><br>
     {% if username %}
       <a href="{% url 'grocerystore:profile' %}">View your profile</a><br>
       <a href="{% url 'grocerystore:logout' %}">Logout</a>

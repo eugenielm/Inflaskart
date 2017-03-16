@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^profile/update/$', views.ProfileUpdateView.as_view(), name='profile_update'),
     url(r'^(?P<zipcode>[0-9]{4,5})/$', views.StartView.as_view(), name='start'),
     url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/$', views.StoreView.as_view(), name='store'),
-    url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/cart/$', views.CartView.as_view(), name='cart'),
+    url(r'^(?P<zipcode>[0-9]{4,5})/cart/$', views.CartView.as_view(), name='cart'),
     url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/detail/(?P<product_id>[0-9a-zA-Z%]+)/$', views.ProductDetailView.as_view(), name='detail'),
     url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/search/(?P<searched_item>[0-9a-zA-Z%]+)/$',
                             views.SearchView.as_view(), name='search'),

@@ -60,7 +60,7 @@
 <br>
 <br>
 
-    <a href="{% url 'grocerystore:cart' zipcode store_id %}">View your cart in this store</a><br>
+    <a href="{% url 'grocerystore:cart' zipcode %}">View your cart</a><br>
     <a href="{% url 'grocerystore:store' zipcode store_id %}">Continue shopping in this store</a><br>
     <a href="{% url 'grocerystore:start' zipcode %}">Change store</a><br>
     {% if request.user.is_authenticated %}

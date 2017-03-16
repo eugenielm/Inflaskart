@@ -554,116 +554,139 @@ class CartView(View):
     """Display what's in the cart of the store the user's shopping in."""
     template_name = 'grocerystore/cart.html'
 
-    def get(self, request, zipcode, store_id):
-        """List the products in the current store cart.
-        (i.e: products from another store cart won't be listed)"""
-        # self.request.session['store_id'] = store_id
-        user_store = Store.objects.get(pk=store_id)
-        in_cart = []
-        cart_total = 0
+    def get(self, request, zipcode):
+        """List the products in all the user carts."""
+        all_carts = {}
         if self.request.user.is_authenticated:
             if self.request.user.is_active:
                 user_cart = get_flaskcart(self.request.user.username, CART_HOST).list()['items']
                 if len(user_cart) == 0:
-                    context = {'cart_total': "Your cart is empty.",
-                              'username': self.request.user.username,
+                    context = {'username': self.request.user.username,
                               'zipcode': zipcode,
-                              'store_id': store_id,
-                              'user_store': user_store,
                               }
                 else:
-                    for elt in user_cart:
-                        product_in_cart = Availability.objects.get(pk=int(elt['name']))
-                        if product_in_cart.store.pk == int(store_id):
-                            product_id = product_in_cart.product.pk
-                            price = "%.2f" % (float(elt["qty"]) * float(product_in_cart.product_price))
-                            item = [product_in_cart.product, elt["qty"], product_in_cart.product_unit, price, product_in_cart.pk, product_id]
-                            in_cart.append(item)
-                            cart_total += float(price)
-                        else:
-                            pass
-                    cart_total = "Cart total: $%.2f" % cart_total
+                    # all_carts = { store1: cart1, store2: cart2 }
+                    # NB: cart : [[item1_info], [item2_info],..., [itemn_info], 'total': cart_total]
+                    for item in user_cart:
+                        item_availability_pk = int(item['name'])
+                        item_availability = Availability.objects.get(pk=item_availability_pk)
+                        item_store = item_availability.store
+                        # be sure to show only the carts of the stores that deliver at the user address
+                        if not item_store.delivery_area.all().filter(zipcode=zipcode):
+                            continue
+                        item_product = item_availability.product
+                        item_price = "%.2f" % (float(item["qty"]) * float(item_availability.product_price))
+                        elt = [item_product, item["qty"], item_availability.product_unit, item_price, item_availability_pk, item_product.pk]
+                        try:
+                            all_carts[item_store].append(elt)
+                        except KeyError:
+                            all_carts[item_store] = [elt]
+
+                    for cart in all_carts.values():
+                        cart_total = 0
+                        for elt in cart:
+                            cart_total += float(elt[3])
+                        cart.append(cart_total)
+
                     context = {'username': self.request.user.username,
-                              'in_cart': in_cart,
-                              'cart_total': cart_total,
-                              'quantity_set': range(21),
-                              'zipcode': zipcode,
-                              'store_id': store_id,
-                              'user_store': user_store,
-                              'not_empty': True,
-                              }
+                               'all_carts': all_carts,
+                               'quantity_set': range(21),
+                               'zipcode': zipcode,}
+
                 return render(self.request, 'grocerystore/cart.html', context=context)
+
             else:
                 messages.error(self.request, "Your account is inactive, please activate it.")
                 return redirect('grocerystore:index')
+
         else: # if user is anonymous
             try:
-                for elt in self.request.session.keys():
-                    product_in_cart = Availability.objects.get(pk=int(self.request.session[elt]['name']))
-                    if product_in_cart.store.pk == int(store_id):
-                        qty_in_cart = self.request.session[elt]["qty"]
-                        product_id = product_in_cart.product.pk
-                        price = "%.2f" % (float(qty_in_cart) * float(product_in_cart.product_price))
-                        item = [product_in_cart, int(qty_in_cart), product_in_cart.product_unit, price, product_in_cart.pk, product_id]
-                        in_cart.append(item)
-                        cart_total += float(price)
-                    else:
-                        pass
-                cart_total = "Cart total: $%.2f" % cart_total
-                context = {'in_cart': in_cart,
-                          'cart_total': cart_total,
-                          'quantity_set': range(21),
-                          'zipcode': zipcode,
-                          'store_id': store_id,
-                          'user_store': user_store,
-                          'not_empty': True,
-                          }
+                for item in self.request.session.keys():
+                    item_availability_pk = int(self.request.session[item]['name'])
+                    item_availability = Availability.objects.get(pk=item_availability_pk)
+                    item_store = item_availability.store
+                    # be sure to show only the carts of the stores that deliver at the user address
+                    if not item_store.delivery_area.all().filter(zipcode=zipcode):
+                        continue
+                    item_product = item_availability.product
+                    item_price = "%.2f" % (float(self.request.session[item]["qty"]) * float(item_availability.product_price))
+                    elt = [item_product, self.request.session[item]["qty"], item_availability.product_unit, item_price, item_availability_pk, item_product.pk]
+                    try:
+                        all_carts[item_store].append(elt)
+                    except KeyError:
+                        all_carts[item_store] = [elt]
+
+                for cart in all_carts.values():
+                    cart_total = 0
+                    for elt in cart:
+                        cart_total += float(elt[3])
+                    cart.append(cart_total)
+
+                context = {'all_carts': all_carts,
+                           'quantity_set': range(21),
+                           'zipcode': zipcode,}
+
             except KeyError:
-                context = {'cart_total': "Your cart is empty.", 'zipcode': zipcode, 'store_id': store_id, 'user_store': user_store,}
+                context = {'zipcode': zipcode}
+
             return render(self.request, 'grocerystore/cart.html', context=context)
 
-    def post(self, request, zipcode, store_id):
+    def post(self, request, zipcode):
         if self.request.user.is_authenticated:
             if self.request.user.is_active:
                 flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
                 user_cart = flask_cart.list()['items']
-                if self.request.POST.get('empty'):# if the user press the "empty" button
-                    if len(user_cart) > 0:
-                        flask_cart.empty_cart()
-                        messages.success(request, "You've just emptied your cart at %s, %s." % (Store.objects.get(pk=int(store_id)), self.request.user.username))
-                    return redirect('grocerystore:cart', zipcode=zipcode, store_id=store_id)
+                store_pks = []
+                for elt in user_cart:
+                    if Availability.objects.get(pk=elt["name"]).store.pk not in store_pks:
+                        store_pks.append(Availability.objects.get(pk=int(elt["name"])).store.pk)
 
-                else:
-                    for elt in user_cart: # if the user wants to update an item quantity
-                        product_to_update = Availability.objects.get(pk=int(elt['name']))
-                        try:
-                            qty_to_change = int(self.request.POST.get(str(product_to_update.pk)))
-                        except TypeError: # loops in the cart until it hits the product to update
-                            continue
-                        if qty_to_change == 0:
-                            flask_cart.delete(elt['name'])
-                            messages.success(self.request, "'%s' has been removed from your cart." % product_to_update)
-                        else:
-                            product_availability_pk = product_to_update.pk
-                            flask_cart.add(str(product_availability_pk), qty_to_change)
-                            messages.success(self.request, "'%s' quantity has been updated." % product_to_update)
-                    return redirect('grocerystore:cart', zipcode=zipcode, store_id=store_id)
+                for i in store_pks: # if the user wants to empty a cart
+                    try:
+                        if self.request.POST['empty '+str(i)]:
+                            for item in user_cart:
+                                if Availability.objects.get(pk=int(item["name"])).store.pk == i:
+                                    flask_cart.delete(item["name"])
+                            messages.success(self.request, "You've just emptied your cart at %s." % Store.objects.get(pk=i))
+                        return redirect('grocerystore:cart', zipcode=zipcode)
+                    except:
+                        continue
+
+                for elt in user_cart: # if the user wants to update an item quantity
+                    product_to_update = Availability.objects.get(pk=int(elt['name']))
+                    try:
+                        qty_to_change = int(self.request.POST.get(str(product_to_update.pk)))
+                    except TypeError: # loops in the cart until it hits the product to update
+                        continue
+                    if qty_to_change == 0:
+                        flask_cart.delete(elt['name'])
+                        messages.success(self.request, "'%s' has been removed from your cart." % product_to_update)
+                    else:
+                        flask_cart.add(str(product_to_update.pk), qty_to_change)
+                        messages.success(self.request, "'%s' quantity has been updated." % product_to_update)
+
+                return redirect('grocerystore:cart', zipcode=zipcode)
 
             else:
                 messages.error(self.request, "Your account is inactive, please activate it.")
                 return redirect('grocerystore:index')
 
-        else: # if anonymous user/session
-            if self.request.POST.get('empty'):
+        else: # if anonymous user
+            store_pks = []
+            for item in self.request.session.keys():
+                if Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk not in store_pks:
+                    store_pks.append(Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk)
+
+            for i in store_pks: # if the user wants to empty a cart
                 try:
-                    for item in self.request.session.keys():
-                        product_in_cart = Availability.objects.get(pk=int(self.request.session[item]["name"])) ########## ou ?: Availability.objects.get(pk=int(item["name"]))
-                        if product_in_cart.store.pk == int(store_id):
-                            del self.request.session[item] #ou?: del item
-                    messages.success(self.request, "You've just emptied your cart at %s." % Store.objects.get(pk=int(store_id)))
-                except KeyError:
-                    pass
-                return redirect('grocerystore:cart', zipcode=zipcode, store_id=store_id)
+                    if self.request.POST['empty '+str(i)]:
+                        for item in self.request.session.keys():
+                            if Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk == i:
+                                del self.request.session[item]
+                        messages.success(self.request, "You've just emptied your cart at %s." % Store.objects.get(pk=i))
+                    return redirect('grocerystore:cart', zipcode=zipcode)
+                except:
+                    continue
 
             for item in self.request.session.keys():
                 product_to_update = Availability.objects.get(pk=int(self.request.session[item]["name"]))
@@ -677,7 +700,7 @@ class CartView(View):
                 else:
                     self.request.session[item] = {"name": str(product_to_update.pk), "qty": qty_to_change}
                     messages.success(self.request, "'%s' quantity has been updated." % product_to_update)
-            return redirect('grocerystore:cart', zipcode=zipcode, store_id=store_id)
+            return redirect('grocerystore:cart', zipcode=zipcode)
 
 
 class CheckoutView(LoginRequiredMixin, View):
