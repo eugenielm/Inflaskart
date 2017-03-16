@@ -40,7 +40,8 @@
         </li></ul>
       {% endfor %}
 
-      <p>Cart total: ${{ values|last }} </p><br>
+      <p>Cart total: ${{ values|last }} | <a href="{% url 'grocerystore:checkout' zipcode key.pk %}">Checkout</a></p>
+      <br>
 
       <form action="" method="post">
         {% csrf_token %}

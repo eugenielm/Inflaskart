@@ -27,7 +27,8 @@
         <input type="submit" name="edit_profile" value="Edit profile" />
     </form>
 
-    <a href="{% url 'grocerystore:start' user_address.zip_code %}">Start shopping</a><br>
+    <a href="{% url 'grocerystore:start' user_address.zip_code %}">Start shopping</a> -
+    <a href="{% url 'grocerystore:cart' user_address.zip_code %}">View your cart</a><br>
     <a href="{% url 'grocerystore:logout' %}">Log out</a>
 
   {% endblock %}

@@ -710,8 +710,14 @@ class CheckoutView(LoginRequiredMixin, View):
     redirect_field_name = 'redirect_to'
 
     def get(self, request, zipcode, store_id):
-        payment_form = self.form_class(None)
         user_cart = get_flaskcart(self.request.user.username, CART_HOST).list()['items']
+        if not user_cart:
+            context = {'empty_cart': 'You need to put items in your cart to be able to checkout!',
+                       'zipcode': zipcode,
+                       'store_id': store_id,}
+            return render(self.request, 'grocerystore/checkout.html', context=context)
+
+        payment_form = self.form_class(None)
         cart_total = 0
         for elt in user_cart:
             product_in_cart = Availability.objects.get(pk=int(elt['name']))
@@ -731,7 +737,11 @@ class CheckoutView(LoginRequiredMixin, View):
     def post(self, request, zipcode, store_id):
         """Empties the cart and redirect to the start shopping page.
         NB: this is a fake check out (there's no security page to pay)."""
-        flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
-        flask_cart.empty_cart()
-        messages.success(self.request, "Congratulations for your purchase!")
-        return redirect('grocerystore:start', zipcode=zipcode)
+        payment_data = self.form_class(self.request.POST)
+        if payment_data.is_valid():
+            flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
+            flask_cart.empty_cart()
+            messages.success(self.request, "Congratulations for your purchase!")
+            return redirect('grocerystore:start', zipcode=zipcode)
+        messages.error(self.request, "Please be sure to enter valid credit cart information.")
+        return redirect('grocerystore:checkout', zipcode=zipcode, store_id=store_id)

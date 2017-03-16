@@ -8,7 +8,7 @@
     {% block body %}
       <header>
             {% if username %}
-              <p> Hi {{username}}, you're checking out at {{store}}'s.</p>
+              <p> Checking out at {{store}}'s.</p>
               <p> The total amount is ${{amount_to_pay}}.</p>
               <p> Please enter your checkout information below: </p>
             {% endif %}
@@ -22,14 +22,17 @@
       </ul>
       {% endif %}
 
+    {% if empty_cart %}
+      <p>{{ empty_cart }}</p>
+    {% else %}
     <form action="" method="post">
       {% csrf_token %}
       <p> {{ payment_form.as_table }} </p>
       <input type="submit" value="Submit" />
     </form><br>
+    {% endif %}
 
-
-    <a href="{% url 'grocerystore:cart' zipcode store_id %}">View my cart in this store</a> -
+    <a href="{% url 'grocerystore:cart' zipcode %}">View my cart</a> -
     <a href="{% url 'grocerystore:store' zipcode store_id %}">Continue shopping in this store</a> -
     <a href="{% url 'grocerystore:start' zipcode %}">Change store</a><br>
     <a href="{% url 'grocerystore:profile' %}">Your profile</a><br>
