@@ -1,28 +1,72 @@
-{% extends 'grocerystore/base.html' %}
+<!DOCTYPE html>
 
-{% block head %}
-    <title>Inflaskart | Profile</title>
-{% endblock %}
+<html lang="en">
 
-<body>
-  {% block body %}
+  <head>
+      <meta charset="UTF-8">
+      <title>Inflaskart | Edit profile</title>
+      {% load static %}
+      <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
+  </head>
 
-      <header>
-          <h1>Your information</h1>
-      </header>
-    <p>Username: {{ request.user.username }}</p>
-    <form id="profile" class="form-horizontal" role="form" action="" method="post">
-        {% csrf_token %}
-        <label for='first_name'>First name: </label>
-        <input type="text" name="first_name" id="first_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.first_name }}"><br>
-        <label for='last_name'>Last name: </label>
-        <input type="text" name="last_name" id="last_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.last_name }}"><br>
-        {{ address_form.as_p }}
-        <input type="submit" value="Update profile" />
-    </form>
 
-    <a href="{% url 'grocerystore:index' %}">Start shopping</a><br>
-    <a href="{% url 'grocerystore:logout' %}">Log out</a>
+  <body>
 
-  {% endblock %}
-</body>
+    <header>
+
+      <nav class="horiz-top-nav">
+
+          <div class="dropdown">
+            <button class="dropbutton">Let's shop</button>
+            <div class="dropdown-content">
+              {% if available_stores %}
+                {% for store in available_stores %}
+                <p>---Stores in {{zipcode}}---</p>
+                <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+
+        <div class="dropdown">
+          <button class="dropbutton"><a href="{% url 'grocerystore:logout' %}">Logout</a></button>
+        </div>
+
+        <div class="dropdown">
+          <button class="dropbutton"><a href="{% url 'grocerystore:cart' zipcode %}">Your cart</a></button>
+        </div>
+
+      </nav>
+
+    </header>
+
+    <main>
+
+      <h3>Your information</h3>
+
+      <p class="field"><span style="font-weight: bold; font-style: oblique">Username: {{ request.user.username }}</span></p>
+      <form id="profile_form" role="form" action="" method="post">
+          {% csrf_token %}
+          <div class="field">
+            <label for='first_name'>First name: </label>
+            <input type="text" name="first_name" id="first_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.first_name }}">
+          </div>
+          <div class="field">
+            <label for='last_name'>Last name: </label>
+            <input type="text" name="last_name" id="last_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.last_name }}">
+          </div>
+          <div class="field">
+            {{ address_form.as_p }}
+          </div>
+          <input type="submit" value="Update profile" class="submit" />
+      </form>
+
+    </main>
+
+    <footer>
+      <p id="footer">Contact: cowboy.de.tchernobyl@gmail.com</p>
+    </footer>
+
+  </body>
+
+</html>

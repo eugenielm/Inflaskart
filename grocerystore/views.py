@@ -73,7 +73,15 @@ class UserRegisterView(View):
             user.set_password(password)
             user.save()
 
-            inflauser_address = form2.save()
+            inflauser_address = form2.save(commit=False)
+            inflauser_address.street_adress1 = cleaned_data['street_adress1']
+            inflauser_address.street_adress2 = cleaned_data['street_adress2']
+            inflauser_address.apt_nb = cleaned_data['apt_nb']
+            inflauser_address.other = cleaned_data['other']
+            inflauser_address.city = cleaned_data['city']
+            inflauser_address.zip_code = cleaned_data['zip_code']
+            inflauser_address.state = cleaned_data['state']
+            inflauser_address.save()
             inflauser = Inflauser(infla_user=user, inflauser_address=inflauser_address)
             inflauser.save()
 
@@ -100,7 +108,7 @@ class UserRegisterView(View):
                                .store.delivery_area.all().filter(zipcode=inflauser_zipcode):
                             not_available = True
                     if not_available:
-                        messages.info(self.request, "Before logging in, you shopped "\
+                        messages.error(self.request, "Before logging in, you shopped "\
                         "items in a store that doesn't deliver your current address.")
 
                     login(self.request, user)
@@ -153,7 +161,7 @@ class UserLoginView(View):
                                "your cart because there're not available anymore:"
                         for item in deleted_items:
                             msge += "\n" + item['qty'] + " " + item['name']
-                        messages.info(self.request, msge)
+                        messages.error(self.request, msge)
 
                     # updating the user's cart if they added products in their cart
                     # before registering
@@ -166,11 +174,11 @@ class UserLoginView(View):
                                .store.delivery_area.all().filter(zipcode=inflauser_zipcode):
                             not_available = True
                     if not_available:
-                        messages.info(self.request, "Before logging in, you shopped "\
+                        messages.error(self.request, "Before logging in, you shopped "\
                         "items in a store that doesn't deliver your current address.")
 
                     login(self.request, user)
-                    messages.success(self.request, "You're now registered and logged in, %s" % user.username)
+                    messages.success(self.request, "You're now logged in, %s" % user.username)
                     inflauser = Inflauser.objects.get(infla_user=user)
                     try:
                         return redirect(self.request.GET['redirect_to'])
@@ -204,8 +212,13 @@ class ProfileView(LoginRequiredMixin, View):
     redirect_field_name = 'redirect_to'
 
     def get(self, request):
-        inflauser = Inflauser.objects.get(infla_user=self.request.user)
-        return render(self.request, 'grocerystore/profile.html', {'user_address': inflauser.inflauser_address})
+        inflauser_address = Inflauser.objects.get(infla_user=self.request.user).inflauser_address
+        zipcode = inflauser_address.zip_code
+        context = {'user_address': inflauser_address, 'zipcode': zipcode}
+        available_stores = available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+        if available_stores:
+            context['available_stores'] = available_stores
+        return render(self.request, 'grocerystore/profile.html', context=context)
 
     def post(self, request):
         return redirect('grocerystore:profile_update')
@@ -222,7 +235,12 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         inflauser = Inflauser.objects.get(infla_user=self.request.user)
         inflauser_address = Inflauser.objects.get(infla_user=self.request.user).inflauser_address
         address_form = self.form_class(instance=inflauser_address)
-        return render(self.request, 'grocerystore/profile_update.html', {'address_form': address_form})
+        zipcode = inflauser_address.zip_code
+        context = {'address_form': address_form, 'zipcode': zipcode}
+        available_stores = available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+        if available_stores:
+            context['available_stores'] = available_stores
+        return render(self.request, 'grocerystore/profile_update.html', context=context)
 
     def post(self, request):
         new_first_name = self.request.POST['first_name']
@@ -255,26 +273,29 @@ class IndexView(View):
                 inflauser = Inflauser.objects.get(infla_user=self.request.user)
                 return redirect('grocerystore:start', zipcode=inflauser.inflauser_address.zip_code)
         else:
-            # return redirect('grocerystore:index')
             return render(self.request, 'grocerystore/index.html')
 
     def post(self, request):
         zipcode = self.request.POST.get('zipcode')
+        if len(zipcode) < 4 or len(zipcode) > 5:
+            return redirect('grocerystore:index')
         return redirect('grocerystore:start', zipcode=zipcode)
 
 
 class StartView(View):
-    """After the user has selected a zip code where to shop."""
+    """After the user has selected a zip code where to shop or has looged in."""
     template_name = 'grocerystore/start.html'
     context_object_name = "available_stores"
 
     def get(self, request, zipcode):
+        # if the user types an invalid zipcode directly in the browser
+        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
+            messages.error(self.request, "You are not looking for a valid zipcode.")
+            return redirect('grocerystore:index')
         context = {}
         context['zipcode'] = zipcode
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
-        if len(available_stores) == 0:
-            context['no_store'] = "Sorry, there's no store available in the area you've chosen."
-        else:
+        if len(available_stores) > 0:
             context['available_stores'] = available_stores
         return render(self.request, 'grocerystore/start.html', context=context)
 
@@ -289,23 +310,28 @@ class StartView(View):
 
 class StoreView(View):
     """This is the store index page.
-    Displays a search tool to look for available products and a drop down menus
+    Displays a search tool to look for available products and a dropdown menu
     where the user can choose a category of products."""
     form_class = SelectCategory
     template_name = 'grocerystore/store.html'
 
     def get(self, request, zipcode, store_id):
-        category_form = self.form_class(None)
-        store = Store.objects.get(pk=store_id)
-        context = {'category_form': category_form, 'store_id': store_id, 'zipcode': zipcode, 'store': store}
-        return render(self.request, 'grocerystore/store.html', context=context)
         try:
             store = Store.objects.get(pk=store_id)
-            context = {'category_form': category_form, 'store_id': store_id, 'store': store}
-            return render(self.request, 'grocerystore/store.html', context=context)
         except: # if the user try to access a non-existent store page
-            messages.error(self.request, "The url you requested doesn't exist.")
+            messages.error(self.request, "The store you're looking for doesn't exist.")
             return redirect('grocerystore:index')
+
+        context = {}
+        context['category_form'] = self.form_class(None)
+        context['store'] = Store.objects.get(pk=store_id)
+        context['store_id'] = store_id
+        context['zipcode'] = zipcode
+        available_stores = Store.objects.filter(delivery_area__zipcode=zipcode).exclude(pk=store_id)
+        if len(available_stores) > 0:
+            context['available_stores'] = available_stores
+
+        return render(self.request, 'grocerystore/store.html', context=context)
 
     def post(self, request, zipcode, store_id):
         form = self.form_class(self.request.POST)
@@ -313,18 +339,18 @@ class StoreView(View):
             searched_item = self.request.POST.get('search')
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 search_result = search_item(searched_item, store_id)
-                if len(search_result) > 25:
+                if len(search_result) > 30:
                     messages.error(request, "too many items match your research... Please be more specific.")
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 if len(search_result) == 0:
                     messages.error(request, "unfortunately no available item matches your research at %s..." % Store.objects.get(pk=store_id))
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
-                messages.info(self.request, "You're looking for '%s':" % searched_item)
                 searched_item = urllib.quote(searched_item.encode('utf8'))
                 return redirect('grocerystore:search', zipcode=zipcode, store_id=store_id, searched_item=searched_item)
             else:
                 messages.error(self.request, "You must type in only alphabetical characters")
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+
         except: # if the user uses the category drop down menu
             try:
                 category_id = self.request.POST.get('category')
@@ -336,35 +362,31 @@ class StoreView(View):
 class SubcategoriesList(ListView):
     """This page lists all product subcategories in a store for a given category."""
     template_name = 'grocerystore/subcategories_list.html'
-    context_object_name = 'subcategories'
 
     def get(self, request, zipcode, store_id, category_id):
         """Prevent the user from manually entering a non-existing URL in their browser"""
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested url doesn't exist")
+            messages.error(self.request, "Sorry, the store you're looking for doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
         try: # check if the category_id does exist
             category = ProductCategory.objects.get(pk=category_id)
         except:
-            messages.error(self.request, "Sorry, the requested url doesn't exist")
+            messages.error(self.request, "Sorry, the category you're looking for doesn't exist.")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
-        resp = super(SubcategoriesList, self).get(self, request, zipcode, store_id, category_id)
-        return resp
 
+        context = {}
+        context['zipcode'] = zipcode
+        context['store_id'] = store_id
+        context['store'] = Store.objects.get(pk=int(store_id))
+        context['category_id'] = category_id
+        context['subcategories'] = ProductSubCategory.objects.filter(parent__pk=int(category_id))
+        available_stores = Store.objects.filter(delivery_area__zipcode=zipcode).exclude(pk=store_id)
+        if len(available_stores) > 0:
+            context['available_stores'] = available_stores
 
-    def get_queryset(self):
-        return ProductSubCategory.objects.filter(parent__pk=int(self.kwargs['category_id']))
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(SubcategoriesList, self).get_context_data(**kwargs)
-        context['zipcode'] = self.kwargs['zipcode']
-        context['store_id'] = self.kwargs['store_id']
-        context['store'] = Store.objects.get(pk=self.kwargs['store_id'])
-        context['category_id'] = self.kwargs['category_id']
-        return context
+        return render(self.request, 'grocerystore/subcategories_list.html', context=context)
 
 
 class InstockList(ListView):
@@ -389,26 +411,24 @@ class InstockList(ListView):
         except:
             messages.error(self.request, "Sorry, the requested sub-category doesn't exist.")
             return redirect('grocerystore:subcategories', zipcode=zipcode, store_id=store_id, category_id=category_id)
-        resp = super(InstockList, self).get(self, request, zipcode, store_id, category_id, subcategory_id)
-        return resp
 
-    def get_queryset(self):
-        subcategory_pk = int(self.kwargs['subcategory_id'])
-        available_products = Availability.objects.filter(store__pk=int(self.kwargs['store_id']))\
-                             .filter(product__product_category__pk=int(self.kwargs['subcategory_id']))
-        if len(available_products) == 0:
-            messages.error(self.request, "Sorry, there's no product available in this category in this store.")
-        return available_products # Availability instance
-
-    def get_context_data(self, **kwargs):
-        context = super(InstockList, self).get_context_data(**kwargs)
-        context['zipcode'] = self.kwargs['zipcode']
-        context['subcategory'] = ProductSubCategory.objects.get(pk=int(self.kwargs['subcategory_id']))
-        context['store_id'] = self.kwargs['store_id']
-        context['store'] = Store.objects.get(pk=self.kwargs['store_id'])
-        context['category_id'] = self.kwargs['category_id']
+        context = {}
+        context['zipcode'] = zipcode
+        context['subcategory'] = ProductSubCategory.objects.get(pk=int(subcategory_id))
+        context['store_id'] = store_id
+        context['store'] = Store.objects.get(pk=int(store_id))
+        context['category_id'] = category_id
         context['quantity_set'] = range(1, 21)
-        return context
+
+        available_products = Availability.objects.filter(store__pk=int(store_id))\
+                             .filter(product__product_category__pk=int(subcategory_id))
+        context['available_products'] = available_products
+
+        available_stores = Store.objects.filter(delivery_area__zipcode=zipcode).exclude(pk=store_id)
+        if len(available_stores) > 0:
+            context['available_stores'] = available_stores
+
+        return render(self.request, 'grocerystore/instock_list.html', context=context)
 
     def post(self, request, zipcode, store_id, category_id, subcategory_id):
         available_products = Availability.objects.filter(store__pk=int(store_id))\
@@ -443,6 +463,11 @@ class SearchView(View):
     template_name = 'grocerystore/search.html'
 
     def get(self, request, zipcode, store_id, searched_item):
+        try: # check if the store_id does exist
+            store = Store.objects.get(pk=store_id)
+        except:
+            messages.error(self.request, "Sorry, the requested store doesn't exist.")
+            return redirect('grocerystore:start', zipcode=zipcode)
         store = Store.objects.get(pk=store_id)
         searched_item = urllib.unquote(searched_item)
         search_result = search_item(searched_item, store_id)
@@ -458,8 +483,13 @@ class SearchView(View):
                       'zipcode': zipcode,
                       'store_id': store_id,
                       'store': store,
+                      'searched_item': searched_item,
                       }
+            available_stores = Store.objects.filter(delivery_area__zipcode=zipcode).exclude(pk=store_id)
+            if len(available_stores) > 0:
+                context['available_stores'] = available_stores
             return render(self.request, 'grocerystore/search.html', context=context)
+
         else: # in case the search result is empty but still the user types the searched_item in the url
             messages.error(self.request, "unfortunately no available item matches your research at %s" % store)
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
@@ -500,13 +530,17 @@ class SearchView(View):
 class ProductDetailView(View):
     template_name = 'grocerystore/detail.html'
 
-    def get_queryset(self):
-        quantity_set = range(1, 21)
-        return quantity_set
-
     def get(self, request, zipcode, store_id, product_id):
-        store = Store.objects.get(pk=store_id)
-        product = Product.objects.get(pk=product_id)
+        try: # check if the store_id does exist
+            store = Store.objects.get(pk=store_id)
+        except:
+            messages.error(self.request, "Sorry, the requested store doesn't exist.")
+            return redirect('grocerystore:start', zipcode=zipcode)
+        try: # check if the product_id does exist
+            product = Product.objects.get(pk=product_id)
+        except:
+            messages.error(self.request, "Sorry, the requested product doesn't exist.")
+            return redirect('grocerystore:start', zipcode=zipcode)
         product_availability = Availability.objects.filter(product=product).get(store=store)
         other_availabilities = Availability.objects.filter(product=product).filter(store__delivery_area__zipcode=zipcode).exclude(pk=product_availability.pk)
         context = {}
@@ -524,6 +558,9 @@ class ProductDetailView(View):
         context['product_pic'] = product.product_pic
         context['user_id_required'] = product.user_id_required
         context['quantity_set'] = range(1, 21)
+        available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+        if len(available_stores) > 0:
+            context['available_stores'] = available_stores
 
         return render(self.request, 'grocerystore/detail.html', context=context)
 
@@ -566,7 +603,7 @@ class CartView(View):
                               }
                 else:
                     # all_carts = { store1: cart1, store2: cart2 }
-                    # NB: cart : [[item1_info], [item2_info],..., [itemn_info], 'total': cart_total]
+                    # NB: cart : [[elt1], [elt2],..., [eltN], cart_total]
                     for item in user_cart:
                         item_availability_pk = int(item['name'])
                         item_availability = Availability.objects.get(pk=item_availability_pk)
@@ -586,12 +623,16 @@ class CartView(View):
                         cart_total = 0
                         for elt in cart:
                             cart_total += float(elt[3])
-                        cart.append(cart_total)
+                        cart.append("%.2f" % cart_total)
 
                     context = {'username': self.request.user.username,
                                'all_carts': all_carts,
                                'quantity_set': range(21),
                                'zipcode': zipcode,}
+
+                    available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+                    if len(available_stores) > 0:
+                        context['available_stores'] = available_stores
 
                 return render(self.request, 'grocerystore/cart.html', context=context)
 
@@ -600,6 +641,12 @@ class CartView(View):
                 return redirect('grocerystore:index')
 
         else: # if user is anonymous
+            context = {}
+            context['zipcode'] = zipcode
+            available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+            if len(available_stores) > 0:
+                context['available_stores'] = available_stores
+
             try:
                 for item in self.request.session.keys():
                     item_availability_pk = int(self.request.session[item]['name'])
@@ -620,14 +667,13 @@ class CartView(View):
                     cart_total = 0
                     for elt in cart:
                         cart_total += float(elt[3])
-                    cart.append(cart_total)
+                    cart.append("%.2f" % cart_total)
 
-                context = {'all_carts': all_carts,
-                           'quantity_set': range(21),
-                           'zipcode': zipcode,}
+                context['all_carts'] = all_carts
+                context['quantity_set'] = range(21)
 
             except KeyError:
-                context = {'zipcode': zipcode}
+                pass
 
             return render(self.request, 'grocerystore/cart.html', context=context)
 
@@ -711,10 +757,17 @@ class CheckoutView(LoginRequiredMixin, View):
 
     def get(self, request, zipcode, store_id):
         user_cart = get_flaskcart(self.request.user.username, CART_HOST).list()['items']
+        try:
+            store = Store.objects.get(pk=store_id)
+        except:
+            messages.error(self.request, "Sorry, the store you want to check "\
+                          "out from doesn't exist.")
         if not user_cart:
-            context = {'empty_cart': 'You need to put items in your cart to be able to checkout!',
+            context = {'empty_cart': 'You need to put items in your cart to checkout!',
                        'zipcode': zipcode,
-                       'store_id': store_id,}
+                       'store_id': store_id,
+                       'store': store,
+                       }
             return render(self.request, 'grocerystore/checkout.html', context=context)
 
         payment_form = self.form_class(None)
@@ -723,15 +776,16 @@ class CheckoutView(LoginRequiredMixin, View):
             product_in_cart = Availability.objects.get(pk=int(elt['name']))
             if product_in_cart.store.pk == int(store_id):
                 product_id = product_in_cart.product.pk
-                price = "%.2f" % (float(elt["qty"]) * float(product_in_cart.product_price))
+                price = float(elt["qty"]) * float(product_in_cart.product_price)
                 cart_total += float(price)
-
+        cart_total = "%.2f" % cart_total
         context = {'username': self.request.user.username,
                   'zipcode': zipcode,
                   'store_id': store_id,
                   'payment_form': payment_form,
                   'amount_to_pay': cart_total,
-                  'store': Store.objects.get(pk=store_id),}
+                  'store': store,
+                  }
         return render(self.request, "grocerystore/checkout.html", context=context)
 
     def post(self, request, zipcode, store_id):

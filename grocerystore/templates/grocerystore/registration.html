@@ -1,33 +1,62 @@
-{% extends 'grocerystore/base.html' %}
+<!DOCTYPE html>
 
-    {% block head %}
-        <title>Inflaskart | Registration</title>
-    {% endblock %}
+<html lang="en">
 
-<body>
-  {% block body %}
+  <head>
+      <meta charset="UTF-8">
+      <title>Inflaskart | Registration</title>
+      {% load static %}
+      <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
+  </head>
+
+
+  <body>
 
     <header>
-        <h1>Welcome to the Inflaskart registration page</h1>
+
+      <nav class="horiz-top-nav">
+
+        <div class="dropdown">
+          <button class="dropbutton"><a href="{% url 'grocerystore:index' %}">Choose an area to shop</a></button>
+        </div>
+
+        <div class="dropdown">
+          <button class="dropbutton"><a href="{% url 'grocerystore:register' %}">Register</a></button>
+        </div>
+
+      </nav>
+
     </header>
 
-    {% if messages %}
-      <ul class="messages">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-      </ul>
-    {% endif %}
+    <main>
 
-    <form id="registration_form" class="form-horizontal" role="form" action="" method="post">
-        {% csrf_token %}
-        {{ user_form.as_p }}
-        {{ address_form.as_p }}
-        <input type="submit" value="Submit" />
-    </form>
+      <h3>Welcome to the Inflaskart registration page</h3>
 
-    <a href="{% url 'grocerystore:index' %}">Choose an area to shop</a><br>
-    <a href="{% url 'grocerystore:login' %}">Log in</a>
+      <form id="registration_form" role="form" action="" method="post">
+          {% csrf_token %}
+          {{ user_form.as_p }}
+          {{ address_form.as_p }}
+          <input class="submit" type="submit" value="Submit" />
+      </form>
 
-  {% endblock %}
-</body>
+      <div id="messages">
+        {% if messages %}
+          <div id="messages-content">
+            <ul>
+              {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+
+    </main>
+
+    <footer>
+      <p id="footer">Contact: cowboy.de.tchernobyl@gmail.com</p>
+    </footer>
+
+  </body>
+
+</html>

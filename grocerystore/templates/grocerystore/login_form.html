@@ -1,34 +1,62 @@
-{% extends 'grocerystore/base.html' %}
+<!DOCTYPE html>
 
-    {% block head %}
-        <title>Inflaskart | Login</title>
-    {% endblock %}
+<html lang="en">
 
-<body>
-  {% block body %}
+  <head>
+      <meta charset="UTF-8">
+      <title>Inflaskart | Login</title>
+      {% load static %}
+      <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
+  </head>
+
+
+  <body>
 
     <header>
-        <h1>Welcome to the Inflaskart login page</h1>
+
+      <nav class="horiz-top-nav">
+
+        <div class="dropdown">
+          <button class="dropbutton"><a href="{% url 'grocerystore:index' %}">Choose an area to shop</a></button>
+        </div>
+
+        <div class="dropdown">
+          <button class="dropbutton"><a href="{% url 'grocerystore:register' %}">Register</a></button>
+        </div>
+
+      </nav>
+
     </header>
 
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-          {{ message }}
-        {% endfor %}
-    </ul>
-    {% endif %}
+    <main>
 
+      <h3>Welcome to the Inflaskart login page</h3>
 
-    <form id="login_form" class="form-horizontal" role="form" action="" method="post">
+      <form id="login_form" class="form-horizontal" role="form" action="" method="post">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}" />
         {{ login_form.as_p }}
         <input type="submit" value="Submit" />
-    </form>
+      </form>
 
-    <a href="{% url 'grocerystore:index' %}">Choose an area to shop</a><br>
-    <a href="{% url 'grocerystore:register' %}">Create an account</a><br>
+      <div id="messages">
+        {% if messages %}
+          <div id="messages-content">
+            <ul>
+              {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
 
-  {% endblock %}
-</body>
+    </main>
+
+    <footer>
+      <p id="footer">Contact: cowboy.de.tchernobyl@gmail.com</p>
+    </footer>
+
+  </body>
+
+</html>
