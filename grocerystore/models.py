@@ -6,6 +6,23 @@ from django.db import models
 import json
 
 
+"""
+This module contains 10 model classes:
+- State (used by the Address model's state field, by the Store model's
+store_state field)
+- Address (used by the Inflauser model's inflauser_address field)
+- Inflauser (also requires the User model)
+- Zipcode (used by the Store model's delivery_area field)
+- Store (used by the Product model's product_store field, and by the
+Availability model's store field)
+- ProductCategory (used by the ProductSubCategory model's parent field)
+- ProductSubCategory (used by the Product model's product_category field)
+- Dietary (used by the Product model's product_dietary field)
+- Product (used by the Availability model's product field)
+- Availability
+"""
+
+
 @python_2_unicode_compatible
 class State(models.Model):
     state_name = models.CharField(max_length=50)
@@ -16,6 +33,7 @@ class State(models.Model):
 
     class Meta:
         ordering = ['state_name', 'state_postal_code']
+
 
 @python_2_unicode_compatible
 class Address(models.Model):

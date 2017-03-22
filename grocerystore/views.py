@@ -277,7 +277,8 @@ class IndexView(View):
 
     def post(self, request):
         zipcode = self.request.POST.get('zipcode')
-        if len(zipcode) < 4 or len(zipcode) > 5:
+        if len(zipcode) < 4 or len(zipcode) > 5 or not zipcode.isnumeric():
+            messages.error(self.request, "You are looking for an valid zipcode.")
             return redirect('grocerystore:index')
         return redirect('grocerystore:start', zipcode=zipcode)
 
@@ -290,7 +291,7 @@ class StartView(View):
     def get(self, request, zipcode):
         # if the user types an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are not looking for a valid zipcode.")
+            messages.error(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
         context = {}
         context['zipcode'] = zipcode
@@ -316,11 +317,14 @@ class StoreView(View):
     template_name = 'grocerystore/store.html'
 
     def get(self, request, zipcode, store_id):
+        if len(zipcode) < 4 or len(zipcode) > 5 or not zipcode.isnumeric():
+            messages.error(self.request, "You are looking for an invalid zipcode.")
+            return redirect('grocerystore:index')
         try:
             store = Store.objects.get(pk=store_id)
         except: # if the user try to access a non-existent store page
             messages.error(self.request, "The store you're looking for doesn't exist.")
-            return redirect('grocerystore:index')
+            return redirect('grocerystore:start', zipcode=zipcode)
 
         context = {}
         context['category_form'] = self.form_class(None)
@@ -449,12 +453,13 @@ class InstockList(ListView):
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 else:
                     messages.info(request, "You need to activate your account to proceed.")
-                    return redirect('grocerystore:index')
-
-            # if the user isn't authenticated
-            res = {'name': str(product_availability_pk), 'qty': quantity_to_add}
-            self.request.session[product_availability_pk] = res #pk of the Availability object
-        return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                    print "user is not active"
+                    return redirect('grocerystore:start', zipcode=zipcode)
+            else:
+                # if the user isn't authenticated
+                res = {'name': str(product_availability_pk), 'qty': quantity_to_add}
+                self.request.session[product_availability_pk] = res #pk of the Availability object
+                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
 
 class SearchView(View):
@@ -513,7 +518,7 @@ class SearchView(View):
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
             else:
                 messages.info(request, "You need to activate your account to proceed.")
-                return redirect('grocerystore:index')
+                return redirect('grocerystore:start', zipcode=zipcode)
         else: # if the user is anonymous
             for product_to_add in search_result:
                 try:
@@ -579,7 +584,7 @@ class ProductDetailView(View):
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
             else:
                 messages.info(request, "You need to activate your account to proceed.")
-                return redirect('grocerystore:index')
+                return redirect('grocerystore:start', zipcode=zipcode)
         else:# if the user is anonymous
             res = {'name': str(availability_id), 'qty': quantity_to_add}
             self.request.session[availability_id] = res #pk of the Availability object
