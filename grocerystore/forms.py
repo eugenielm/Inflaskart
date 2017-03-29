@@ -1,4 +1,5 @@
 #-*- coding: UTF-8 -*-
+import re
 from datetime import date
 from calendar import monthrange
 from django import forms
@@ -36,7 +37,7 @@ class UserForm(forms.ModelForm):
 
 class AddressForm(forms.ModelForm):
     zip_code = forms.RegexField(max_length=5, min_length=4, regex=r'^[0-9]{4,5}$',
-               error_messages={'invalid': "Please enter a valid ZIP code.",
+               error_messages={'invalid': "Please enter a valid ZIP code",
                                'required': "Please fill in this field."})
 
     class Meta:
@@ -109,7 +110,6 @@ class PaymentForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.payment_data = kwargs.pop('payment_data', None)
-        print "self.payment_data: ", self.payment_data
         super(PaymentForm, self).__init__(*args, **kwargs)
 
     def clean(self):

@@ -112,6 +112,7 @@ h1, h2, h3, h4, h5, h6 {padding: 0px 10px}
   overflow: visible;
   bottom: 10px;
   overflow: inherit;
+  text-align: left;
 }
 
 #messages ul {list-style-type: none}
@@ -146,6 +147,10 @@ h1, h2, h3, h4, h5, h6 {padding: 0px 10px}
 #zipcode_input {
   width: 40px;
   margin: 0px 5px;
+}
+
+#authenticated {
+  text-align: center;
 }
 
 #register {
@@ -231,6 +236,13 @@ h1, h2, h3, h4, h5, h6 {padding: 0px 10px}
   margin: 10px 0px 0px 0px;
   padding: 0px;
 }
+
+/*ul.error_list {
+  padding: 0px;
+  margin: 0px;
+  text-decoration: none;
+  color: red;
+}*/
 
 .submit {margin: 20px 0px 0px 10px}
 

@@ -62,6 +62,18 @@
           <input type="submit" name="edit_profile" value="Edit profile" />
       </form>
 
+      <div id="messages">
+        {% if messages %}
+          <div id="messages-content">
+            <ul>
+              {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+
     </main>
 
     <footer>

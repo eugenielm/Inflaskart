@@ -27,21 +27,31 @@
     </header>
 
     <main>
+      {% if username %}
 
-      <section class="identification">
-        <form id="zipform" action="" method="post">
-          {% csrf_token %}
-          <label for='zipcode'>enter a ZIP code: </label>
-          <input type="text" name="zipcode" id="zipcode_input" pattern="[0-9]{4,5}" maxlength="5">
-          <input id="go" type="submit" value="Go!">
-        </form>
-      </section>
+        <section id="authenticated">
+          <h5>Welcome, {{ username }}!</h5>
+          <p><a href="{% url 'grocerystore:start' zipcode %}">Start shopping</a></p>
+        </section>
 
-      <section class="identification">
-        <a id="register" href="{% url 'grocerystore:register' %}">create an account</a>
-        |
-        <a id="login" href="{% url 'grocerystore:login' %}">login</a>
-      </section>
+      {% else %}
+
+        <section class="identification">
+          <form id="zipform" action="" method="post">
+            {% csrf_token %}
+            <label for='zipcode'>enter a ZIP code: </label>
+            <input type="text" name="zipcode" id="zipcode_input" pattern="[0-9]{4,5}" maxlength="5">
+            <input id="go" type="submit" value="Go!">
+          </form>
+        </section>
+
+        <section class="identification">
+          <a id="register" href="{% url 'grocerystore:register' %}">create an account</a>
+          |
+          <a id="login" href="{% url 'grocerystore:login' %}">login</a>
+        </section>
+
+      {% endif %}
 
       <div id="messages">
         {% if messages %}

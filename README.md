@@ -101,11 +101,11 @@ and have fun!
 Room for improvement
 --------------------
 This project is still under development:
-- the templates need to be structured using proper HTML5 (+ style sheets);
+- the templates structure needs to be improved (along with the style sheet)
 - need to implement a way to verify a user's email address;
 - need to implement a way to allow the user to change their password;
 - need to implement a way to store the user's credit card information securely;
-- need to properly implement the checkout process.
+- need to further properly implement the checkout process.
 
 
 Requirements

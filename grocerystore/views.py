@@ -41,7 +41,7 @@ This module contains 14 views:
 
 # the cart server is running locally on port 5000
 CART_HOST = "http://127.0.0.1:5000/"
-
+CONTACT = "cowboy.de.tchernobyl@gmail.com"
 
 
 class UserRegisterView(View):
@@ -54,18 +54,32 @@ class UserRegisterView(View):
     def get(self, request):
         user_form = self.form_class1(None)
         address_form = self.form_class2(None)
-        return render(request, self.template_name, {'user_form': user_form, 'address_form': address_form})
+        return render(self.request, self.template_name, {'user_form': user_form, 'address_form': address_form})
 
     def post(self, request):
         form1 = self.form_class1(self.request.POST)
         form2 = self.form_class2(self.request.POST)
         try: # check if the username typed in is available
             user = User.objects.get(username=self.request.POST['username'])
-            return render(request, self.template_name, {'user_form': form1, 'address_form': form2})
+            return render(self.request, self.template_name, {'user_form': form1, 'address_form': form2})
         except:
             pass
 
         if form1.is_valid() and form2.is_valid():
+            inflauser_address = form2.save(commit=False)
+            inflauser_address.zip_code = form2.cleaned_data['zip_code']
+            if len(Store.objects.filter(delivery_area__zipcode=inflauser_address.zip_code)) == 0:
+                messages.error(self.request, "Sorry, we're unable to create an account "\
+                "because there's currently no store delivering in your zipcode area.")
+                return redirect('grocerystore:index')
+            inflauser_address.street_adress1 = form2.cleaned_data['street_adress1']
+            inflauser_address.street_adress2 = form2.cleaned_data['street_adress2']
+            inflauser_address.apt_nb = form2.cleaned_data['apt_nb']
+            inflauser_address.other = form2.cleaned_data['other']
+            inflauser_address.city = form2.cleaned_data['city']
+            inflauser_address.state = form2.cleaned_data['state']
+            inflauser_address.save()
+
             user = form1.save(commit=False)
             username = form1.cleaned_data['username']
             email = form1.cleaned_data['email']
@@ -73,58 +87,44 @@ class UserRegisterView(View):
             user.set_password(password)
             user.save()
 
-            inflauser_address = form2.save(commit=False)
-            inflauser_address.street_adress1 = cleaned_data['street_adress1']
-            inflauser_address.street_adress2 = cleaned_data['street_adress2']
-            inflauser_address.apt_nb = cleaned_data['apt_nb']
-            inflauser_address.other = cleaned_data['other']
-            inflauser_address.city = cleaned_data['city']
-            inflauser_address.zip_code = cleaned_data['zip_code']
-            inflauser_address.state = cleaned_data['state']
-            inflauser_address.save()
             inflauser = Inflauser(infla_user=user, inflauser_address=inflauser_address)
             inflauser.save()
 
             user = authenticate(username=username, password=password)
             if user is not None:
-                if user.is_active:
-                    flask_cart = get_flaskcart(user.username, CART_HOST)
-                    deleted_items = remove_old_items(flask_cart)
-                    if deleted_items:
-                        msge = "Sorry, the following items had to be removed from "\
-                               "your cart because there're not available anymore:"
-                        for item in deleted_items:
-                            msge += "\n" + item['qty'] + " " + item['name']
-                        messages.info(self.request, msge)
+                flask_cart = get_flaskcart(user.username, CART_HOST)
+                deleted_items = remove_old_items(flask_cart)
+                if deleted_items:
+                    msge = "Sorry, the following items had to be removed from "\
+                           "your cart because there're not available anymore:"
+                    for item in deleted_items:
+                        msge += "\n" + item['qty'] + " " + item['name']
+                    messages.info(self.request, msge)
 
-                    # updating the user's cart if they added products in their cart
-                    # before registering
-                    inflauser_zipcode = Inflauser.objects.get(infla_user=user).inflauser_address.zip_code
-                    not_available = False
-                    for elt in self.request.session.keys():
-                        product_availability_pk = self.request.session[elt]["name"]
-                        flask_cart.add(product_availability_pk, self.request.session[elt]["qty"])
-                        if not Availability.objects.get(pk=int(self.request.session[elt]["name"]))\
-                               .store.delivery_area.all().filter(zipcode=inflauser_zipcode):
-                            not_available = True
-                    if not_available:
-                        messages.error(self.request, "Before logging in, you shopped "\
-                        "items in a store that doesn't deliver your current address.")
+                # updating the user's cart if they added products in their cart
+                # before registering
+                inflauser_zipcode = Inflauser.objects.get(infla_user=user).inflauser_address.zip_code
+                not_available = False
+                for elt in self.request.session.keys():
+                    product_availability_pk = self.request.session[elt]["name"]
+                    flask_cart.add(product_availability_pk, self.request.session[elt]["qty"])
+                    if not Availability.objects.get(pk=int(self.request.session[elt]["name"]))\
+                           .store.delivery_area.all().filter(zipcode=inflauser_zipcode):
+                        not_available = True
+                if not_available:
+                    messages.error(self.request, "Before logging in, you shopped "\
+                    "items in a store that doesn't deliver your current address.")
 
-                    login(self.request, user)
-                    messages.success(self.request, "You're now registered and logged in, %s" % user.username)
-                    try:
-                        return redirect(self.request.GET['redirect_to'])
-                    except:
-                        zipcode = inflauser.inflauser_address.zip_code
-                        return redirect('grocerystore:start', zipcode=zipcode)
-
-                else: # if the user's account is not active
-                    messages.error(self.request, "Please activate your account.")
-                    return redirect('grocerystore:index')
+                login(self.request, user)
+                messages.success(self.request, "You're now registered and logged in, %s" % user.username)
+                try:
+                    return redirect(self.request.GET['redirect_to'])
+                except:
+                    zipcode = inflauser.inflauser_address.zip_code
+                    return redirect('grocerystore:start', zipcode=zipcode)
 
         # if the forms aren't valid or if the user couldn't be authenticated
-        return render(request, self.template_name, {'user_form': form1, 'address_form': form2})
+        return render(self.request, self.template_name, {'user_form': form1, 'address_form': form2})
 
 
 class UserLoginView(View):
@@ -150,48 +150,48 @@ class UserLoginView(View):
             except:
                 return redirect('grocerystore:login')
 
-        try:
-            user = authenticate(username=username, password=password)
-            if user.is_authenticated:
-                if user.is_active:
-                    flask_cart = get_flaskcart(user.username, CART_HOST)
-                    deleted_items = remove_old_items(flask_cart)
-                    if deleted_items:
-                        msge = "Sorry, the following items had to be removed from "\
-                               "your cart because there're not available anymore:"
-                        for item in deleted_items:
-                            msge += "\n" + item['qty'] + " " + item['name']
-                        messages.error(self.request, msge)
+        if not user.is_active: # an inactive user can't log in
+            messages.error(self.request, "Your account is inactive. Please "\
+                                         "send an email to %s to activate it." % CONTACT)
+            return redirect('grocerystore:index')
 
-                    # updating the user's cart if they added products in their cart
-                    # before registering
-                    inflauser_zipcode = Inflauser.objects.get(infla_user=user).inflauser_address.zip_code
-                    not_available = False
-                    for elt in self.request.session.keys():
-                        product_availability_pk = self.request.session[elt]["name"]
-                        flask_cart.add(product_availability_pk, self.request.session[elt]["qty"])
-                        if not Availability.objects.get(pk=int(self.request.session[elt]["name"]))\
-                               .store.delivery_area.all().filter(zipcode=inflauser_zipcode):
-                            not_available = True
-                    if not_available:
-                        messages.error(self.request, "Before logging in, you shopped "\
-                        "items in a store that doesn't deliver your current address.")
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            flask_cart = get_flaskcart(user.username, CART_HOST)
+            deleted_items = remove_old_items(flask_cart)
+            if deleted_items:
+                msge = "Sorry, the following items had to be removed from "\
+                       "your cart because there're not available anymore:"
+                for item in deleted_items:
+                    msge += "\n" + item['qty'] + " " + item['name']
+                messages.error(self.request, msge)
 
-                    login(self.request, user)
-                    messages.success(self.request, "You're now logged in, %s" % user.username)
-                    inflauser = Inflauser.objects.get(infla_user=user)
-                    try:
-                        return redirect(self.request.GET['redirect_to'])
-                    except:
-                        zipcode = inflauser.inflauser_address.zip_code
-                        return redirect('grocerystore:start', zipcode=zipcode)
+            # updating the user's cart if they added products in their cart
+            # before registering
+            inflauser_zipcode = Inflauser.objects.get(infla_user=user).inflauser_address.zip_code
+            not_available = False
+            for elt in self.request.session.keys():
+                product_availability_pk = self.request.session[elt]["name"]
+                flask_cart.add(product_availability_pk, self.request.session[elt]["qty"])
+                if not Availability.objects.get(pk=int(self.request.session[elt]["name"]))\
+                       .store.delivery_area.all().filter(zipcode=inflauser_zipcode):
+                    not_available = True
+            if not_available:
+                messages.error(self.request, "Before logging in, you shopped "\
+                "items in a store that doesn't deliver your current address.")
 
-                else: # if the user's account is not active
-                    messages.error(self.request, "Please activate your account.")
-                    return redirect('grocerystore:index')
+            login(self.request, user)
+            messages.success(self.request, "You're now logged in, %s" % user.username)
+            inflauser = Inflauser.objects.get(infla_user=user)
+            try:
+                return redirect(self.request.GET['redirect_to'])
+            except:
+                zipcode = inflauser.inflauser_address.zip_code
+                return redirect('grocerystore:start', zipcode=zipcode)
 
-        except AttributeError: # the user couldn't be authenticated
-            messages.error(self.request, 'Something went wrong. Please check your username and password.')
+        else: # the user couldn't be authenticated because the credentials are invalid
+            messages.error(self.request, "Something went wrong. Please  check "\
+                                         "your username and password.")
             try:
                 redirect_to = self.request.GET['redirect_to']
                 return redirect('/grocerystore/login/' + '?redirect_to=' + str(redirect_to))
@@ -225,7 +225,8 @@ class ProfileView(LoginRequiredMixin, View):
 
 
 class ProfileUpdateView(LoginRequiredMixin, View):
-    """Allows an authenticated user to see and edit their profile."""
+    """Allows an authenticated user to see and edit their profile - except their
+    username, password and email address."""
     template_name = 'grocerystore/profile_update.html'
     login_url = 'grocerystore:login'
     redirect_field_name = 'redirect_to'
@@ -243,22 +244,58 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         return render(self.request, 'grocerystore/profile_update.html', context=context)
 
     def post(self, request):
+        user = self.request.user
+        inflauser_address = Inflauser.objects.get(infla_user=user).inflauser_address
+        zipcode = inflauser_address.zip_code
+        available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+        new_address = self.form_class(self.request.POST, instance=inflauser_address)
         new_first_name = self.request.POST['first_name']
         new_last_name = self.request.POST['last_name']
-        user = self.request.user
-        user.first_name = new_first_name
-        user.last_name = new_last_name
-        user.save()
 
-        inflauser_address = Inflauser.objects.get(infla_user=user).inflauser_address
-        new_address = self.form_class(self.request.POST, instance=inflauser_address)
-        if new_address.is_valid():
-            inflauser_address = new_address
-            inflauser_address.save()
-            return redirect('grocerystore:profile')
+        if new_first_name.replace(" ", "").isalpha() and len(new_first_name) < 20:
+            if not new_first_name == user.first_name:
+                messages.info(self.request, "Your first name has been updated.")
+                user.first_name = new_first_name
+                user.save()
+        else:
+            messages.error(self.request, "You entered an invalid first name.")
+        if new_last_name.replace(" ", "").isalpha() and len(new_last_name) < 20:
+            if not new_last_name == user.last_name:
+                messages.info(self.request, "Your last name has been updated.")
+                user.last_name = new_last_name
+                user.save()
+        else:
+            messages.error(self.request, "You entered an invalid last name.")
 
-        messages.error(self.request, "Please make sure you enter valid information.")
-        return render(self.request, 'grocerystore/profile_update.html', {'address_form': new_address})
+        if not new_address.is_valid() \
+           or not (new_first_name.replace(" ", "").isalpha() and len(new_first_name) < 20) \
+           or not (new_last_name.replace(" ", "").isalpha() and len(new_last_name)):
+            context = {'address_form': new_address,
+                       'zipcode': zipcode}
+            if available_stores:
+                context['available_stores'] = available_stores
+            for error, msg in new_address.errors.items():
+                messages.error(self.request, msg)
+            return render(self.request, 'grocerystore/profile_update.html',  context=context)
+
+        # if the user entered only valid information
+        inflauser_address = new_address.save(commit=False)
+        if len(Store.objects.filter(delivery_area__zipcode=new_address.cleaned_data['zip_code'])) == 0:
+            messages.error(self.request, "Sorry, we're unable to update your zipcode "\
+            "because there's no store delivering this area.")
+            context = {'address_form': new_address, 'zipcode': zipcode}
+            if available_stores:
+                context['available_stores'] = available_stores
+            return render(self.request, 'grocerystore/profile_update.html', context=context)
+        inflauser_address.street_adress1 = new_address.cleaned_data['street_adress1']
+        inflauser_address.street_adress2 = new_address.cleaned_data['street_adress2']
+        inflauser_address.apt_nb = new_address.cleaned_data['apt_nb']
+        inflauser_address.other = new_address.cleaned_data['other']
+        inflauser_address.city = new_address.cleaned_data['city']
+        inflauser_address.zip_code = new_address.cleaned_data['zip_code']
+        inflauser_address.state = new_address.cleaned_data['state']
+        inflauser_address.save()
+        return redirect('grocerystore:profile')
 
 
 class IndexView(View):
@@ -269,11 +306,11 @@ class IndexView(View):
 
     def get(self, request):
         if self.request.user.is_authenticated:
-            if self.request.user.is_active:
-                inflauser = Inflauser.objects.get(infla_user=self.request.user)
-                return redirect('grocerystore:start', zipcode=inflauser.inflauser_address.zip_code)
-        else:
-            return render(self.request, 'grocerystore/index.html')
+            context = {'username': self.request.user.username}
+            context['zipcode'] = Inflauser.objects.get(infla_user=self.request.user)\
+                                 .inflauser_address.zip_code
+            return render(self.request, 'grocerystore/index.html', context=context)
+        return render(self.request, 'grocerystore/index.html')
 
     def post(self, request):
         zipcode = self.request.POST.get('zipcode')
@@ -443,22 +480,19 @@ class InstockList(ListView):
             except TypeError:
                 continue
             product_availability_pk = availability.pk
-            messages.success(self.request, "%s was successfully added in your cart."\
-                             % availability.product)
 
             if self.request.user.is_authenticated:
-                if self.request.user.is_active:
-                    flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
-                    flask_cart.add(str(product_availability_pk), quantity_to_add)
-                    return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
-                else:
-                    messages.info(request, "You need to activate your account to proceed.")
-                    print "user is not active"
-                    return redirect('grocerystore:start', zipcode=zipcode)
-            else:
-                # if the user isn't authenticated
+                flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
+                flask_cart.add(str(product_availability_pk), quantity_to_add)
+                messages.success(self.request, "%s was successfully added in your cart."\
+                                 % availability.product)
+                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+
+            else: # if the user isn't authenticated
                 res = {'name': str(product_availability_pk), 'qty': quantity_to_add}
                 self.request.session[product_availability_pk] = res #pk of the Availability object
+                messages.success(self.request, "%s was successfully added in your cart."\
+                                 % availability.product)
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
 
@@ -505,20 +539,16 @@ class SearchView(View):
         searched_item = urllib.unquote(searched_item)
         search_result = search_item(searched_item, store_id)
         if self.request.user.is_authenticated:
-            if self.request.user.is_active:
-                flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
-                for product_to_add in search_result:
-                    product_availability_pk = product_to_add.pk
-                    try:
-                        quantity_to_add = int(self.request.POST.get(str(product_to_add.pk)))
-                    except TypeError:
-                        continue
-                    flask_cart.add(str(product_availability_pk), quantity_to_add)
-                    messages.success(self.request, "'%s' successfully added to your cart" % product_to_add)
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
-            else:
-                messages.info(request, "You need to activate your account to proceed.")
-                return redirect('grocerystore:start', zipcode=zipcode)
+            flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
+            for product_to_add in search_result:
+                product_availability_pk = product_to_add.pk
+                try:
+                    quantity_to_add = int(self.request.POST.get(str(product_to_add.pk)))
+                except TypeError:
+                    continue
+                flask_cart.add(str(product_availability_pk), quantity_to_add)
+                messages.success(self.request, "'%s' successfully added to your cart" % product_to_add)
+            return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
         else: # if the user is anonymous
             for product_to_add in search_result:
                 try:
@@ -577,14 +607,10 @@ class ProductDetailView(View):
         product = Product.objects.get(pk=product_id)
         availability_id = Availability.objects.filter(store=store).get(product=product).pk
         if self.request.user.is_authenticated:
-            if self.request.user.is_active:
-                flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
-                flask_cart.add(str(availability_id), quantity_to_add)
-                messages.success(self.request, "'%s' successfully added to your cart" % product)
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
-            else:
-                messages.info(request, "You need to activate your account to proceed.")
-                return redirect('grocerystore:start', zipcode=zipcode)
+            flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
+            flask_cart.add(str(availability_id), quantity_to_add)
+            messages.success(self.request, "'%s' successfully added to your cart" % product)
+            return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
         else:# if the user is anonymous
             res = {'name': str(availability_id), 'qty': quantity_to_add}
             self.request.session[availability_id] = res #pk of the Availability object
@@ -599,55 +625,45 @@ class CartView(View):
     def get(self, request, zipcode):
         """List the products in all the user carts."""
         all_carts = {}
+        context = {'zipcode': zipcode,}
+
         if self.request.user.is_authenticated:
-            if self.request.user.is_active:
-                user_cart = get_flaskcart(self.request.user.username, CART_HOST).list()['items']
-                if len(user_cart) == 0:
-                    context = {'username': self.request.user.username,
-                              'zipcode': zipcode,
-                              }
-                else:
-                    # all_carts = { store1: cart1, store2: cart2 }
-                    # NB: cart : [[elt1], [elt2],..., [eltN], cart_total]
-                    for item in user_cart:
-                        item_availability_pk = int(item['name'])
-                        item_availability = Availability.objects.get(pk=item_availability_pk)
-                        item_store = item_availability.store
-                        # be sure to show only the carts of the stores that deliver at the user address
-                        if not item_store.delivery_area.all().filter(zipcode=zipcode):
-                            continue
-                        item_product = item_availability.product
-                        item_price = "%.2f" % (float(item["qty"]) * float(item_availability.product_price))
-                        elt = [item_product, item["qty"], item_availability.product_unit, item_price, item_availability_pk, item_product.pk]
-                        try:
-                            all_carts[item_store].append(elt)
-                        except KeyError:
-                            all_carts[item_store] = [elt]
+            context['username'] = self.request.user.username
+            available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+            if len(available_stores) > 0:
+                context['available_stores'] = available_stores
 
-                    for cart in all_carts.values():
-                        cart_total = 0
-                        for elt in cart:
-                            cart_total += float(elt[3])
-                        cart.append("%.2f" % cart_total)
+            user_cart = get_flaskcart(self.request.user.username, CART_HOST).list()['items']
+            if len(user_cart) > 0:
+                # all_carts = { store1: cart1, store2: cart2 }
+                # NB: cart : [[elt1], [elt2],..., [eltN], cart_total]
+                for item in user_cart:
+                    item_availability_pk = int(item['name'])
+                    item_availability = Availability.objects.get(pk=item_availability_pk)
+                    item_store = item_availability.store
+                    # be sure to show only the carts of the stores that deliver at the user address
+                    if not item_store.delivery_area.all().filter(zipcode=zipcode):
+                        continue
+                    item_product = item_availability.product
+                    item_price = "%.2f" % (float(item["qty"]) * float(item_availability.product_price))
+                    elt = [item_product, item["qty"], item_availability.product_unit, item_price, item_availability_pk, item_product.pk]
+                    try:
+                        all_carts[item_store].append(elt)
+                    except KeyError:
+                        all_carts[item_store] = [elt]
 
-                    context = {'username': self.request.user.username,
-                               'all_carts': all_carts,
-                               'quantity_set': range(21),
-                               'zipcode': zipcode,}
+                for cart in all_carts.values():
+                    cart_total = 0
+                    for elt in cart:
+                        cart_total += float(elt[3])
+                    cart.append("%.2f" % cart_total)
 
-                    available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
-                    if len(available_stores) > 0:
-                        context['available_stores'] = available_stores
+                context['all_carts'] = all_carts
+                context['quantity_set'] = range(21)
 
-                return render(self.request, 'grocerystore/cart.html', context=context)
-
-            else:
-                messages.error(self.request, "Your account is inactive, please activate it.")
-                return redirect('grocerystore:index')
+            return render(self.request, 'grocerystore/cart.html', context=context)
 
         else: # if user is anonymous
-            context = {}
-            context['zipcode'] = zipcode
             available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
             if len(available_stores) > 0:
                 context['available_stores'] = available_stores
@@ -657,7 +673,7 @@ class CartView(View):
                     item_availability_pk = int(self.request.session[item]['name'])
                     item_availability = Availability.objects.get(pk=item_availability_pk)
                     item_store = item_availability.store
-                    # be sure to show only the carts of the stores that deliver at the user address
+                    # be sure to show only the carts of the stores that deliver in the zipcode area chosen by the user
                     if not item_store.delivery_area.all().filter(zipcode=zipcode):
                         continue
                     item_product = item_availability.product
@@ -684,51 +700,47 @@ class CartView(View):
 
     def post(self, request, zipcode):
         if self.request.user.is_authenticated:
-            if self.request.user.is_active:
-                flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
-                user_cart = flask_cart.list()['items']
-                store_pks = []
-                for elt in user_cart:
-                    if Availability.objects.get(pk=elt["name"]).store.pk not in store_pks:
-                        store_pks.append(Availability.objects.get(pk=int(elt["name"])).store.pk)
+            flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
+            user_cart = flask_cart.list()['items']
+            store_pks = []
+            for elt in user_cart:
+                if Availability.objects.get(pk=elt["name"]).store.pk not in store_pks:
+                    store_pks.append(Availability.objects.get(pk=int(elt["name"])).store.pk)
 
-                for i in store_pks: # if the user wants to empty a cart
-                    try:
-                        if self.request.POST['empty '+str(i)]:
-                            for item in user_cart:
-                                if Availability.objects.get(pk=int(item["name"])).store.pk == i:
-                                    flask_cart.delete(item["name"])
-                            messages.success(self.request, "You've just emptied your cart at %s." % Store.objects.get(pk=i))
-                        return redirect('grocerystore:cart', zipcode=zipcode)
-                    except:
-                        continue
+            for i in store_pks: # if the user wants to empty their cart in a given store
+                try:
+                    if self.request.POST['empty '+str(i)]:
+                        for item in user_cart:
+                            if Availability.objects.get(pk=int(item["name"])).store.pk == i:
+                                flask_cart.delete(item["name"])
+                        messages.success(self.request, "You've just emptied your cart at %s." % Store.objects.get(pk=i))
+                    return redirect('grocerystore:cart', zipcode=zipcode)
+                except:
+                    continue
 
-                for elt in user_cart: # if the user wants to update an item quantity
-                    product_to_update = Availability.objects.get(pk=int(elt['name']))
-                    try:
-                        qty_to_change = int(self.request.POST.get(str(product_to_update.pk)))
-                    except TypeError: # loops in the cart until it hits the product to update
-                        continue
-                    if qty_to_change == 0:
-                        flask_cart.delete(elt['name'])
-                        messages.success(self.request, "'%s' has been removed from your cart." % product_to_update)
-                    else:
-                        flask_cart.add(str(product_to_update.pk), qty_to_change)
-                        messages.success(self.request, "'%s' quantity has been updated." % product_to_update)
+            for elt in user_cart: # if the user wants to update an item quantity
+                product_to_update = Availability.objects.get(pk=int(elt['name']))
+                try:
+                    qty_to_change = int(self.request.POST.get(str(product_to_update.pk)))
+                except TypeError: # loops in the cart until it hits the product to update
+                    continue
+                if qty_to_change == 0:
+                    flask_cart.delete(elt['name'])
+                    messages.success(self.request, "'%s' has been removed from your cart." % product_to_update)
+                else:
+                    flask_cart.add(str(product_to_update.pk), qty_to_change)
+                    messages.success(self.request, "'%s' quantity has been updated." % product_to_update)
 
-                return redirect('grocerystore:cart', zipcode=zipcode)
-
-            else:
-                messages.error(self.request, "Your account is inactive, please activate it.")
-                return redirect('grocerystore:index')
+            return redirect('grocerystore:cart', zipcode=zipcode)
 
         else: # if anonymous user
             store_pks = []
+            # getting a list of all the stores'pk from which the user has added items in their cart (in request.session)
             for item in self.request.session.keys():
                 if Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk not in store_pks:
                     store_pks.append(Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk)
 
-            for i in store_pks: # if the user wants to empty a cart
+            for i in store_pks: # if the user wants to empty a cart, iterate through all concerned stores
                 try:
                     if self.request.POST['empty '+str(i)]:
                         for item in self.request.session.keys():
@@ -785,11 +797,11 @@ class CheckoutView(LoginRequiredMixin, View):
                 cart_total += float(price)
         cart_total = "%.2f" % cart_total
         context = {'username': self.request.user.username,
-                  'zipcode': zipcode,
-                  'store_id': store_id,
-                  'payment_form': payment_form,
-                  'amount_to_pay': cart_total,
-                  'store': store,
+                   'zipcode': zipcode,
+                   'store_id': store_id,
+                   'payment_form': payment_form,
+                   'amount_to_pay': cart_total,
+                   'store': store,
                   }
         return render(self.request, "grocerystore/checkout.html", context=context)
 
@@ -798,6 +810,8 @@ class CheckoutView(LoginRequiredMixin, View):
         NB: this is a fake check out (there's no security page to pay)."""
         payment_data = self.form_class(self.request.POST)
         if payment_data.is_valid():
+            # require money transfer from the user's bank
+            # send purchased items list and user's address to delivery company
             flask_cart = get_flaskcart(self.request.user.username, CART_HOST)
             flask_cart.empty_cart()
             messages.success(self.request, "Congratulations for your purchase!")

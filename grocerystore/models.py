@@ -11,6 +11,7 @@ This module contains 10 model classes:
 - State (used by the Address model's state field, by the Store model's
 store_state field)
 - Address (used by the Inflauser model's inflauser_address field)
+THERE'S A TYPO IN street_adress1 AND street_adress2 (should be street_address with 2 'd')
 - Inflauser (also requires the User model)
 - Zipcode (used by the Store model's delivery_area field)
 - Store (used by the Product model's product_store field, and by the

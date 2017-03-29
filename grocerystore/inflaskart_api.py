@@ -18,7 +18,7 @@ communicate with the cart server;
 - get_flaskcart(): function used in UserRegisterView, UserLoginView, SearchView,
 InstockList, ProductDetailView, CartView, CheckoutView, and StoreView in views.py;
 
-- remove_old_items(): function used in UserRegisterView and UserLoginView 
+- remove_old_items(): function used in UserRegisterView and UserLoginView
 in views.py;
 
 """
@@ -74,11 +74,12 @@ class InflaskartClient:
     def empty_cart(self):
         """Empty the cart and return the cart JSON-decoded."""
         items_in_cart = self.list()['items']
-        for item in items_in_cart:
-            url = os.path.join(self.url,'product', item["name"])
-            r = requests.delete(url)
-        cart = r.json()
-        return cart
+        if len(items_in_cart) > 0:
+            for item in items_in_cart:
+                url = os.path.join(self.url,'product', item["name"])
+                r = requests.delete(url)
+            cart = r.json()
+            return cart
 
 
 def search_item(searched_item, store_id):

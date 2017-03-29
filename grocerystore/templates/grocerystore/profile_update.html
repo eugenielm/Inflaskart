@@ -61,6 +61,18 @@
           <input type="submit" value="Update profile" class="submit" />
       </form>
 
+      <div id="messages">
+        {% if messages %}
+          <div id="messages-content">
+            <ul>
+              {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+
     </main>
 
     <footer>
