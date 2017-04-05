@@ -4,6 +4,7 @@ import urllib
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.messages import get_messages
 from .models import State, Address, Inflauser, Zipcode,  Store, ProductCategory,\
                     ProductSubCategory, Dietary, Product, Availability
 from .views import UserRegisterView, UserLoginView, logout, ProfileView,\
@@ -90,7 +91,7 @@ class GetFlaskcartTest(TestCase):
 
 
 class IndexViewTest(TestCase):
-
+    """Checks if the user is given the proper tools to choose a shopping area."""
     def setUp(self):
         # create 1 inflauser
         self.test_user = User.objects.create_user(username='toto', password='azertyui')
@@ -104,12 +105,16 @@ class IndexViewTest(TestCase):
                                                        inflauser_address=self.test_address)
 
     def test_get_with_authenticated_user(self):
-        """Checks redirection if the user is authenticated."""
+        """Checks displayed buttons if the user is authenticated."""
         self.client.login(username='toto', password='azertyui')
         response = self.client.get(reverse('grocerystore:index'))
-        self.assertContains(response, "Welcome, toto!")
-        self.assertContains(response, 'id="authenticated"')
-        self.assertContains(response, "Start shopping")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, 'grocerystore/index.html')
+        self.assertContains(response, 'Welcome to Inflaskart!')
+        self.assertContains(response, 'Hi toto!')
+        self.assertContains(response, reverse('grocerystore:logout'))
+        self.assertContains(response, reverse('grocerystore:start', kwargs={'zipcode': 22600}))
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
 
     def test_get_with_anonymous_user(self):
         """Checks if there's a form to choose a zipcode and login/register links."""
@@ -117,10 +122,11 @@ class IndexViewTest(TestCase):
         response = self.client.get(reverse('grocerystore:index'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, 'grocerystore/index.html')
-        self.assertContains(response, 'enter a ZIP code')
+        self.assertContains(response, 'Choose a ZIP code')
         self.assertContains(response, reverse('grocerystore:login'))
         self.assertContains(response, reverse('grocerystore:register'))
         self.assertContains(response, 'Welcome to Inflaskart!')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
 
     def post(self):
         """Checks URL redirection if the zipcode entered is valid or not."""
@@ -138,7 +144,7 @@ class IndexViewTest(TestCase):
 
 
 class StartViewTest(TestCase):
-
+    """Checks if the user can choose a store."""
     def setUp(self):
         # create 1 inflauser
         self.test_user = User.objects.create_user(username='toto', password='azertyui')
@@ -184,14 +190,25 @@ class StartViewTest(TestCase):
         self.assertContains(response1, reverse('grocerystore:store',
                                                kwargs={'zipcode': self.test_zipcode.zipcode,
                                                        'store_id': self.test_store2.pk}))
-        self.assertContains(response1, "---Stores in 22600---")
-        self.assertContains(response1, 'class="horiz-top-nav"')
+        self.assertContains(response1, reverse('grocerystore:store',
+                                               kwargs={'zipcode': 22600,
+                                                       'store_id': self.test_store1.pk}))
+        self.assertContains(response1, reverse('grocerystore:store',
+                                               kwargs={'zipcode': 22600,
+                                                       'store_id': self.test_store2.pk}))
+        self.assertContains(response1, 'Please choose a store:')
+        self.assertContains(response1, 'class="navbar navbar-inverse"')
+        self.assertContains(response1, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response1, 'class="footer navbar-fixed-bottom"')
         # response2
         self.assertEqual(response2.status_code, 200)
+        self.assertEqual(int(response2.context['zipcode']), 22400)
+        self.assertEqual(response2.context.get('available_stores'), None)
         self.assertContains(response2, "Sorry, there's no store available in the "\
                                        "ZIP code area you've chosen")
-        self.assertEqual(response2.context.get('available_stores'), None)
-        self.assertContains(response2, 'class="horiz-top-nav"')
+        self.assertContains(response2, 'class="navbar navbar-inverse"')
+        self.assertContains(response2, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response2, 'class="footer navbar-fixed-bottom"')
 
     def test_get_with_authenticated_user(self):
         """Checks if there's a logout and a profile link."""
@@ -201,6 +218,9 @@ class StartViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse('grocerystore:logout'))
         self.assertContains(response, reverse('grocerystore:profile'))
+        self.assertContains(response, reverse('grocerystore:index'))
+        self.assertContains(response, reverse('grocerystore:cart',
+                                              kwargs={'zipcode': 22600}))
 
     def test_get_with_anonymous_user(self):
         """Checks if there's an index, a login and a register link."""
@@ -211,9 +231,12 @@ class StartViewTest(TestCase):
         self.assertContains(response, reverse('grocerystore:login'))
         self.assertContains(response, reverse('grocerystore:register'))
         self.assertContains(response, reverse('grocerystore:index'))
+        self.assertContains(response, reverse('grocerystore:cart',
+                                              kwargs={'zipcode': 22600}))
 
 
 class StoreViewTest(TestCase):
+    """Checks the store welcome page."""
     def setUp(self):
         self.test_user = User.objects.create_user(username='toto', password='azertyui')
         self.test_zipcode = Zipcode.objects.create(zipcode=22600)
@@ -257,16 +280,19 @@ class StoreViewTest(TestCase):
         self.assertEqual(int(response.context['zipcode']), self.test_zipcode.zipcode)
         self.assertEqual(int(response.context['store_id']), self.test_store.pk)
         self.assertEqual(response.context['store'], self.test_store)
-        self.assertEqual(response.context['available_stores'][0], self.test_store2)
+        self.assertEqual(len(response.context['available_stores']), 2)
+        self.assertEqual(response.context['available_stores'][0], self.test_store)
+        self.assertEqual(response.context['available_stores'][1], self.test_store2)
         self.assertIsInstance(response.context['category_form'], SelectCategory)
         # content
         self.assertContains(response, 'Shopping at Leclerc (ZAC)')
-        self.assertContains(response, 'class="horiz-top-nav"')
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
         self.assertContains(response, 'id="category_form"')
         self.assertContains(response, 'id="search_tool"')
-        self.assertContains(response, 'id="messages"')
-        self.assertContains(response, "---Stores in 22600---")
         # links
+        self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:store',
                                               kwargs={'zipcode': self.test_zipcode.zipcode,
                                                       'store_id': self.test_store.pk}))
@@ -306,7 +332,6 @@ class StoreViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse('grocerystore:login'))
         self.assertContains(response, reverse('grocerystore:register'))
-        self.assertContains(response, reverse('grocerystore:index'))
 
     def test_post_with_authorized_characters_in_search_tool(self):
         """Checks url redirection if search is correct."""
@@ -358,6 +383,7 @@ class StoreViewTest(TestCase):
 
 
 class SubcategoriesListTest(TestCase):
+    """Checks if all the product sub-categories are displayed for a given category."""
     def setUp(self):
         self.test_user = User.objects.create_user(username='toto', password='azertyui')
         self.test_zipcode = Zipcode.objects.create(zipcode=22600)
@@ -398,14 +424,17 @@ class SubcategoriesListTest(TestCase):
         self.assertEqual(int(response.context['store_id']), self.test_store.pk)
         self.assertEqual(response.context['store'], self.test_store)
         self.assertEqual(int(response.context['category_id']), self.test_product_category.pk)
-        self.assertEqual(response.context['available_stores'][0], self.test_store2)
+        self.assertEqual(len(response.context['available_stores']), 2)
+        self.assertEqual(response.context['available_stores'][0], self.test_store)
+        self.assertEqual(response.context['available_stores'][1], self.test_store2)
         # content
         self.assertContains(response, 'Shopping at Leclerc (ZAC)')
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'class="subcat_list"')
-        self.assertContains(response, 'id="messages"')
-        self.assertContains(response, "---Stores in 22600---")
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
+        self.assertContains(response, 'class="subcategories"')
         # links
+        self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:store',
                                               kwargs={'zipcode': self.test_zipcode.zipcode,
                                                       'store_id': self.test_store.pk}))
@@ -414,9 +443,6 @@ class SubcategoriesListTest(TestCase):
                                                       'store_id': self.test_store2.pk}))
         self.assertContains(response, reverse('grocerystore:cart',
                                               kwargs={'zipcode': self.test_zipcode.zipcode}))
-        self.assertContains(response, reverse('grocerystore:checkout',
-                                              kwargs={'zipcode': self.test_zipcode.zipcode,
-                                                      'store_id': self.test_store.pk}))
         self.assertContains(response, reverse('grocerystore:instock',
                                               kwargs={'zipcode': self.test_zipcode.zipcode,
                                                       'store_id': self.test_store.pk,
@@ -465,12 +491,12 @@ class SubcategoriesListTest(TestCase):
                                                    'store_id': self.test_store.pk,
                                                    'category_id': self.test_product_category.pk,}))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:login'))
         self.assertContains(response, reverse('grocerystore:register'))
 
 
 class InstockListTest(TestCase):
+    """Checks if the user has access to all the available products in a given category."""
     def setUp(self):
         self.test_user = User.objects.create_user(username='toto', password='azertyui')
         self.test_zipcode = Zipcode.objects.create(zipcode=22600)
@@ -513,14 +539,17 @@ class InstockListTest(TestCase):
         self.assertEqual(response.context['store'], self.test_store)
         self.assertEqual(int(response.context['category_id']), self.test_product_category.pk)
         self.assertEqual(response.context['quantity_set'], range(1, 21))
-        self.assertEqual(response.context['available_stores'][0], self.test_store2)
+        self.assertEqual(len(response.context['available_stores']), 2)
+        self.assertEqual(response.context['available_stores'][0], self.test_store)
+        self.assertEqual(response.context['available_stores'][1], self.test_store2)
         # content
         self.assertContains(response, "'Produce / Fruits' section at Leclerc (ZAC)")
-        self.assertContains(response, 'class="horiz-top-nav"')
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
         self.assertContains(response, 'class="available_products"')
-        self.assertContains(response, 'id="messages"')
-        self.assertContains(response, "---Stores in 22600---")
         # links
+        self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:store',
                                       kwargs={'zipcode': self.test_zipcode.zipcode,
                                               'store_id': self.test_store.pk}))
@@ -529,9 +558,6 @@ class InstockListTest(TestCase):
                                               'store_id': self.test_store2.pk}))
         self.assertContains(response, reverse('grocerystore:cart',
                                       kwargs={'zipcode': self.test_zipcode.zipcode}))
-        self.assertContains(response, reverse('grocerystore:checkout',
-                                      kwargs={'zipcode': self.test_zipcode.zipcode,
-                                              'store_id': self.test_store.pk}))
         self.assertContains(response, reverse('grocerystore:detail',
                                       kwargs={'zipcode': self.test_zipcode.zipcode,
                                               'store_id': self.test_store.pk,
@@ -590,7 +616,6 @@ class InstockListTest(TestCase):
                                            'category_id': self.test_product_category.pk,
                                            'subcategory_id': self.test_product_subcategory.pk}))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:login'))
         self.assertContains(response, reverse('grocerystore:register'))
 
@@ -631,7 +656,7 @@ class InstockListTest(TestCase):
 
 
 class UserRegisterViewTest(TestCase):
-
+    """Checks the registration page display."""
     def setUp(self):
         self.test_user = User.objects.create_user(username='toto',
                                                   email='toto@gmail.com',
@@ -670,8 +695,9 @@ class UserRegisterViewTest(TestCase):
         self.assertIsInstance(response.context['address_form'], AddressForm)
         # content
         self.assertContains(response, 'id="registration_form"')
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'id="messages"')
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
         # links
         self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:login'))
@@ -751,7 +777,7 @@ class UserRegisterViewTest(TestCase):
 
 
 class UserLoginViewTest(TestCase):
-
+    """Checks the login page display."""
     def setUp(self):
         self.test_user = User.objects.create_user(username='titi', password='qsdfghjk')
         self.test_state = State.objects.create(state_name="Brittany", state_postal_code="BZ")
@@ -793,8 +819,9 @@ class UserLoginViewTest(TestCase):
         self.assertContains(response, 'id="login_form"')
         self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:register'))
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'id="messages"')
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
 
     def test_post(self):
         data1 = {'username': "titi",
@@ -821,6 +848,8 @@ class UserLoginViewTest(TestCase):
 
 
 class CartViewTest(TestCase):
+    """Checks if the user cart is displayed properly. The user can have carts in
+    different stores in the same zipcode area."""
     def setUp(self):
         self.test_user = User.objects.create_user(username='tutu', password='azertyui')
         self.test_state = State.objects.create(state_name="Brittany", state_postal_code="BZ")
@@ -872,6 +901,7 @@ class CartViewTest(TestCase):
                                  product_price=0.79)
 
     def test_get_and_post_with_anonymous_user(self):
+        """Checks if both the (anonymous) user's carts in the 22600 area are displayed."""
         # testing get and post in the same method because to be able to interact
         # with self.client.session data
         session = self.client.session
@@ -913,10 +943,16 @@ class CartViewTest(TestCase):
                                       kwargs={'zipcode': self.test_zipcode,
                                               'store_id': self.test_store2.pk,}))
         # checks the content
-        self.assertContains(response, "Shopping in the 22600 area")
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'id="all_carts"')
-        self.assertContains(response, 'id="messages"')
+        self.assertContains(response, "Your cart(s) in the 22600 area")
+        self.assertContains(response, "Keep shopping at " + '<a href="%s">Leclerc (ZAC)</a>' \
+        % reverse('grocerystore:store', kwargs={'zipcode': 22600, 'store_id': self.test_store1.pk}))
+        self.assertContains(response, "Keep shopping at " + '<a href="%s">SuperU (centre)</a>' \
+        % reverse('grocerystore:store', kwargs={'zipcode': 22600, 'store_id': self.test_store2.pk}))
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
+        self.assertContains(response, 'class="panel-group"')
+        self.assertContains(response, 'class="panel-footer"')
 
         # testing post
         # changing the quantity of an item
@@ -937,7 +973,7 @@ class CartViewTest(TestCase):
         self.assertEqual(session.values()[0]['qty'], 11)
 
     def test_get_with_authenticated_user(self):
-        """Checks that there's a logout link if the user is logged in"""
+        """Checks if both the (authenticated) user's carts in the 22600 area are displayed."""
         self.test_flaskcart.empty_cart()
         self.test_flaskcart.add(str(self.test_availability1.pk), 3)
         self.test_flaskcart.add(str(self.test_availability2.pk), 4)
@@ -976,10 +1012,16 @@ class CartViewTest(TestCase):
                                       kwargs={'zipcode': self.test_zipcode,
                                               'store_id': self.test_store2.pk,}))
         # checks the content
-        self.assertContains(response, "Shopping in the 22600 area")
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'id="all_carts"')
-        self.assertContains(response, 'id="messages"')
+        self.assertContains(response, "Your cart(s) in the 22600 area")
+        self.assertContains(response, "Keep shopping at " + '<a href="%s">Leclerc (ZAC)</a>' \
+        % reverse('grocerystore:store', kwargs={'zipcode': 22600, 'store_id': self.test_store1.pk}))
+        self.assertContains(response, "Keep shopping at " + '<a href="%s">SuperU (centre)</a>' \
+        % reverse('grocerystore:store', kwargs={'zipcode': 22600, 'store_id': self.test_store2.pk}))
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
+        self.assertContains(response, 'class="panel-group"')
+        self.assertContains(response, 'class="panel-footer"')
 
     def test_post_with_authenticated_user(self):
         self.client.login(username='tutu', password='azertyui')
@@ -1021,9 +1063,14 @@ class SearchViewTest(TestCase):
         self.store2.delivery_area.add(self.zipcode)
         # creating a product
         self.category = ProductCategory.objects.create(top_category='Produce')
-        self.subcategory = ProductSubCategory.objects.create(parent=self.category, sub_category_name='Fruits')
-        self.product = Product.objects.create(product_name='Tomato', product_category=self.subcategory)
-        self.availability = Availability.objects.create(product=self.product, store=self.store, product_unit='ea', product_price=0.49)
+        self.subcategory = ProductSubCategory.objects.create(parent=self.category,
+                                                             sub_category_name='Fruits')
+        self.product = Product.objects.create(product_name='Tomato',
+                                              product_category=self.subcategory)
+        self.availability = Availability.objects.create(product=self.product,
+                                                        store=self.store,
+                                                        product_unit='ea',
+                                                        product_price=0.49)
         # creating an inflauser
         self.address = Address.objects.create(street_adress1="2, Quilliampe",
                                               city="Loudéac",
@@ -1047,9 +1094,10 @@ class SearchViewTest(TestCase):
         self.assertEqual(int(response.context['store_id']), self.store.pk)
         self.assertEqual(response.context['store'], self.store)
         self.assertEqual(response.context['searched_item'], 'tomato')
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
         self.assertContains(response, 'class="available_products"')
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'id="messages"')
         # checks the links displayed
         self.assertContains(response, reverse('grocerystore:store',
                                       kwargs={'zipcode': self.address.zip_code,
@@ -1057,15 +1105,14 @@ class SearchViewTest(TestCase):
         self.assertContains(response, reverse('grocerystore:store',
                                       kwargs={'zipcode': self.address.zip_code,
                                               'store_id': self.store2.pk}))
-        self.assertContains(response, reverse('grocerystore:checkout',
-                                              kwargs={'zipcode': self.address.zip_code,
-                                                      'store_id': self.store.pk,}))
         self.assertContains(response, reverse('grocerystore:cart',
                                               kwargs={'zipcode': self.address.zip_code,}))
         self.assertContains(response, reverse('grocerystore:detail',
                                       kwargs={'zipcode': self.address.zip_code,
                                               'store_id': self.store.pk,
                                               'product_id': self.product.pk,}))
+        self.assertContains(response, 'Tomato')
+        self.assertContains(response, ': $0.49 / ea')
         self.assertContains(response, reverse('grocerystore:index'))
         self.assertContains(response, reverse('grocerystore:login'))
         self.assertContains(response, reverse('grocerystore:register'))
@@ -1078,9 +1125,6 @@ class SearchViewTest(TestCase):
                                            'searched_item': 'tomato'}))
         self.assertContains(response, reverse('grocerystore:logout'))
         self.assertContains(response, reverse('grocerystore:profile'))
-        self.assertContains(response, reverse('grocerystore:store',
-                                      kwargs={'zipcode': self.address.zip_code,
-                                              'store_id': self.store2.pk}))
 
     def test_post_with_anonymous_user(self):
         """Checks url redirection when anonymous user adds an item to their cart"""
@@ -1110,6 +1154,7 @@ class SearchViewTest(TestCase):
 
 
 class ProductDetailViewTest(TestCase):
+    """Checks if an available product details and its other availabilities are displayed."""
     def setUp(self):
         self.user = User.objects.create_user(username='toto', email='tata@gmail.com', password='azertyui')
         self.state = State.objects.create(state_name="Brittany", state_postal_code='BZ')
@@ -1148,31 +1193,32 @@ class ProductDetailViewTest(TestCase):
         self.cart = get_flaskcart(self.user.username, 'http://localhost:5000')
 
     def test_get_with_anonymous_user(self):
-        """If (a) result(s) match(es) the search, the result form must be displayed"""
+        """If (a) result(s) match(es) the search, the result form must be displayed."""
         response = self.client.get(reverse('grocerystore:detail',
                                    kwargs={'zipcode': self.address.zip_code,
                                            'store_id': self.store.pk,
                                            'product_id': self.product.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, 'grocerystore/detail.html')
-
+        # context
         self.assertEqual(len(response.context['other_availabilities']), 1)
         self.assertEqual(int(response.context['zipcode']), 22600)
         self.assertEqual(int(response.context['store_id']), self.store.pk)
         self.assertEqual(response.context['store'], self.store)
-
         self.assertEqual(response.context['product'], self.product)
         self.assertEqual(response.context['product_availability'], self.availability)
         self.assertEqual(response.context['product_brand_or_variety'], "")
         self.assertEqual(response.context['product_description'], "")
         self.assertEqual(response.context['user_id_required'], False)
         self.assertEqual(response.context['quantity_set'], range(1, 21))
-
-        self.assertContains(response, 'class="product_detail"')
-        self.assertContains(response, 'class="product_availabilities"')
-        self.assertContains(response, 'id="1"')
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'id="messages"')
+        # content
+        self.assertContains(response, 'class="product_details"')
+        self.assertContains(response, 'id="other_availabilities"')
+        self.assertContains(response, 'id="%s"' % self.product.pk)
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
+        self.assertContains(response, "A similar '%s' is available in the store(s) below:" % self.product.product_name)
 
         # checks the links displayed
         self.assertContains(response, reverse('grocerystore:store',
@@ -1181,9 +1227,6 @@ class ProductDetailViewTest(TestCase):
         self.assertContains(response, reverse('grocerystore:store',
                                       kwargs={'zipcode': self.address.zip_code,
                                               'store_id': self.store2.pk}))
-        self.assertContains(response, reverse('grocerystore:checkout',
-                                      kwargs={'zipcode': self.address.zip_code,
-                                              'store_id': self.store.pk,}))
         self.assertContains(response, reverse('grocerystore:cart',
                                       kwargs={'zipcode': self.address.zip_code,}))
         self.assertContains(response, reverse('grocerystore:detail',
@@ -1237,6 +1280,7 @@ class ProductDetailViewTest(TestCase):
 
 
 class ProfileViewTest(TestCase):
+    """Checks if the user informations are displayed."""
     def setUp(self):
         self.user = User.objects.create_user(username='lulu', email='lulu@gmail.com', password='azertyui')
         self.state = State.objects.create(state_name="Brittany", state_postal_code='BZ')
@@ -1266,10 +1310,11 @@ class ProfileViewTest(TestCase):
                                       kwargs={'zipcode': self.address.zip_code,
                                               'store_id': self.store.pk}))
         # content
-        self.assertContains(response, 'id="edit"')
         self.assertContains(response, 'id="user_info"')
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'id="messages"')
+        self.assertContains(response, 'id="edit_profile"')
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
         # context
         self.assertEqual(response.context['zipcode'], self.address.zip_code)
         self.assertEqual(response.context['user_address'], self.address)
@@ -1319,9 +1364,10 @@ class ProfileUpdateViewTest(TestCase):
                                               'store_id': self.store.pk}))
         # content
         self.assertContains(response, 'id="profile_form"')
-        self.assertContains(response, 'class="field"')
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'id="messages"')
+        self.assertContains(response, 'id="address_form"')
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
         # context
         self.assertIsInstance(response.context['address_form'], AddressForm)
         self.assertEqual(response.context['zipcode'], self.address.zip_code)
@@ -1378,6 +1424,7 @@ class ProfileUpdateViewTest(TestCase):
 
 
 class CheckoutViewTest(TestCase):
+    """Checks if the user can make a fake purchase using correct credit card info."""
     def setUp(self):
         # creating a user
         self.user = User.objects.create_user(username='toto',
@@ -1426,8 +1473,10 @@ class CheckoutViewTest(TestCase):
                                       kwargs={'zipcode': self.address.zip_code}))
         # content
         self.assertContains(response, 'id="payment_form"')
-        self.assertContains(response, 'class="horiz-top-nav"')
-        self.assertContains(response, 'id="messages"')
+        self.assertContains(response, "Checking out at Leclerc (ZAC)")
+        self.assertContains(response, 'class="navbar navbar-inverse"')
+        self.assertContains(response, 'class="nav navbar-nav navbar-right"')
+        self.assertContains(response, 'class="footer navbar-fixed-bottom"')
         # context
         self.assertIsInstance(response.context['payment_form'], PaymentForm)
         self.assertEqual(response.context['username'], self.user.username)
@@ -1449,4 +1498,8 @@ class CheckoutViewTest(TestCase):
                                                        'store_id': self.store.pk})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('grocerystore:start', kwargs={'zipcode': self.address.zip_code}))
+        self.assertRedirects(response, reverse('grocerystore:index'))
+        # make sure the 'hire me' collapse will be displayed on the index page after redirecting
+        storage = get_messages(response.request)
+        for elt in storage:
+            self.assertEqual(elt.level_tag,'success')

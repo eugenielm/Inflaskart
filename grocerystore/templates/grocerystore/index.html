@@ -3,73 +3,101 @@
 <html lang="en">
 
   <head>
-      <meta charset="UTF-8">
-      {% load static %}
-      <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
-      <title>Inflaskart | Welcome</title>
-      <style>
-        header {
-          padding-top: : 20px;
-          height: 100px;
-          text-align: center;
-        }
-      </style>
+    <title>Inflaskart | Welcome</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
   </head>
 
 
   <body>
 
-    <header>
 
-      <h3>*** Welcome to Inflaskart! ***</h3>
-      <h5>Inflaskart is a revolutionary app to shop your groceries on line</h5>
+    <div class="page-header">
 
-    </header>
+      <h2>Welcome to Inflaskart!</h2>
+      <h3><small>***Inflaskart is a fun app to shop your groceries on line***</small></h3>
 
-    <main>
+    </div>
+
+
+    <div class="container"> <!-- beginning of main content -->
+
+      {% if hire_me %}
+        <div class="panel-group">
+          <div class="panel panel-default">
+            <div class="panel-heading" style="background-color:rgba(202, 85, 122, 0.4)">
+              <h5 class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse1">Liked your experience?</a>
+              </h5>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse">
+              <div class="panel-footer">
+                <p style="font-weight:bold">Looking for an enthusiastic entry level backend of fullstack developer in SF?</p>
+                <p style="font-weight:bold">Hire me!</p>
+                <p name="resume"><span style="text-decoration:underline"><a href="/path/to/my/file/resume.pdf" download="LE_MOULEC_eugenie_resume.pdf" class="btn btn-info btn-xs" role="button">Download resume</a></span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </br>
+      {% endif %}
+
       {% if username %}
 
-        <section id="authenticated">
-          <h5>Welcome, {{ username }}!</h5>
-          <p><a href="{% url 'grocerystore:start' zipcode %}">Start shopping</a></p>
-        </section>
+        <div class="row">
+          <h5>Hi {{ username }}!</h5>
+          </br>
+          <div class="jumbotron">
+            <p><a id="login" href="{% url 'grocerystore:start' zipcode %}" class="btn btn-success btn-lg" role="button">start shopping</a>
+            <a id="register" href="{% url 'grocerystore:logout' %}" class="btn btn-warning btn-lg" role="button">logout</a></p>
+          </div>
+        </div>
 
       {% else %}
 
-        <section class="identification">
+        <div class="jumbotron">
           <form id="zipform" action="" method="post">
             {% csrf_token %}
-            <label for='zipcode'>enter a ZIP code: </label>
+            <label for='zipcode'>Choose a ZIP code: </label>
             <input type="text" name="zipcode" id="zipcode_input" pattern="[0-9]{4,5}" maxlength="5">
-            <input id="go" type="submit" value="Go!">
+            <input class="btn btn-success btn-xs" type="submit" value="Go!">
           </form>
-        </section>
-
-        <section class="identification">
-          <a id="register" href="{% url 'grocerystore:register' %}">create an account</a>
-          |
-          <a id="login" href="{% url 'grocerystore:login' %}">login</a>
-        </section>
+        </div>
+        </br>
+        <div class="jumbotron">
+          <p><a id="login" href="{% url 'grocerystore:login' %}" class="btn btn-success btn-lg" role="button">login</a>
+          <a id="register" href="{% url 'grocerystore:register' %}" class="btn btn-success btn-lg" role="button">sign up</a></p>
+        </div>
 
       {% endif %}
 
-      <div id="messages">
-        {% if messages %}
-          <div id="messages-content">
-            <ul>
-              {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-        {% endif %}
+    </div> <!-- end of main content -->
+
+
+    <footer class="footer navbar-fixed-bottom"> <!-- beginning of footer -->
+      {% if messages %}
+      <div class="messages">
+        <ul>
+          {% for message in messages %}
+            <div class="message"><li class="{{ message.tags }}">{{ message }}</li></div>
+          {% endfor %}
+        </ul>
       </div>
+      {% endif %}
 
-    </main>
+      <div class="container">
+        <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
+      </div>
+    </footer> <!-- end of footer -->
 
-    <footer>
-      <p id="footer">Contact: cowboy.de.tchernobyl@gmail.com</p>
-    </footer>
 
   </body>
 

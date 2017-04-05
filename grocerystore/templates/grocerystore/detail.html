@@ -3,66 +3,95 @@
 <html lang="en">
 
   <head>
-      <meta charset="UTF-8">
-      <title>Inflaskart | {{ product }}</title>
-      {% load static %}
-      <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
+    <meta charset="UTF-8">
+    <title>Inflaskart | {{ product }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
   </head>
 
 
   <body>
 
-    <header>
 
-      <nav class="horiz-top-nav">
-
-          <div class="dropdown">
-            <button class="dropbutton"><a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></button>
-            <div class="dropdown-content">
-              {% if not request.user.is_authenticated %}
-                <a href="{% url 'grocerystore:index' %}">Shop in another area</a>
-              {% endif %}
-              {% if available_stores %}
-                <p>---Stores in {{zipcode}}---</p>
-                {% for store in available_stores %}
-                <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a>
-                {% endfor %}
-              {% endif %}
-            </div>
-          </div>
-
-        <div class="dropdown">
-          <button class="dropbutton">Account</button>
-          <div class="dropdown-content">
+    <nav class="navbar navbar-inverse"> <!-- beginning of nav bar -->
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{% url 'grocerystore:index' %}">Inflaskart</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <ul class="nav navbar-nav">
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores<span class="caret"></span></a>
+                {% if available_stores %}
+                  <ul class="dropdown-menu">
+                    {% for store in available_stores %}
+                      <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+            </li>
+            <li><a href="{% url 'grocerystore:cart' zipcode %}">Cart</a></li>
             {% if request.user.is_authenticated %}
-              <a href="{% url 'grocerystore:profile' %}">Your profile</a>
-              <a href="{% url 'grocerystore:logout' %}">Logout</a>
-            {% else %}
-              <a href="{% url 'grocerystore:login' %}">Login</a>
-              <a href="{% url 'grocerystore:register' %}">Register</a>
+              <li><a href="{% url 'grocerystore:profile' %}">Profile</a></li>
             {% endif %}
-          </div>
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right">
+            {% if request.user.is_authenticated %}
+              <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-user"></span>Log out</a></li>
+            {% else %}
+              <li><a href="{% url 'grocerystore:login' %}"><span class="glyphicon glyphicon-user"></span>Login</a></li>
+              <li><a href="{% url 'grocerystore:register' %}"><span class="glyphicon glyphicon-user"></span>Sign up</a></li>
+            {% endif %}
+          </ul>
+
         </div>
+      </div>
+    </nav> <!-- end of nav bar -->
 
-        <div class="dropdown">
-          <button class="dropbutton">Cart</a></button>
-          <div class="dropdown-content">
-            <a href="{% url 'grocerystore:cart' zipcode %}">View your cart</a>
-            <a href="{% url 'grocerystore:checkout' zipcode store_id %}">Checkout at {{ store }}</a>
-          </div>
-        </div>
 
-      </nav>
+    <div class="page-header">
+      <h4>{{ product.product_name }}</h4>
+    </div>
 
-    </header>
 
-    <main>
+    <div class="container"> <!-- beginning of main content -->
+      <div class="row">
+        <h5><p>@ <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></p></h5>
+      </div>
+      <div class="product_details">
+        <div class="row">Price: ${{ product_availability.product_price }} / {{ product_availability.product_unit }}</div>
+        <div class="row">Category: {{ product.product_category }}</div>
+        {% if product_dietaries %}
+          <div class="row">Dietary: {% for diet in product_dietaries %} {{ diet }}{% endfor %}</div>
+        {% endif %}
+        {% if product_brand_or_variety %}
+          <div class="row">Brand / variety: {{ product_brand_or_variety }}</div>
+        {% endif %}
+        {% if product_description %}
+          <div class="row">Description: {{ product_description }}</div>
+        {% endif %}
+        {% if product_pic %}
+          <div class="row">{{ product_pic }}</div>
+        {% endif %}
+        {% if user_id_required %}
+          <div class="row" style="color:red;">You must be over 21 to buy this product.</div>
+        {% endif %}
+      </div>
 
-      <section class="product_detail">
-
-        <h2>{{ product.product_name }}</h2>
-        <h5>@ {{ store }}</h5>
-
+      <div class="row">
         <form id="quantity_selection" action="" method="post">
           {% csrf_token %}
           <select id="{{product.pk}}" name="{{product.pk}}">
@@ -70,56 +99,43 @@
               <option value="{{quantity}}"> {{ quantity }}</option>
             {% endfor %}
           </select>
-          <input type="submit" value="Add item in cart">
+          <input type="submit" class="btn btn-info btn-xs" value="Add">
         </form>
-
-        <p>Price: ${{ product_availability.product_price }} / {{ product_availability.product_unit }}</p>
-        <p>Category: {{ product.product_category }}</p>
-        {% if product_dietaries %}
-          <p>Dietary: {% for diet in product_dietaries %} {{ diet }}</p>{% endfor %}
-        {% endif %}
-        {% if product_brand_or_variety %}
-          <p>Brand / variety: {{ product_brand_or_variety }}</p>
-        {% endif %}
-        {% if product_description %}
-          <p>Description: {{ product_description }}</p>
-        {% endif %}
-        {% if product_pic %}
-          <p>{{ product_pic }}</p>
-        {% endif %}
-        {% if user_id_required %}
-          <p>The customer must be over 21 to buy this product.</p>
-        {% endif %}
-
-      </section>
-
-      {% if other_availabilities %}
-        <section class="product_availabilities">
-          <p>A similar '{{ product.product_name }}' is also available in the store(s) below:</p>
-          {% for availability in other_availabilities %}
-            <li><a href="{% url 'grocerystore:detail' zipcode availability.store.pk availability.product.pk %}">
-                {{availability.store}}</a>: ${{availability.product_price}} / {{availability.product_unit}}</li>
-          {% endfor %}
-        </section>
-      {% endif %}
-
-      <div id="messages">
-        {% if messages %}
-          <div id="messages-content">
-            <ul>
-              {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-        {% endif %}
       </div>
 
-    </main>
+      {% if other_availabilities %}
+        <hr>
+        <div class="row" id="other_availabilities">
+          <p>A similar '{{ product.product_name }}' is available in the store(s) below:</p>
+        </div>
+          <ul>
+          {% for availability in other_availabilities %}
+            <div class="row"><li><a href="{% url 'grocerystore:detail' zipcode availability.store.pk availability.product.pk %}">
+                {{availability.store}}</a>: ${{availability.product_price}} / {{availability.product_unit}}</li></div>
+          {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
 
-    <footer>
-      <p id="footer">Contact: cowboy.de.tchernobyl@gmail.com</p>
-    </footer>
+    </div> <!-- end of main content -->
+
+
+    <footer class="footer navbar-fixed-bottom"> <!-- beginning of footer -->
+      {% if messages %}
+      <div class="messages">
+        <ul>
+          {% for message in messages %}
+            <div class="message"><li class="{{ message.tags }}">{{ message }}</li></div>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <div class="container">
+        <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
+      </div>
+    </footer> <!-- end of footer -->
+
 
   </body>
 

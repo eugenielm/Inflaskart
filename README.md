@@ -98,14 +98,26 @@ You need to create plenty of stores, products and availabilities.
 and have fun!
 
 
+How to run the tests
+--------------------
+In the command line, navigate to the project directory (not the app one), then
+enter the following command:
+  ```sh
+  python manage.py test
+  ```
+
+
 Room for improvement
 --------------------
 This project is still under development:
-- the templates structure needs to be improved (along with the style sheet)
+- the style sheet is still a little basic
 - need to implement a way to verify a user's email address;
+- need to implement a way to allow the user to check their password when signing
+up (ie: entering it twice);
 - need to implement a way to allow the user to change their password;
 - need to implement a way to store the user's credit card information securely;
-- need to further properly implement the checkout process.
+- need to implement orders history;
+- need to properly implement the checkout process.
 
 
 Requirements

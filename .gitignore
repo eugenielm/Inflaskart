@@ -3,4 +3,6 @@
 .DS_Store
 db.sqlite3
 grocerystore/migrations/0*
+grocerystore/static/grocerystore/style-old.css
+grocerystore/static/grocerystore/images/
 

@@ -1,269 +1,60 @@
-html {height: 100%}
-
-body {
-  background-color: #656363;
-  position: relative;
-  overflow: scroll;
-  padding: 5px;
-  height: 100%;
-}
-
-header {
-  background-color: #9ed073;
-  border: solid #9ed073;
-  height: 25px;
-  padding-left: 5px;
-  padding-top: 5px;
-  border-radius: 2px;
-}
-
-header nav p {
-  display: inline;
-  position: relative;
-}
-
-main {
-  background-color: #EEEEEE;
-  padding: 5px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  height: 70%;
-  border-radius: 2px;
-  position: relative;
-}
-
-main p {margin: 0px}
-
-a {
-  text-decoration: none;
-  color: black;
-}
-
-a:hover, a:active {
-  color: #656363;
-}
-
-footer {
-  font-size: small;
-  clear:both;
-  border-radius: 2px;
-}
-
-ul {
-  list-style-type: square;
-  margin: 0px 10px;
-  padding: 0px 10px;
-}
-
-h1, h2, h3, h4, h5, h6 {padding: 0px 10px}
-
-/* Style The Dropdown Button */
-.dropbutton {
-    background-color: #4CAF50;
-    color: white;
-    font-size: 12px;
-    border: none;
-    cursor: pointer;
-    margin-right: 5px;
-}
-
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 150px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-
-/* Links inside the dropdown */
-.dropdown-content a, p {
-    color: black;
-    font-size: 12px;
-    padding: 10px 10px;
-    display: block;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {background-color: #f1f1f1}
-
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbutton {
-    background-color: #3e8e41;
-}
-
-.dropbutton a {color: white}
-
-#messages {
-  font-size: 12px;
-  position: absolute;
-  overflow: visible;
-  bottom: 10px;
-  overflow: inherit;
-  text-align: left;
-}
-
-#messages ul {list-style-type: none}
-
-.info {color: grey}
-.success {color: green}
-.error {color: red}
-
-/*index.html*/
-
-#choose_zipcode {
-  padding: 10px;
-}
-
-.identification {
-  background-color: #b7b7b6;
-  width: 220px;
-  height: 30px;
-  padding: 5px;
+.jumbotron {
+  display: block;
   text-align: center;
-  position: static;
-  margin: auto;
-  margin-top: 10%;
+}
+
+body {background-color: rgba(25, 113, 94, 0.29)}
+
+.page-header, .footer {
+  margin: 20px;
+  padding: 0px;}
+
+.page-header h1, h2, h3, h4, h5, h6 {margin-top: 5px}
+
+#registration_form {margin: 20px 0px;}
+
+.container div {margin: 0px 0px}
+
+form .col-sm-3 {
+  padding-left: 0px;
+}
+
+.footer {
+  margin-bottom: 5px;
+  text-align: right;
+  font-size: 10px;
+}
+
+.footer .messages {text-align: left;}
+
+.footer ul {list-style-type: none}
+
+.footer li {
+  border-style: dashed;
+  border-width: thin;
+  display: inline-block;
   border-radius: 5px;
-  font-size: 16px;
+  overflow: visible;
+  overflow: inherit;
+  padding: 3px;
 }
 
-#zipform {
-  margin-top: 5px;
-}
+.info {background-color: rgba(19, 108, 243, 0.25)}
+.error {background-color: rgba(234, 38, 56, 0.32)}
+.success {background-color: rgba(202, 85, 122, 0.4)}
 
-#zipcode_input {
-  width: 40px;
-  margin: 0px 5px;
-}
-
-#authenticated {
-  text-align: center;
-}
-
-#register {
-  display:inline-block;
-  position:relative;
-  margin: auto;
-  margin-right: 20px;
-  margin-top: 7px;
-}
-
-#login {
-  display:inline-block;
-  position:relative;
-  margin: auto;
-  margin-left: 20px;
-  margin-top: 7px;
-}
-
-#go {
-  border-style: groove;
-  border-color: black;
-  border-radius: 10px;
-  background-color: white;
-}
-
-/* cart.html */
-.cart_total p, form {
-  position: relative;
-  display: inline-block;
-}
-
-#chckbutton, #emptybutton {
-  display: inline-block;
-  position: relative;
-  border-color: black;
-  border-radius: 10px;
-  background-color: white;
-}
-
-#chckbutton a:hover, a:active {color: red}
-
-.view_cart {margin: 20px 10px 5px 5px}
-
-#all_carts p {
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-.single_cart {font-size: 12px}
-
-.single_cart a {text-decoration: underline}
-
-/*store.html*/
-#category_form {margin: 0px 20px}
-#category_form p {font-size: 16px}
-#search_tool {
-  padding: 10px;
-  margin: 30px 20px;
-}
-
-/*registration.html*/
-#registration_form p {
-  margin: 10px 0px 0px 10px;
-  padding: 0px;
-}
-
-/*profile.html*/
-#user_info p {
-  margin: 15px 0px 0px 10px;
-  padding: 0px;
-}
-
-#edit {margin: 20px 0px 0px 10px}
-
-/*profile_update.html*/
-.field {
-  margin: 10px 0px 0px 10px;
-  padding: 0px;
-  font-size: 12px;
-}
-
-#profile_form p {
-  margin: 10px 0px 0px 0px;
-  padding: 0px;
-}
-
-/*ul.error_list {
-  padding: 0px;
-  margin: 0px;
+.panel-title a {
   text-decoration: none;
-  color: red;
-}*/
-
-.submit {margin: 20px 0px 0px 10px}
-
-/*detail.htlm*/
-.product_availabilities {margin-top: 30px}
-
-.product_availabilities p {font-size: 16px; font-style: oblique;;}
-
-.product_availabilities li {font-size: 12px}
-
-.product_detail h2 {margin-bottom: 0px}
-
-.product_detail h5 {
-  margin-top: 0px;
-  font-weight: normal;
-  font-style: italic;
 }
 
-/*checkout.html*/
-#payment_form p {
-  margin: 10px 0px 0px 10px;
-  padding: 0px;
-  font-size: 12px;
+.panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+    color: grey;         /* adjust as needed */
+}
+.panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
 }
