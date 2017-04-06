@@ -4,6 +4,7 @@ from datetime import date
 from calendar import monthrange
 from django import forms
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
                     Store, Address, Availability, Inflauser, State, Zipcode
 
@@ -20,7 +21,7 @@ This module contains 5 forms:
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput)
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(required=True, error_messages={'invalid': 'Please enter a valid email address'})
 
     class Meta:
         model = User
@@ -34,11 +35,16 @@ class UserForm(forms.ModelForm):
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
 
-
 class AddressForm(forms.ModelForm):
     zip_code = forms.RegexField(max_length=5, min_length=4, regex=r'^[0-9]{4,5}$',
                error_messages={'invalid': "Please enter a valid ZIP code",
                                'required': "Please fill in this field."})
+
+    city = forms.RegexField(min_length=2, max_length=20, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
+                            error_messages={'invalid': 'Please enter a valid city.'})
+
+    street_adress1 = forms.RegexField(label="Address", min_length=2, max_length=20, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
+                            error_messages={'invalid': 'Please enter a valid address.'})
 
     class Meta:
         model = Address

@@ -50,23 +50,33 @@
 
     <div class="container"> <!-- beginning of main content -->
 
+      {% if errors %}
+        <div class="errorlist">
+          {% for er in errors %}
+            <p>Please enter a valid {{ er }}. </p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       <form id="registration_form" role="form" action="" method="post">
         {% csrf_token %}
-        {% for field in user_form %}
-          <div class="row">
-            <div class="col-sm-3"><label for="{{ field.id_for_label }}">{{ field.label }}:</label></div>
-            <div class="col-sm-3">{{ field }}</div>
-          </div>
-          <hr style="height:10px; margin: 0; visibility:hidden;" />
-        {% endfor %}
-        {% for field in address_form %}
-          <div class="row">
-            <div class="col-sm-3"><label for="{{ field.id_for_label }}">{{ field.label }}:</label></div>
-            <div class="col-sm-3">{{ field }}</div>
-          </div>
-          <hr style="height:10px; margin: 0; visibility:hidden;" />
-        {% endfor %}
+
+        <table id="user_table">
+          {% for field in user_form %}
+            <tr><td class="field_label">{{ field.label }}: </td>
+            <td>{{ field }}</td></tr>
+          {% endfor %}
+        </table>
+
+        <table id="address_table">
+          {% for field in address_form %}
+            <tr><td class="field_label">{{ field.label }}: </td>
+            <td>{{ field }}</td></tr>
+          {% endfor %}
+        </table>
+
         <input class="btn btn-success btn-xs" type="submit" value="Submit" />
+
       </form>
 
     </div> <!-- end of main content -->

@@ -3,21 +3,21 @@
   text-align: center;
 }
 
+
 body {background-color: rgba(25, 113, 94, 0.29)}
+
 
 .page-header, .footer {
   margin: 20px;
   padding: 0px;}
 
+div.page-header {margin-bottom: 5px}
+
 .page-header h1, h2, h3, h4, h5, h6 {margin-top: 5px}
 
-#registration_form {margin: 20px 0px;}
 
 .container div {margin: 0px 0px}
 
-form .col-sm-3 {
-  padding-left: 0px;
-}
 
 .footer {
   margin-bottom: 5px;
@@ -39,6 +39,8 @@ form .col-sm-3 {
   padding: 3px;
 }
 
+
+/* messages in session */
 .info {background-color: rgba(19, 108, 243, 0.25)}
 .error {background-color: rgba(234, 38, 56, 0.32)}
 .success {background-color: rgba(202, 85, 122, 0.4)}
@@ -47,6 +49,8 @@ form .col-sm-3 {
   text-decoration: none;
 }
 
+
+/* carts display */
 .panel-heading .accordion-toggle:after {
     /* symbol for "opening" panels */
     font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
@@ -57,4 +61,28 @@ form .col-sm-3 {
 .panel-heading .accordion-toggle.collapsed:after {
     /* symbol for "collapsed" panels */
     content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+
+/* error messages for invalid input in forms */
+div.errorlist p {
+  display: inline;
+  font-size: 10px;
+  font-style: italic;
+  color: red;
+}
+
+
+form#registration_form {
+  margin: 0px;
+}
+
+#user_table td, #address_table td {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+#user_table td.field_label, #address_table td.field_label {
+  width: 140px;
+  font-weight: bold;
 }

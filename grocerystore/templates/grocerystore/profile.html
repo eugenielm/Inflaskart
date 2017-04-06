@@ -69,6 +69,7 @@
     <div class="container"> <!-- beginning of main content -->
       <div id="user_info">
         <div class="row"><p><span style="font-weight: bold;">Username</span>: {{ request.user.username }}</p></div>
+        <div class="row"><p><span style="font-weight: bold;">Email</span>: {{ request.user.email }}</p></div>
         <div class="row"><p><span style="font-weight: bold;">First name</span>: {{ request.user.first_name }}</p></div>
         <div class="row"><p><span style="font-weight: bold;">Last name</span>: {{ request.user.last_name }}</p></div>
         <div class="row"><p><span style="font-weight: bold;">Address</span>: {{ user_address.street_adress1 }}</p></div>

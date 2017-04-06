@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import os
 import sys
 import urllib
+import re
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic import View
@@ -124,8 +125,12 @@ class UserRegisterView(View):
                     zipcode = inflauser.inflauser_address.zip_code
                     return redirect('grocerystore:start', zipcode=zipcode)
 
-        # if the forms aren't valid or if the user couldn't be authenticated
-        return render(self.request, self.template_name, {'user_form': form1, 'address_form': form2})
+        errors = []
+        for er in form1.errors:
+            errors.append(er)
+        for er in form2.errors:
+            errors.append(er)
+        return render(self.request, self.template_name, {'user_form': form1, 'address_form': form2, 'errors': errors})
 
 
 class UserLoginView(View):
@@ -250,8 +255,18 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         zipcode = inflauser_address.zip_code
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         new_address = self.form_class(self.request.POST, instance=inflauser_address)
+        new_email = self.request.POST['email']
         new_first_name = self.request.POST['first_name']
         new_last_name = self.request.POST['last_name']
+        errors = []
+
+        if (re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", new_email)) is not None:
+            if not new_email == user.email:
+                messages.info(self.request, "Your email has been updated.")
+                user.email = new_email
+                user.save()
+        else:
+            errors.append("email")
 
         if new_first_name.replace(" ", "").isalpha() and len(new_first_name) < 20:
             if not new_first_name == user.first_name:
@@ -259,24 +274,31 @@ class ProfileUpdateView(LoginRequiredMixin, View):
                 user.first_name = new_first_name
                 user.save()
         else:
-            messages.error(self.request, "You entered an invalid first name.")
+            errors.append("first name")
+
         if new_last_name.replace(" ", "").isalpha() and len(new_last_name) < 20:
             if not new_last_name == user.last_name:
                 messages.info(self.request, "Your last name has been updated.")
                 user.last_name = new_last_name
                 user.save()
         else:
-            messages.error(self.request, "You entered an invalid last name.")
+            errors.append("last name")
 
         if not new_address.is_valid() \
            or not (new_first_name.replace(" ", "").isalpha() and len(new_first_name) < 20) \
-           or not (new_last_name.replace(" ", "").isalpha() and len(new_last_name)):
+           or not (new_last_name.replace(" ", "").isalpha() and len(new_last_name))\
+           or not (re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", new_email)):
             context = {'address_form': new_address,
                        'zipcode': zipcode}
             if available_stores:
                 context['available_stores'] = available_stores
-            for error, msg in new_address.errors.items():
-                messages.error(self.request, msg)
+
+            for er in new_address.errors:
+                if er == "street_adress1":
+                    er = "address"
+                errors.append(er)
+
+            context['errors'] = errors
             return render(self.request, 'grocerystore/profile_update.html',  context=context)
 
         # if the user entered only valid information

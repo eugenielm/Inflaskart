@@ -66,32 +66,43 @@
 
     <div class="container"> <!-- beginning of main content -->
 
-      <div class="row">
-        <div class="col-sm-3" style="padding-left: 0px"><span style="font-weight: bold; font-style: oblique">Username: </span></div>
-        <div class="col-sm-3" style="padding-left: 0px"><span style="font-style: oblique">{{ request.user.username }}</span></div>
-      </div>
-
-      <hr style="height:10px; margin: 0; visibility:hidden;" />
+      {% if errors %}
+        <div class="errorlist">
+          {% for er in errors %}
+            <p>Please enter a valid {{ er }}. </p>
+          {% endfor %}
+        </div>
+      {% endif %}
 
       <form id="profile_form" role="form" action="" method="post">
         {% csrf_token %}
-        <div class="row">
-          <div class="col-sm-3"><label for='first_name'>First name: </label></div>
-          <div class="col-sm-3"><input type="text" name="first_name" id="first_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.first_name }}"></div>
-        </div>
-        <hr style="height:10px; margin: 0; visibility:hidden;" />
-        <div class="row">
-          <div class="col-sm-3"><label for='last_name'>Last name: </label></div>
-          <div class="col-sm-3"><input type="text" name="last_name" id="last_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.last_name }}"></div>
-        </div>
-        <hr style="height:10px; margin: 0; visibility:hidden;" />
-        {% for field in address_form %}
-          <div class="row" id="address_form">
-            <div class="col-sm-3"><label for="{{ field.id_for_label }}">{{ field.label }}:</label></div>
-            <div class="col-sm-3">{{ field }}</div>
-          </div>
-          <hr style="height:10px; margin: 0; visibility:hidden;" />
-        {% endfor %}
+
+        <table id="user_table">
+          <tr>
+            <td class="field_label">Username: </td>
+            <td>{{ request.user.username }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">Email: </td>
+            <td><input type="email" name="email" id="email" value="{{ request.user.email }}"></td>
+          </tr>
+          <tr>
+            <td class="field_label">First name: </td>
+            <td><input type="text" name="first_name" id="first_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.first_name }}"></td>
+          </tr>
+          <tr>
+            <td class="field_label">Last name: </td>
+            <td><input type="text" name="last_name" id="last_name" pattern="[^0-9_@=+;:,()!?%£$*€\\./]+" maxlength="20" value="{{ request.user.last_name }}"></td>
+          </tr>
+        </table>
+
+        <table id="address_table">
+          {% for field in address_form %}
+            <tr><td class="field_label">{{ field.label }}: </td>
+            <td>{{ field }}</td></tr>
+          {% endfor %}
+        </table>
+
         <div class="row"><input class="btn btn-info btn-xs" type="submit" value="Update profile" class="submit" /></div>
       </form>
 
