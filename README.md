@@ -51,7 +51,7 @@ In order to be able to use Inflaskart (locally) to shop, you need to:
 2. Open the terminal and navigate to this repository. You can install the required
 modules/applications using the following command:
     ```sh
-    python requirements.txt
+    pip install -r requirements.txt
     ```
 
 3. Create your database tables based on the application models (NB: the application
