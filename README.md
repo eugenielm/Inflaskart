@@ -1,16 +1,14 @@
 Inflaskart
 ==========
 
-'Inflaskart' is a work-in-progress clone of Instacart. It is an online grocery
-shopping application implemented using Django web framework.
+'Inflaskart' is a work-in-progress clone of Instacart implemented using Django,
+ie. it is an online grocery shopping application.
 
-It needs 2 servers and 2 databases to work properly:
-- a Django-implemented server (that runs locally) associated with a relational
-database (by default: SQLite) for products/stores and user information;
-- another server associated with a non relational database (here: levelDB) for
-cart persistence.
+An SQLite database (sqlite3) is used to store the model instances.
 
-To configure another Django database, please read the following documentation:
+The display is implemented using Bootstrap, plus an external style sheet.
+
+To configure another database, please read the following documentation:
 https://docs.djangoproject.com/en/1.10/intro/tutorial02/
 https://docs.djangoproject.com/en/1.10/topics/install/#database-installation
 
@@ -39,32 +37,26 @@ Repository content
     - views.py
     - a migrations folder (containing only __init__.py)
     - a templates folder
-    - inflaskart_api.py: module containing the class used to interact with the
-    cart server (for cart persistence) and functions used in views.py
+    - a static folder (containing a very basic style sheet)
 
 + requirements.txt
 
 
 How does it work
 ----------------
-1. In order to be able to use Inflaskart (locally) to shop, you first need to
-run the server used for cart persistence.
-To do that you can clone one of the two repositories below and follow its README
-instructions:
-- Flask server: https://github.com/eugenielm/Inflaskart-backend-PY-.git
-- JavaScript server: https://github.com/eugenielm/Inflaskart-backend-JS-.git
+In order to be able to use Inflaskart (locally) to shop, you need to:
 
-2. Clone this repository
+1. Clone this repository
 
-3. Open the terminal and navigate to this repository. You can install the required
+2. Open the terminal and navigate to this repository. You can install the required
 modules/applications using the following command:
     ```sh
     python requirements.txt
     ```
 
-4. Create your database tables based on the application models (NB: the application
-is 'grocerystore').
-In another terminal window, navigate to this repository and create migrations:
+3. Create your database tables based on the application models (NB: the application
+is called 'grocerystore').
+In order to do that, navigate to this repository and create your database migrations:
     ```sh
     python manage.py makemigrations grocerystore
     ```
@@ -73,8 +65,8 @@ Then run the following command to apply the migrations to the database:
     python manage.py migrate
     ```
 
-5. Then in the terminal navigate to the inflaskart project directory, and run
-its server by typing in the following command:
+4. In the terminal, navigate to the inflaskart project directory, and run its
+server by typing in the following command:
     ```sh
     python manage.py runserver
     ```
@@ -82,7 +74,7 @@ By default, the server will run locally on port 8000.
 Now you can access the index page of your web app in your browser with the URL:
 'localhost:8000/grocerystore/‘
 
-6. In order to be able to create products and stores instances to play with this
+5. In order to be able to create products and stores instances to play with this
 application, you need to create an admin profile:
     ```sh
     python manage.py createsuperuser
@@ -90,12 +82,13 @@ application, you need to create an admin profile:
 Then you will be prompted for your email address and password.
 More info: https://docs.djangoproject.com/en/1.10/intro/tutorial02/#introducing-the-django-admin
 
-7. You can access the admin page in your browser by typing in the following URL:
+6. You can access the admin page in your browser by typing in the following URL:
 'localhost:8000/admin/‘
-You need to create plenty of stores, products and availabilities.
+The more stores, products and availabilities you create, the better!
+(don't forget to create state instances as well)
 
-8. Then access your index page in your browser on 'localhost:8000/grocerystore/‘,
-and have fun!
+7. Then access the Inflaskart index page in your browser on
+'localhost:8000/grocerystore/‘, and have fun!
 
 
 How to run the tests
@@ -119,10 +112,14 @@ up (ie: entering it twice);
 - need to implement orders history;
 - need to properly implement the checkout process.
 
+Nota Bene: The user's cart is meant to hold ALL the items the user puts in their
+cart, ie. items from different stores if the user shops in different stores.
+Should the users put larger quantities of items than expected in their cart, it
+would be necessary to have a cart per store and hence change the URL distribution,
+and the models and views files accordingly.
+
 
 Requirements
 ------------
 Django 1.10.6
-levelDB 0.20 (for cart persistence)
-requests 2.13.0 (for inflaskart_api)
 Pillow 4.0.0 (for images)

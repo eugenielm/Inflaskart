@@ -6,19 +6,17 @@ from django.urls import reverse
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.messages import get_messages
 from .models import State, Address, Inflauser, Zipcode,  Store, ProductCategory,\
-                    ProductSubCategory, Dietary, Product, Availability
+                    ProductSubCategory, Dietary, Product, Availability, ItemInCart
 from .views import UserRegisterView, UserLoginView, logout, ProfileView,\
                    ProfileUpdateView, IndexView, StartView, StoreView, \
                    SubcategoriesList, InstockList, SearchView, CartView,\
-                   ProductDetailView, CheckoutView
+                   ProductDetailView, CheckoutView, search_item
 from .forms import LoginForm, PaymentForm, SelectCategory, UserForm, AddressForm
-from inflaskart_api import InflaskartClient, get_flaskcart, search_item, remove_old_items
 
 
 """
 The following tests are implemented:
 - SearchItemTest
-- GetFlaskcartTest
 - IndexViewTest
 - StartViewTest
 - StoreViewTest
@@ -79,17 +77,6 @@ class SearchItemTest(TestCase):
         self.assertIs(len(res2), 0)
 
 
-class GetFlaskcartTest(TestCase):
-    def setUp(self):
-        self.test_username = 'Eugénie'
-        self.test_host = 'http://localhost:5000'
-
-    def test_get_flaskuser(self):
-        """Checks if it returns an InflaskartClient instance"""
-        test_flaskcart = get_flaskcart(self.test_username, self.test_host)
-        self.assertIsInstance(test_flaskcart, InflaskartClient)
-
-
 class IndexViewTest(TestCase):
     """Checks if the user is given the proper tools to choose a shopping area."""
     def setUp(self):
@@ -97,7 +84,7 @@ class IndexViewTest(TestCase):
         self.test_user = User.objects.create_user(username='toto', password='azertyui')
         self.test_zipcode = Zipcode.objects.create(zipcode=22600)
         self.test_state = State.objects.create(state_name="Brittany", state_postal_code="BZ")
-        self.test_address = Address.objects.create(street_adress1="2, Quilliampe",
+        self.test_address = Address.objects.create(street_address1="2, Quilliampe",
                                                    city="Loudéac",
                                                    zip_code=22600,
                                                    state=self.test_state)
@@ -151,7 +138,7 @@ class StartViewTest(TestCase):
         self.test_zipcode = Zipcode.objects.create(zipcode=22600)
         self.test_state = State.objects.create(state_name="Brittany",
                                                state_postal_code="BZ")
-        self.test_address = Address.objects.create(street_adress1="2, Quilliampe",
+        self.test_address = Address.objects.create(street_address1="2, Quilliampe",
                                                    city="Loudéac",
                                                    zip_code=22600,
                                                    state=self.test_state)
@@ -521,7 +508,6 @@ class InstockListTest(TestCase):
                                 store=self.test_store,
                                 product_unit='ea',
                                 product_price=1.89)
-        self.CART_HOST = "http://localhost:5000"
 
     def test_get_with_products_list(self):
         """Checks that there's a list of available products and a navigation menu"""
@@ -638,18 +624,26 @@ class InstockListTest(TestCase):
     def test_post_with_authenticated_user(self):
         """Checks url redirection when logged in user adds an item to their cart"""
         self.client.login(username='toto', password='azertyui')
-        flask_cart = get_flaskcart(self.test_user.username, self.CART_HOST)
-        flask_cart.empty_cart()
+        user_cart = ItemInCart.objects.filter(incart_user=self.test_user)
+        # ensure the cart is empty
+        for item in user_cart:
+            item.delete()
         url = reverse('grocerystore:instock', kwargs={'zipcode': self.test_zipcode.zipcode,
                                                       'store_id': self.test_store.pk,
                                                       'category_id': self.test_product_category.pk,
                                                       'subcategory_id': self.test_product_subcategory.pk})
         data = {str(self.test_availability.pk): 7,}
         response = self.client.post(url, data, format='json')
+
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(len(flask_cart.list()['items']), 1)
-        self.assertIs(int(flask_cart.list()['items'][0]['name']), self.test_availability.pk)
-        self.assertIs(flask_cart.list()['items'][0]['qty'], 7)
+        # need to fetch user_cart (again) after putting an item in the cart
+        user_cart = ItemInCart.objects.filter(incart_user=self.test_user)
+        cart_length = 0
+        for item in user_cart:
+            self.assertEqual(item.incart_availability.pk, self.test_availability.pk)
+            cart_length += 1
+        self.assertEqual(cart_length, 1)
+        self.assertEqual(item.incart_quantity, 7)
         self.assertRedirects(response, reverse('grocerystore:store',
                                        kwargs={'zipcode': self.test_zipcode.zipcode,
                                                'store_id': self.test_store.pk}))
@@ -682,8 +676,6 @@ class UserRegisterViewTest(TestCase):
                                 store=self.test_store,
                                 product_unit='ea',
                                 product_price=1.89)
-        self.test_host = 'http://localhost:5000'
-
 
     def test_get(self):
         """Checks if the registration form and links are displayed on the page"""
@@ -711,8 +703,8 @@ class UserRegisterViewTest(TestCase):
                 'email': "toto@gmail.com",
                 'first_name': "Roger",
                 'last_name': "Moore",
-                'street_adress1': "1, Bond blv",
-                'street_adress2': "",
+                'street_address1': "1, Bond blv",
+                'street_address2': "",
                 'apt_nb': "",
                 'other': "",
                 'city': "Los Angeles",
@@ -724,8 +716,8 @@ class UserRegisterViewTest(TestCase):
                 'email': "mimi@gmail.com",
                 'first_name': "Roger",
                 'last_name': "Moore",
-                'street_adress1': "1, Bond blv",
-                'street_adress2': "",
+                'street_address1': "1, Bond blv",
+                'street_address2': "",
                 'apt_nb': "",
                 'other': "",
                 'city': "Los Angeles",
@@ -737,8 +729,8 @@ class UserRegisterViewTest(TestCase):
                 'email': "mimi@gmail.com",
                 'first_name': "Roger",
                 'last_name': "Moore",
-                'street_adress1': "1, Bond blv",
-                'street_adress2': "",
+                'street_address1': "1, Bond blv",
+                'street_address2': "",
                 'apt_nb': "",
                 'other': "",
                 'city': "Los Angeles",
@@ -750,8 +742,8 @@ class UserRegisterViewTest(TestCase):
                 'email': "mimi@gmail.com",
                 'first_name': "Roger",
                 'last_name': "Moore",
-                'street_adress1': "1, Bond blv",
-                'street_adress2': "",
+                'street_address1': "1, Bond blv",
+                'street_address2': "",
                 'apt_nb': "",
                 'other': "",
                 'city': "Los Angeles",
@@ -770,10 +762,10 @@ class UserRegisterViewTest(TestCase):
                                         kwargs={'zipcode': data4['zip_code']}))
 
         # check if authenticated user's cart is updated
-        test_flaskcart = get_flaskcart(data4['username'], self.test_host)
-        for item in test_flaskcart.list()['items']:
-            if item['name'] == str(self.test_availability.pk):
-                self.assertIs(int(item['qty']), 16)
+        user_cart = ItemInCart.objects.filter(incart_user=User.objects.get(username='lolo'))
+        for item in user_cart:
+            if item.incart_availability.pk == 1:
+                self.assertIs(item.incart_quantity, 16)
 
 
 class UserLoginViewTest(TestCase):
@@ -782,7 +774,7 @@ class UserLoginViewTest(TestCase):
         self.test_user = User.objects.create_user(username='titi', password='qsdfghjk')
         self.test_state = State.objects.create(state_name="Brittany", state_postal_code="BZ")
         self.test_zipcode = Zipcode.objects.create(zipcode=22600)
-        self.test_address = Address.objects.create(street_adress1="2, Quilliampe",
+        self.test_address = Address.objects.create(street_address1="2, Quilliampe",
                                                    city="Loudéac",
                                                    zip_code=22600,
                                                    state=self.test_state)
@@ -807,7 +799,6 @@ class UserLoginViewTest(TestCase):
                                 store=self.test_store,
                                 product_unit='ea',
                                 product_price=1.89)
-        self.test_host = 'http://localhost:5000'
         self.client.session[self.test_availability.pk] = {'name': str(self.test_availability.pk), 'qty': 15}
 
     def test_get(self):
@@ -836,13 +827,13 @@ class UserLoginViewTest(TestCase):
         response1 = self.client.post(url, data1, format='json')
         response2 = self.client.post(url, data2, format='json')
         response3 = self.client.post(url, data3, format='json')
-        test_flaskcart = get_flaskcart(self.test_user.username, self.test_host)
+        test_cart = ItemInCart.objects.filter(incart_user=self.test_user)
         zipcode = self.test_inflauser.inflauser_address.zip_code
         self.assertRedirects(response1, reverse('grocerystore:start', kwargs={'zipcode': zipcode}))
         # check if authenticated user's cart is updated
-        for item in test_flaskcart.list()['items']:
-            if item['name'] == str(self.test_availability.pk):
-                self.assertIs(int(item['qty']), 15)
+        for item in test_cart:
+            if item.incart_availability.pk == self.test_availability.pk:
+                self.assertIs(item.incart_quantity, 15)
         self.assertRedirects(response2, reverse('grocerystore:login'))
         self.assertRedirects(response3, reverse('grocerystore:login'))
 
@@ -855,14 +846,13 @@ class CartViewTest(TestCase):
         self.test_state = State.objects.create(state_name="Brittany", state_postal_code="BZ")
         self.test_zipcode = Zipcode.objects.create(zipcode=22600)
         self.test_zipcode2 = Zipcode.objects.create(zipcode=22400)
-        self.test_address = Address.objects.create(street_adress1="2, Quilliampe",
+        self.test_address = Address.objects.create(street_address1="2, Quilliampe",
                                                    city="Loudéac",
                                                    zip_code=22600,
                                                    state=self.test_state)
         self.test_inflauser = Inflauser.objects.create(infla_user=self.test_user,
                                                        inflauser_address=self.test_address)
-        self.test_host = 'http://localhost:5000'
-        self.test_flaskcart = get_flaskcart(self.test_user.username, self.test_host)
+        self.test_cart = test_cart = ItemInCart.objects.filter(incart_user=self.test_user)
         # create store1 which is in 22600 and delivers only in 22600
         self.test_store1 = Store.objects.create(store_name='Leclerc',
                                                 store_location='ZAC',
@@ -974,9 +964,11 @@ class CartViewTest(TestCase):
 
     def test_get_with_authenticated_user(self):
         """Checks if both the (authenticated) user's carts in the 22600 area are displayed."""
-        self.test_flaskcart.empty_cart()
-        self.test_flaskcart.add(str(self.test_availability1.pk), 3)
-        self.test_flaskcart.add(str(self.test_availability2.pk), 4)
+        # ensure the cart is empty
+        for item in self.test_cart:
+            item.delete()
+        ItemInCart.objects.create(incart_user=self.test_user, incart_availability=self.test_availability1, incart_quantity=3)
+        ItemInCart.objects.create(incart_user=self.test_user, incart_availability=self.test_availability2, incart_quantity=4)
         self.client.login(username='tutu', password='azertyui')
         response = self.client.get(reverse('grocerystore:cart', kwargs={'zipcode': 22600,}))
         self.assertEqual(response.status_code, 200)
@@ -1025,23 +1017,33 @@ class CartViewTest(TestCase):
 
     def test_post_with_authenticated_user(self):
         self.client.login(username='tutu', password='azertyui')
-        self.test_flaskcart.empty_cart()
-        self.test_flaskcart.add(str(self.test_availability1.pk), 5)
-        self.test_flaskcart.add(str(self.test_availability2.pk), 6)
+        # ensure the cart is empty
+        for item in self.test_cart:
+            item.delete()
+        # add 2 items in the cart
+        ItemInCart.objects.create(incart_user=self.test_user, incart_availability=self.test_availability1, incart_quantity=5)
+        ItemInCart.objects.create(incart_user=self.test_user, incart_availability=self.test_availability2, incart_quantity=6)
 
         data1 = {unicode(self.test_availability2.pk): [u'10']}
         url = reverse('grocerystore:cart', kwargs={'zipcode': self.test_zipcode,})
         response1 = self.client.post(url, data1, format='json')
-        self.assertEqual(len(self.test_flaskcart.list()['items']), 2)
-        for item in self.test_flaskcart.list()['items']:
-            if item['name'] == str(self.test_availability2.pk):
-                self.assertEqual(item['qty'], 10)
+        user_cart = ItemInCart.objects.filter(incart_user=self.test_user)
+        cart_length = 0
+        for item in user_cart:
+            cart_length += 1
+            if item.incart_availability.pk == self.test_availability2.pk:
+                self.assertEqual(item.incart_quantity, 10)
+        self.assertEqual(cart_length, 2)
 
         data2 = {'empty ' + str(self.test_availability2.pk): "Empty cart"}
         response2 = self.client.post(url, data2, format='json')
-        self.assertEqual(len(self.test_flaskcart.list()['items']), 1)
-        self.assertEqual(self.test_flaskcart.list()['items'][0]['name'], str(self.test_availability1.pk))
-        self.assertEqual(self.test_flaskcart.list()['items'][0]['qty'], 5)
+        user_cart = ItemInCart.objects.filter(incart_user=self.test_user)
+        cart_length = 0
+        for item in user_cart:
+            cart_length += 1
+            if item.incart_availability.pk == self.test_availability1.pk:
+                self.assertEqual(item.incart_quantity, 5)
+        self.assertEqual(cart_length, 1)
 
 
 class SearchViewTest(TestCase):
@@ -1072,13 +1074,13 @@ class SearchViewTest(TestCase):
                                                         product_unit='ea',
                                                         product_price=0.49)
         # creating an inflauser
-        self.address = Address.objects.create(street_adress1="2, Quilliampe",
+        self.address = Address.objects.create(street_address1="2, Quilliampe",
                                               city="Loudéac",
                                               zip_code=22600,
                                               state=self.state)
         self.inflauser = Inflauser.objects.create(infla_user=self.user,
                                                   inflauser_address=self.address)
-        self.cart = get_flaskcart(self.user.username, 'http://localhost:5000')
+        self.cart = ItemInCart.objects.filter(incart_user=self.user)
 
     def test_get_with_anonymous_user(self):
         """If (a) result(s) match(es) the search, the result form must be displayed"""
@@ -1150,7 +1152,7 @@ class SearchViewTest(TestCase):
         self.assertRedirects(response, reverse('grocerystore:store',
                                        kwargs={'zipcode': self.address.zip_code,
                                                'store_id': self.store.pk,}))
-        self.assertEqual(len(self.cart.list()['items']), 1)
+        self.assertEqual(len(self.cart), 1)
 
 
 class ProductDetailViewTest(TestCase):
@@ -1184,13 +1186,13 @@ class ProductDetailViewTest(TestCase):
                                                          product_unit='ea',
                                                          product_price=0.59)
         # creating an inflauser
-        self.address = Address.objects.create(street_adress1="2, Quilliampe",
+        self.address = Address.objects.create(street_address1="2, Quilliampe",
                                               city="Loudéac",
                                               zip_code=22600,
                                               state=self.state)
         self.inflauser = Inflauser.objects.create(infla_user=self.user,
                                                   inflauser_address=self.address)
-        self.cart = get_flaskcart(self.user.username, 'http://localhost:5000')
+        self.cart = ItemInCart.objects.filter(incart_user=self.user)
 
     def test_get_with_anonymous_user(self):
         """If (a) result(s) match(es) the search, the result form must be displayed."""
@@ -1265,7 +1267,9 @@ class ProductDetailViewTest(TestCase):
     def test_post_with_authenticated_user(self):
         """Checks url redirection when anonymous user adds an item to their cart"""
         self.client.login(username='toto', password='azertyui')
-        self.cart.empty_cart()
+        # ensure the cart is empty
+        for item in self.cart:
+            item.delete()
         url = reverse('grocerystore:detail', kwargs={'zipcode': self.address.zip_code,
                                                      'store_id': self.store.pk,
                                                      'product_id': self.product.pk,})
@@ -1275,8 +1279,9 @@ class ProductDetailViewTest(TestCase):
         self.assertRedirects(response, reverse('grocerystore:store',
                                                kwargs={'zipcode': self.address.zip_code,
                                                        'store_id': self.store.pk}))
-        self.assertEqual(len(self.cart.list()['items']), 1)
-        self.assertEqual(self.cart.list()['items'][0]['qty'], 7)
+        for item in self.cart:
+            self.assertIs(item.incart_availability.pk, self.availability.pk)
+            self.assertIs(item.incart_quantity, 7)
 
 
 class ProfileViewTest(TestCase):
@@ -1285,7 +1290,7 @@ class ProfileViewTest(TestCase):
         self.user = User.objects.create_user(username='lulu', email='lulu@gmail.com', password='azertyui')
         self.state = State.objects.create(state_name="Brittany", state_postal_code='BZ')
         self.zipcode = Zipcode.objects.create(zipcode=22600)
-        self.address = Address.objects.create(street_adress1="2, Quilliampe",
+        self.address = Address.objects.create(street_address1="2, Quilliampe",
                                               city="Loudéac",
                                               zip_code=22600,
                                               state=self.state)
@@ -1338,7 +1343,7 @@ class ProfileUpdateViewTest(TestCase):
                                              last_name='Moore')
         self.state = State.objects.create(state_name="Brittany", state_postal_code='BZ')
         self.zipcode = Zipcode.objects.create(zipcode=22600)
-        self.address = Address.objects.create(street_adress1="2, Quilliampe",
+        self.address = Address.objects.create(street_address1="2, Quilliampe",
                                               city="Loudéac",
                                               zip_code=22600,
                                               state=self.state)
@@ -1364,7 +1369,8 @@ class ProfileUpdateViewTest(TestCase):
                                               'store_id': self.store.pk}))
         # content
         self.assertContains(response, 'id="profile_form"')
-        self.assertContains(response, 'id="address_form"')
+        self.assertContains(response, 'id="address_table"')
+        self.assertContains(response, 'class="field_label"')
         self.assertContains(response, 'class="navbar navbar-inverse"')
         self.assertContains(response, 'class="nav navbar-nav navbar-right"')
         self.assertContains(response, 'class="footer navbar-fixed-bottom"')
@@ -1376,8 +1382,9 @@ class ProfileUpdateViewTest(TestCase):
         self.client.login(username='lulu', password='azertyui')
         # valid information
         data1 = {'first_name': [u'Bill'], 'last_name': [u'Moore'],
-                'street_adress1': [u'1200 Hollywood blv'],
-                'street_adress2': [u''],
+                'email': [u'bill@example.com'],
+                'street_address1': [u'1200 Hollywood blv'],
+                'street_address2': [u''],
                 'other': [u''],
                 'apt_nb': [u''],
                 'zip_code': [u'22600'],
@@ -1385,8 +1392,9 @@ class ProfileUpdateViewTest(TestCase):
                 'state': [u'1']}
         #invalid zipcode
         data2 = {'first_name': [u'Mike'], 'last_name': [u'Moore'],
-                'street_adress1': [u'1200 Hollywood blv'],
-                'street_adress2': [u''],
+                'email': [u'bill@example.com'],
+                'street_address1': [u'1200 Hollywood blv'],
+                'street_address2': [u''],
                 'other': [u''],
                 'apt_nb': [u''],
                 'zip_code': [u'abcd'],
@@ -1394,8 +1402,9 @@ class ProfileUpdateViewTest(TestCase):
                 'state': [u'1']}
         # no store delivering in the area of the zipcode entered
         data3 = {'first_name': [u'Bill'], 'last_name': [u'Moore'],
-                'street_adress1': [u'1200 Hollywood blv'],
-                'street_adress2': [u''],
+                'email': [u'bill@example.com'],
+                'street_address1': [u'1200 Hollywood blv'],
+                'street_address2': [u''],
                 'other': [u''],
                 'apt_nb': [u''],
                 'zip_code': [u'75020'],
@@ -1407,7 +1416,7 @@ class ProfileUpdateViewTest(TestCase):
         self.assertRedirects(response1, reverse('grocerystore:profile'))
         inflauser = Inflauser.objects.get(infla_user=User.objects.get(username='lulu'))
         self.assertEqual(inflauser.infla_user.first_name, 'Bill')
-        self.assertEqual(inflauser.inflauser_address.street_adress1, '1200 Hollywood blv')
+        self.assertEqual(inflauser.inflauser_address.street_address1, '1200 Hollywood blv')
         self.assertEqual(inflauser.inflauser_address.city, u'Loudéac')
         # response2 (invalid zipcode)
         response2 = self.client.post(url, data2, format='json')
@@ -1434,13 +1443,12 @@ class CheckoutViewTest(TestCase):
                                              last_name='Moore')
         self.state = State.objects.create(state_name="Brittany", state_postal_code='BZ')
         self.zipcode = Zipcode.objects.create(zipcode=22600)
-        self.address = Address.objects.create(street_adress1="2, Quilliampe",
+        self.address = Address.objects.create(street_address1="2, Quilliampe",
                                               city="Loudéac",
                                               zip_code=22600,
                                               state=self.state)
         self.inflauser = Inflauser.objects.create(infla_user=self.user,
                                                   inflauser_address=self.address)
-        self.cart = get_flaskcart(self.user.username, 'http://localhost:5000')
         # creating a store
         self.store = Store.objects.create(store_name="Leclerc",
                                           store_location="ZAC",
@@ -1455,6 +1463,7 @@ class CheckoutViewTest(TestCase):
                                                         store=self.store,
                                                         product_unit='ea',
                                                         product_price=0.49)
+        ItemInCart.objects.create(incart_user=self.user, incart_availability=self.availability, incart_quantity=13)
 
     def test_get(self):
         self.client.login(username='toto', password='azertyui')
@@ -1482,12 +1491,11 @@ class CheckoutViewTest(TestCase):
         self.assertEqual(response.context['username'], self.user.username)
         self.assertEqual(response.context['zipcode'], str(self.address.zip_code))
         self.assertEqual(response.context['store_id'], str(self.store.pk))
-        self.assertEqual(response.context['amount_to_pay'], str(1.96))
+        self.assertEqual(response.context['amount_to_pay'], str(6.37))
         self.assertEqual(response.context['store'], self.store)
 
     def test_post(self):
         self.client.login(username='toto', password='azertyui')
-        self.cart.add(str(self.availability.pk), 4)
         data = {'first_name': [u'Eugenie'],
                 'last_name': [u'Le Moulec'],
                 'expire_month': [u'6'],

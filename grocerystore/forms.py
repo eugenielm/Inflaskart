@@ -43,7 +43,7 @@ class AddressForm(forms.ModelForm):
     city = forms.RegexField(min_length=2, max_length=20, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
                             error_messages={'invalid': 'Please enter a valid city.'})
 
-    street_adress1 = forms.RegexField(label="Address", min_length=2, max_length=20, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
+    street_address1 = forms.RegexField(label="Address", min_length=2, max_length=20, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
                             error_messages={'invalid': 'Please enter a valid address.'})
 
     class Meta:

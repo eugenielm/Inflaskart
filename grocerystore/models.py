@@ -7,11 +7,10 @@ import json
 
 
 """
-This module contains 10 model classes:
+This module contains 11 model classes:
 - State (used by the Address model's state field, by the Store model's
 store_state field)
 - Address (used by the Inflauser model's inflauser_address field)
-THERE'S A TYPO IN street_adress1 AND street_adress2 (should be street_address with 2 'd')
 - Inflauser (also requires the User model)
 - Zipcode (used by the Store model's delivery_area field)
 - Store (used by the Product model's product_store field, and by the
@@ -20,7 +19,8 @@ Availability model's store field)
 - ProductSubCategory (used by the Product model's product_category field)
 - Dietary (used by the Product model's product_dietary field)
 - Product (used by the Availability model's product field)
-- Availability
+- Availability (used by the ItemInCart model's incart_availability field)
+- ItemInCart
 """
 
 
@@ -39,8 +39,8 @@ class State(models.Model):
 @python_2_unicode_compatible
 class Address(models.Model):
     """Used by the inflauser_address field of the Inflauser class."""
-    street_adress1 = models.CharField(max_length=100, verbose_name="Address")
-    street_adress2 = models.CharField(max_length=100, blank=True, verbose_name="Address (line 2)")
+    street_address1 = models.CharField(max_length=100, verbose_name="Address")
+    street_address2 = models.CharField(max_length=100, blank=True, verbose_name="Address (line 2)")
     apt_nb = models.CharField(max_length=20, blank=True, verbose_name="Apt/Unit") # can be an integer or a character
     other = models.CharField(max_length=50, blank=True, verbose_name="Floor, building, etc.")
     city = models.CharField(max_length=30)
@@ -48,10 +48,10 @@ class Address(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE, error_messages={'invalid': "Please enter a valid ZIP code."})
 
     def __str__(self):
-        return self.street_adress1 + ", " + str(self.zip_code)
+        return self.street_address1 + ", " + str(self.zip_code)
 
     class Meta:
-        ordering = ['state', 'city', 'street_adress1']
+        ordering = ['state', 'city', 'street_address1']
         verbose_name_plural = "addresses"
 
 
@@ -185,3 +185,16 @@ class Availability(models.Model):
     class Meta:
         ordering = ['product__product_name']
         verbose_name_plural = "availabilities"
+
+
+@python_2_unicode_compatible
+class ItemInCart(models.Model):
+    incart_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    incart_availability = models.ForeignKey(Availability, on_delete=models.CASCADE)
+    incart_quantity = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.incart_user + ": " + self.incart_quantity + " " + self.incart_availability.product.product_name
+
+    class Meta:
+        ordering = ['incart_user__username', 'incart_availability__product__product_name']
