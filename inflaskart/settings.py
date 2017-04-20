@@ -8,9 +8,14 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
+
+For deployment on Heroku, see
+https://devcenter.heroku.com/articles/django-app-configuration
 """
 
 import os
+# for deployment on Heroku
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,9 +28,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'edv7ii%b75-c8+d!c@ohl19=qv^m$8g59p^xg=r+pcuu3c(&h*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+# for deployment on Heroku
+ALLOWED_HOSTS = ['.herokuapp.com']
 
 
 # Application definition
@@ -115,7 +121,24 @@ USE_L10N = True
 USE_TZ = True
 
 
+# for deployment on Heroku
+
+# Update database configuration with $DATABASE_URL.
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
-
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

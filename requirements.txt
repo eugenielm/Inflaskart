@@ -1,4 +1,18 @@
-django==1.10.6
-
-# for images
-pillow==4.0.0
+appdirs==1.4.2
+click==6.7
+dj-database-url==0.4.2
+Django==1.10.6
+Flask==0.12
+gunicorn==19.7.1
+itsdangerous==0.24
+Jinja2==2.9.5
+leveldb==0.20
+MarkupSafe==0.23
+olefile==0.44
+packaging==16.8
+Pillow==4.0.0
+pyparsing==2.2.0
+requests==2.13.0
+six==1.10.0
+Werkzeug==0.11.15
+whitenoise==3.3.0
