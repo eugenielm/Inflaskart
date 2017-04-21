@@ -31,7 +31,7 @@ SECRET_KEY = 'edv7ii%b75-c8+d!c@ohl19=qv^m$8g59p^xg=r+pcuu3c(&h*'
 DEBUG = False
 
 # for deployment on Heroku
-ALLOWED_HOSTS = ['.herokuapp.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
