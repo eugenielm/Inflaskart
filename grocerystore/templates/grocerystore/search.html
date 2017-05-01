@@ -70,9 +70,11 @@
     <div class="container"> <!-- beginning of main content -->
 
       {% for product in available_products %}
-        <ul class="available_products"><div class="row"><li>
-          <a href="{% url 'grocerystore:detail' zipcode store_id product.3 %}">{{ product.0.product }}</a>: ${{ product.1 }} / {{ product.2 }}
-          <form id="product_selection" action="" method="post">
+        <ul class="available_products"><div class="row">
+          <li><a href="{% url 'grocerystore:detail' zipcode store_id product.3 %}">
+            {% if product.0.product.product_pic %}<img src="{{ product.0.product.product_pic.url }}" height=20px width=20px />{% endif %}
+            {{ product.0.product }}</a>: ${{ product.1 }} / {{ product.2 }}
+          <form class="qty_selection" action="" method="post">
             {% csrf_token %}
             <select id="{{product.0.pk}}" name="{{product.0.pk}}">
               {% for quantity in quantity_set %}

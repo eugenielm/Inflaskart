@@ -63,7 +63,7 @@
 
 
     <div class="page-header">
-      <h4>{{ product.product_name }}</h4>
+      <h4>{% if product.product_pic %}<img src="{{ product.product_pic.url }}" height="40" width="40"/>{% endif %}  {{ product.product_name }}</h4>
     </div>
 
 
@@ -83,16 +83,13 @@
         {% if product_description %}
           <div class="row">Description: {{ product_description }}</div>
         {% endif %}
-        {% if product_pic %}
-          <div class="row">{{ product_pic }}</div>
-        {% endif %}
         {% if user_id_required %}
           <div class="row" style="color:red;">You must be over 21 to buy this product.</div>
         {% endif %}
       </div>
 
       <div class="row">
-        <form id="quantity_selection" action="" method="post">
+        <form class="qty_selection" action="" method="post">
           {% csrf_token %}
           <select id="{{product.pk}}" name="{{product.pk}}">
             {% for quantity in quantity_set %}

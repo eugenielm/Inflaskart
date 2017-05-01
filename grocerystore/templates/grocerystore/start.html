@@ -80,7 +80,7 @@
         <ul>
           {% for store in available_stores %}
             <div class="row">
-              <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
+              <li>{% if store.store_pic %}<img src="{{ store.store_pic.url }}" height="15" width="37"/>{% endif %}  <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
             </div>
           {% endfor %}
         </ul>

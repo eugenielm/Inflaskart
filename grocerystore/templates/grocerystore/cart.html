@@ -83,15 +83,17 @@
                 <ul class="list-group">
                   {% for item in values|slice:":-1" %}
                   <li class="list-group-item">
-                    <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">{{ item.0 }}</a>: {{ item.1 }} x {{ item.2 }}, ie.: <span style="font-weight:bold">${{ item.3 }}</span>
-                    <form action="" method="post">
+                    <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
+                      {% if item.0.product_pic %}<img src="{{item.0.product_pic.url}}" height=20px width=20px alt="" />{% endif %}
+                      {{ item.0 }}</a>: {{ item.1 }} x {{ item.2 }}, ie.: <span style="font-weight:bold">${{ item.3 }}</span>
+                    <form class="qty_selection" action="" method="post">
                       {% csrf_token %}
                       <select name="{{item.4}}">
                         {% for quantity in quantity_set %}
                           <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}> {{ quantity }}</option>
                         {% endfor %}
                       </select>
-                      <input class="btn btn-default btn-xs" type="submit" value="Update quantity" />
+                      <input class="btn btn-info btn-xs" type="submit" value="Update quantity" />
                     </form>
                   </li>
                 {% endfor %}

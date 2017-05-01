@@ -75,8 +75,11 @@
         <ul class="available_products">
         {% for availability in available_products %}
             <div class="row"><li><a href="{% url 'grocerystore:detail' zipcode store_id availability.product.pk %}">
+              {% if availability.product.product_pic %}
+                <img src="{{ availability.product.product_pic.url }}" height="25" width="25"/>
+              {% endif %}
               {{ availability.product }}</a>: ${{ availability.product_price }} / {{ availability.product_unit }}
-              <form id="available_product" action="" method="post">
+              <form class="qty_selection" action="" method="post">
                 {% csrf_token %}
                 <select name="{{availability.pk}}">
                   {% for quantity in quantity_set %}

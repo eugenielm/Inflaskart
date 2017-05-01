@@ -86,3 +86,10 @@ form#registration_form {
   width: 140px;
   font-weight: bold;
 }
+
+.qty_selection {
+  display: inline-block;
+  margin-left: 12px;
+}
+
+.available_products a, .list-group-item a {text-decoration: none}
