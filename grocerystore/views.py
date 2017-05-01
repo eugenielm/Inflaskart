@@ -76,7 +76,16 @@ class UserRegisterView(View):
         form2 = self.form_class2(self.request.POST)
         try: # check if the username typed in is available
             user = User.objects.get(username=self.request.POST['username'])
-            return render(self.request, self.template_name, {'user_form': form1, 'address_form': form2})
+            context = {'user_form': form1, 'address_form': form2}
+            errors = []
+            for er in form1.errors:
+                if er == "username" and user.username == self.request.POST['username']:
+                    context['unavailable_username'] = self.request.POST['username']
+                if er == "street_address1":
+                    er = "address"
+                errors.append(er)
+            context['errors'] = errors
+            return render(self.request, self.template_name, context=context)
         except:
             pass
 
@@ -115,16 +124,15 @@ class UserRegisterView(View):
                     availability = Availability.objects.get(pk=int(self.request.session[elt]["name"]))
                     # check if the item is already in the cart and update its quantity
                     try:
-                        item = ItemInCart.objects.filter(incart_user=user)\
-                        .get(incart_availability=availability)
-                        item.incart_quantity = self.request.session[elt]["qty"]
+                        item = ItemInCart.objects.filter(incart_user=user).get(incart_availability=availability)
+                        item.incart_quantity = int(self.request.session[elt]["qty"])
                         item.save()
                     # create an ItemInCart instance if the item isn't in the
                     # database, and save it in the database
                     except:
-                        ItemInCart.objects.create(incart_user=self.request.user,
+                        ItemInCart.objects.create(incart_user=user,
                                                   incart_availability=availability,
-                                                  incart_quantity=self.request.session[elt]["qty"])
+                                                  incart_quantity=int(self.request.session[elt]["qty"]))
                     if not availability.store.delivery_area.all().filter(zipcode=inflauser_zipcode):
                         not_available = True
                 if not_available:

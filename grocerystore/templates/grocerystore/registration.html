@@ -53,8 +53,11 @@
       {% if errors %}
         <div class="errorlist">
           {% for er in errors %}
-            <p>Please enter a valid {{ er }}. </p>
+            <p>Please enter a valid {{ er }}</p>
           {% endfor %}
+          {% if unavailable_username %}
+            <p>(the username '{{ unavailable_username }}' is already used)</p>
+          {% endif %}
         </div>
       {% endif %}
 
