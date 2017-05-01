@@ -30,7 +30,7 @@ class State(models.Model):
     state_postal_code = models.CharField(max_length=2)
 
     def __str__(self):
-        return self.state_name + ", " + self.state_postal_code
+        return str(self.state_name) + ", " + str(self.state_postal_code)
 
     class Meta:
         ordering = ['state_name', 'state_postal_code']
@@ -48,7 +48,7 @@ class Address(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE, error_messages={'invalid': "Please enter a valid ZIP code."})
 
     def __str__(self):
-        return self.street_address1 + ", " + str(self.zip_code)
+        return str(self.street_address1) + ", " + str(self.zip_code)
 
     class Meta:
         ordering = ['state', 'city', 'street_address1']
@@ -61,7 +61,7 @@ class Inflauser(models.Model):
     inflauser_address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.infla_user.username
+        return str(self.infla_user.username)
 
     class Meta:
         ordering = ['infla_user__username']
@@ -83,11 +83,11 @@ class Store(models.Model):
     store_city = models.CharField(max_length=30, verbose_name="city")
     store_zipcode = models.PositiveIntegerField(error_messages={'invalid': "Please enter a valid ZIP code."})
     store_state = models.ForeignKey(State, on_delete=models.CASCADE, verbose_name="state")
-    store_pic = models.ImageField(blank=True, verbose_name="logo/picture")
+    store_pic = models.ImageField(upload_to='stores/', blank=True, verbose_name="logo/picture")
     delivery_area = models.ManyToManyField(Zipcode)
 
     def __str__(self):
-        return self.store_name + " (" + self.store_location + ")"
+        return str(self.store_name) + " (" + str(self.store_location) + ")"
 
     class Meta:
         ordering = ['store_name', 'store_state', 'store_city', 'store_location']
@@ -97,7 +97,7 @@ class Store(models.Model):
 class ProductCategory(models.Model):
     top_category = models.CharField(max_length=30, verbose_name="top product category")
     def __str__(self):
-        return self.top_category
+        return str(self.top_category)
     class Meta:
         ordering = ['top_category',]
         verbose_name_plural = "product categories"
@@ -108,7 +108,7 @@ class ProductSubCategory(models.Model):
     parent = models.ForeignKey(ProductCategory, blank=True, default=None, verbose_name="top product category")
     sub_category_name = models.CharField(max_length=30, blank=True, default=None, verbose_name="product sub-category")
     def __str__(self):
-        return self.parent.top_category + " / " + self.sub_category_name
+        return str(self.parent.top_category) + " / " + str(self.sub_category_name)
     class Meta:
         ordering = ['parent', 'sub_category_name']
         verbose_name = "product sub-category"
@@ -119,7 +119,7 @@ class ProductSubCategory(models.Model):
 class Dietary(models.Model):
     name = models.CharField(max_length=30, verbose_name="dietary")
     def __str__(self):
-        return self.name
+        return str(self.name)
     class Meta:
         ordering = ['name']
         verbose_name_plural = "dietaries"
@@ -132,24 +132,24 @@ class Product(models.Model):
     product_dietary = models.ManyToManyField(Dietary, blank=True)
     product_brand_or_variety = models.CharField(max_length=50, blank=True, verbose_name="product brand/variety")
     product_description = models.TextField(blank=True)
-    product_pic = models.ImageField(blank=True, verbose_name="product picture")
+    product_pic = models.ImageField(upload_to='products/', blank=True, verbose_name="product picture")
     user_id_required = models.BooleanField(default=False, verbose_name="ID required")
     product_store = models.ManyToManyField(Store, through='Availability', verbose_name="availability(ies) in store(s)")
 
     def __str__(self):
         if len(self.product_dietary.all()) == 0:
             if not self.product_brand_or_variety:
-                return "'" + self.product_name + "'"
+                return "'" + str(self.product_name) + "'"
             else:
-                return "'" + self.product_name + " - " + self.product_brand_or_variety + "'"
+                return "'" + str(self.product_name) + " - " + str(self.product_brand_or_variety) + "'"
         else:
             dietaries = ""
             for dietary in self.product_dietary.all():
-                dietaries += (dietary.name + " ")
+                dietaries += (str(dietary.name) + " ")
             if not self.product_brand_or_variety:
                 return "'" + str(self.product_name) + " - " + dietaries + "'"
             else:
-                return "'" + str(self.product_name) + " - " + self.product_brand_or_variety \
+                return "'" + str(self.product_name) + " - " + str(self.product_brand_or_variety) \
                        + " - " + dietaries + "'"
 
     class Meta:
@@ -164,22 +164,22 @@ class Availability(models.Model):
     product_price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, verbose_name="price")
 
     def __str__(self):
-        price = "$" + str(self.product_price) + " / " + self.product_unit
+        price = "$" + str(self.product_price) + " / " + str(self.product_unit)
 
         if len(self.product.product_dietary.all()) == 0:
             if not self.product.product_brand_or_variety:
-                return self.product.product_name + " - " + price
+                return str(self.product.product_name) + " - " + price
             else:
-                return self.product.product_name + " (" + self.product.product_brand_or_variety +\
+                return str(self.product.product_name) + " (" + str(self.product.product_brand_or_variety) +\
                        " - " + price + ")"
         else:
             dietaries = ""
             for dietary in self.product.product_dietary.all():
-                dietaries += (dietary.name + " ")
+                dietaries += (str(dietary.name) + " ")
             if not self.product.product_brand_or_variety:
                 return self.product.product_name + " ( " + dietaries + " - " + price + " )"
             else:
-                return self.product.product_name + " ( " + self.product.product_brand_or_variety +\
+                return str(self.product.product_name) + " ( " + str(self.product.product_brand_or_variety) +\
                        ", " + dietaries + " - " + price + ")"
 
     class Meta:
@@ -194,7 +194,7 @@ class ItemInCart(models.Model):
     incart_quantity = models.PositiveIntegerField()
 
     def __str__(self):
-        return self.incart_user + ": " + self.incart_quantity + " " + self.incart_availability.product.product_name
+        return str(self.incart_user) + ": " + str(self.incart_quantity) + " " + str(self.incart_availability.product.product_name)
 
     class Meta:
         ordering = ['incart_user__username', 'incart_availability__product__product_name']

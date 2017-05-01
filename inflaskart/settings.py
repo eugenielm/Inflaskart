@@ -1,3 +1,4 @@
+#-*- coding: UTF-8 -*-
 """
 Django settings for inflaskart project.
 
@@ -16,9 +17,6 @@ https://devcenter.heroku.com/articles/django-app-configuration
 import os
 # for deployment on Heroku
 import dj_database_url
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -43,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # django.contrib.staticfiles recueille les fichiers statiques à partir de
+    # chacune des applications (et de tous les autres endroits que vous spécifiez)
+    # en un seul endroit qui peut facilement être utilisé en production.
     'django.contrib.staticfiles',
 ]
 
@@ -82,8 +83,14 @@ WSGI_APPLICATION = 'inflaskart.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'grocerystore_db',
+        # the following settings aren't used with sqlite3:
+        'USER': 'EGlelek',
+        'PASSWORD':'',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
@@ -121,6 +128,8 @@ USE_L10N = True
 USE_TZ = True
 
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # for deployment on Heroku
 
 # Update database configuration with $DATABASE_URL.
@@ -132,7 +141,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+# chemin absolu vers le répertoire dans lequel collectstatic rassemble les fichiers statiques en vue du déploiement
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+# URL utilisée pour se référer aux fichiers statiques se trouvant dans STATIC_ROOT
 STATIC_URL = '/static/'
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
@@ -142,3 +153,6 @@ STATICFILES_DIRS = (
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_URL = '/media/'
