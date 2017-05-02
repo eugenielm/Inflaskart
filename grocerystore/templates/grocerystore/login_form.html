@@ -49,15 +49,24 @@
 
 
     <div class="container"> <!-- beginning of main content -->
-
       </br>
-      </br>
-
-      <form id="login_form" class="form-horizontal" role="form" action="" method="post">
+      <!-- <form id="login_form" class="form-horizontal" role="form" action="" method="post">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}" />
         {{ login_form.as_p }}
         </br>
+        <input class="btn btn-success btn-xs" type="submit" value="Submit" />
+      </form> -->
+
+      <form id="login_form" class="form-horizontal" role="form" action="" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+        <table id="login_table">
+          {% for field in login_form %}
+            <tr><td class="field_label">{{ field.label }}: </td>
+            <td>{{ field }}</td></tr>
+          {% endfor %}
+        </table>
         </br>
         <input class="btn btn-success btn-xs" type="submit" value="Submit" />
       </form>

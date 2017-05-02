@@ -3,6 +3,8 @@
   text-align: center;
 }
 
+.jumbotron p {margin: 0px}
+
 
 body {background-color: rgba(25, 113, 94, 0.29)}
 
@@ -77,12 +79,12 @@ form#registration_form {
   margin: 0px;
 }
 
-#user_table td, #address_table td {
+#user_table td, #address_table td, #login_form td {
   display: inline-block;
   margin-bottom: 10px;
 }
 
-#user_table td.field_label, #address_table td.field_label {
+#user_table td.field_label, #address_table td.field_label, #login_form td.field_label {
   width: 140px;
   font-weight: bold;
 }
