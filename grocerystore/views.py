@@ -589,7 +589,7 @@ class InstockList(ListView):
 
             else: # if the user isn't authenticated
                 res = {'name': str(availability.pk), 'qty': quantity_to_add}
-                self.request.session[availability.pk] = res # pk of the Availability instance
+                self.request.session[str(availability.pk)] = res # pk of the Availability instance
                 messages.info(self.request, "%s was successfully added in your cart."\
                                  % availability.product)
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
@@ -675,7 +675,7 @@ class SearchView(View):
                 except TypeError:
                     continue
                 res = {'name': str(availability.pk), 'qty': quantity_to_add}
-                self.request.session[availability.pk] = res # pk of the Availability instance
+                self.request.session[str(availability.pk)] = res # pk of the Availability instance
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
 
@@ -759,7 +759,9 @@ class ProductDetailView(View):
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
         else:# if the user is anonymous
             res = {'name': str(availability.pk), 'qty': quantity_to_add}
-            self.request.session[availability.pk] = res # pk of the Availability instance
+            self.request.session[str(availability.pk)] = res # pk of the Availability instance
+            for elt in self.request.session.items():
+                print elt
             messages.info(self.request, "'%s' successfully added to your cart" % product)
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
@@ -804,7 +806,7 @@ class CartView(View):
                 item_unit = item_availability.product_unit
                 item_price = "%.2f" % (float(item_qty) * float(item_availability.product_price))
                 elt = [item_product, item_qty, item_unit, item_price,
-                       item_availability.pk, item_product.pk]
+                       item_availability.pk, item_product.pk, item_availability.product_price]
                 item_store = item_availability.store
 
                 try:
@@ -842,7 +844,7 @@ class CartView(View):
                     * float(item_availability.product_price))
                     elt = [item_product, self.request.session[item]["qty"],
                            item_availability.product_unit, item_price,
-                           item_availability_pk, item_product.pk]
+                           item_availability_pk, item_product.pk, item_availability.product_price]
                     try:
                         all_carts[item_store].append(elt)
                     except KeyError:
