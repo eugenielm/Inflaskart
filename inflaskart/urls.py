@@ -20,6 +20,7 @@ from django.conf import settings
 
 
 urlpatterns = [
-    url(r'^grocerystore/', include('grocerystore.urls')),
+    url(r'^inflaskart/', include('grocerystore.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^', include('favicon.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
