@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # chacune des applications (et de tous les autres endroits que vous spécifiez)
     # en un seul endroit qui peut facilement être utilisé en production.
     'django.contrib.staticfiles',
+    'favicon',
 ]
 
 MIDDLEWARE = [
@@ -154,5 +155,5 @@ STATICFILES_DIRS = (
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media/')
 MEDIA_URL = '/media/'
