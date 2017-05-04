@@ -150,7 +150,8 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_STORAGE_BUCKET_NAME = 'inflaskart'
 # before using AMazon S3 server: MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media/')
 MEDIA_ROOT = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-MEDIA_URL = 'media/'
+# MEDIA_URL = os.path.join(MEDIA_ROOT, 'media/')
+MEDIA_URL = 'https://inflaskart.herokuapp.com/media/'
 
 try:
     with open(os.path.join(PROJECT_ROOT, 'aws_access_key_id.txt')) as f:
