@@ -9,12 +9,11 @@ from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
                     Store, Address, Availability, Inflauser, State, Zipcode
 
 """
-This module contains 5 forms:
+This module contains 4 forms:
 
 - UserForm: 1st part of the user registration template;
 - AddressForm: 2nd part of the user registration template;
 - LoginForm
-- SelectCategory: used to select a product top category
 - PaymentForm (whose 'number' field uses the CreditCardField class)
 
 """
@@ -40,10 +39,10 @@ class AddressForm(forms.ModelForm):
                error_messages={'invalid': "Please enter a valid ZIP code",
                                'required': "Please fill in this field."})
 
-    city = forms.RegexField(min_length=2, max_length=20, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
+    city = forms.RegexField(min_length=2, max_length=50, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
                             error_messages={'invalid': 'Please enter a valid city.'})
 
-    street_address1 = forms.RegexField(label="Address", min_length=2, max_length=20, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
+    street_address1 = forms.RegexField(label="Address", min_length=2, max_length=50, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
                             error_messages={'invalid': 'Please enter a valid address.'})
 
     class Meta:
@@ -60,15 +59,6 @@ class LoginForm(forms.ModelForm):
         help_texts = {
             'username': None,
         }
-
-
-class SelectCategory(forms.Form):
-    """Displays a drop down menu with all the product categories available
-    in a given store"""
-    category = forms.ModelChoiceField(label='Choose a category',
-                                      queryset=ProductCategory.objects.all(),
-                                      empty_label="--Choose below--",
-                                      widget=forms.Select(attrs={'onChange':'submit();'}))
 
 
 class CreditCardField(forms.IntegerField):
