@@ -144,14 +144,18 @@ STATICFILES_DIRS = [
 ]
 
 
-# default Django backend storage was: 'django.core.files.storage.FileSystemStorage'
 # setting media file storage on Amazon S3
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_STORAGE_BUCKET_NAME = 'inflaskart'
-# before using AMazon S3 server: MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media/')
-MEDIA_ROOT = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-# MEDIA_URL = os.path.join(MEDIA_ROOT, 'media/')
-MEDIA_URL = 'https://inflaskart.herokuapp.com/media/'
+# remove query parameter authentication from generated URLs
+AWS_QUERYSTRING_AUTH = False
+# to automatically create the bucket specified in AWS_STORAGE_BUCKET_NAME
+AWS_AUTO_CREATE_BUCKET = True
+# before using AMazon S3 server, default Django backend storage was:
+# 'django.core.files.storage.FileSystemStorage'
+# MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media/')
+# MEDIA_URL = '/media/'
+# and in PROJECT.urls.py: + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 try:
     with open(os.path.join(PROJECT_ROOT, 'aws_access_key_id.txt')) as f:
