@@ -67,7 +67,7 @@
 
 
     <div class="page-header">
-      <h4>Your cart(s) in the {{ zipcode }} area</h4>
+      <h4>Your cart(s)</h4>
     </div>
 
 
@@ -90,12 +90,16 @@
             <div class="panel panel-default">
               <div class="panel-heading">
                 <h4 class="panel-title">
-                  <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">{{ key }}</a>
+                  <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">{{ key }}
+                    {% if not values|slice:"-1"|last %}
+                      <span class="glyphicon glyphicon-exclamation-sign"></span>
+                    {% endif %}
+                  </a>
                 </h4>
               </div>
               <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
                 <ul class="list-group">
-                  {% for item in values|slice:":-1" %}
+                  {% for item in values|slice:":-2" %}
                   <li class="list-group-item">
                     <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
                       {% if item.0.product_pic %}<img src="{{item.0.product_pic.url}}" alt="" />{% endif %}
@@ -121,7 +125,11 @@
                     </form>
                   </div>
                   <p id="cart-total">Cart total: ${{ values|last }}</p>
-                  <p style="margin:0px"><span style="font-size:10px">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}"><i>{{ key }}</i></a></span></p>
+                  <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}"><i>{{ key }}</i></a>
+                  {% if not values|slice:"-1"|last %}
+                    <span id="no_delivery">No delivery in {{zipcode}}</span>
+                  {% endif %}
+                  </p>
                 </div>
               </div>
             </div>

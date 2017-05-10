@@ -92,7 +92,10 @@
       {% endif %}
 
       <p class="ckt">The total amount is <span style="font-weight:bold;">${{ cart_total }}</span>. No taxes, no delivery fee. Nice, hum?</p>
-
+      {% if pickup %}
+      <p id="pickup">Please note that this store doesn't deliver your current address.
+        You'll need to pick up your order at their location within 24 hours.</span></p>
+      {% endif %}
       <div class="single-cart checkout">
         <div class="panel-group checkout">
           <div class="panel panel-default">

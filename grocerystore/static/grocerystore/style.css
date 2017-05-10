@@ -393,6 +393,18 @@ p#empty_cart {margin: 20px}
   font-size: 10px;
 }
 
+p#keep_shopping {
+  margin:0px;
+  font-size: 10px;
+}
+
+#no_delivery {
+  color: red;
+  font-size: 10px;
+  font-weight: bold;
+  font-style: oblique;
+}
+
 /*****************************************************************************/
 /* instock.html */
 
@@ -629,7 +641,7 @@ table.user_table tr:first-child > td.update-field {padding: 5px;}
 /* checkout.html */
 
 .single-cart.checkout {
-  width: 440px;
+  width: 450px;
   margin-top: 0px;
   font-size: 12px;
 }
@@ -683,4 +695,13 @@ p.ckt.hint {
   width: 250px;
   height: 30px;
   padding: 5px;
+}
+
+p#pickup {
+  margin-top: -10px;
+  margin-left: 20px;
+  color: red;
+  font-size: 10px;
+  font-weight: bold;
+  font-style: italic;
 }

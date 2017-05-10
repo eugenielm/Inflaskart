@@ -145,11 +145,11 @@ class UserRegisterView(View):
                                                       incart_quantity=int(self.request.session[elt]["qty"]))
                         if not availability.store.delivery_area.all().filter(zipcode=inflauser_zipcode):
                             not_available = True
-                except: # the user didn't put anything in their cart before signing up
+                except: # if the user didn't put anything in their cart before signing up
                     pass
 
                 if not_available:
-                    messages.error(self.request, "Before logging in, you shopped "\
+                    messages.error(self.request, "Before registering, you shopped "\
                     "items in a store that doesn't deliver your current address.")
 
                 login(self.request, user)
@@ -864,15 +864,7 @@ class CartView(View):
                 context['available_stores'] = available_stores
 
             user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
-            in_cart = []
             for item in user_cart:
-                # check if the item is sold by a store that delivers the user's address
-                # ie.: if there's a Store instance whose delivery_area set contains
-                # the zipcode entered in the user's address
-                if item.incart_availability.store.delivery_area.all().filter(zipcode=zipcode):
-                    in_cart.append(item)
-
-            for item in in_cart:
                 item_availability = item.incart_availability
                 item_product = item_availability.product
                 item_qty = item.incart_quantity
@@ -887,9 +879,15 @@ class CartView(View):
                 except KeyError:
                     all_carts[item_store] = [elt]
 
-            for cart in all_carts.values():
+            user_zipcode = Inflauser.objects.get(infla_user=self.request.user).inflauser_address.zip_code
+            for store, cart in all_carts.items(): # cart is a list of elts (elts are lists too)
                 cart_total = 0
-                for elt in cart:
+                # True is for a store that delivers the user's address
+                if store.delivery_area.all().filter(zipcode=user_zipcode):
+                    cart.append(True)
+                else: cart.append(False)
+
+                for elt in cart[:-1]:
                     cart_total += float(elt[3]) # elt[3]=item_price
                 cart.append("%.2f" % cart_total)
 
@@ -908,31 +906,33 @@ class CartView(View):
                     item_availability_pk = int(self.request.session[item]['name'])
                     item_availability = Availability.objects.get(pk=item_availability_pk)
                     item_store = item_availability.store
-                    # be sure to show only the carts of the stores that deliver
-                    # in the zipcode area chosen by the user
-                    if not item_store.delivery_area.all().filter(zipcode=zipcode):
-                        continue
                     item_product = item_availability.product
                     item_price = "%.2f" % (float(self.request.session[item]["qty"])\
                     * float(item_availability.product_price))
                     elt = [item_product, self.request.session[item]["qty"],
                            item_availability.product_unit, item_price,
                            item_availability_pk, item_product.pk, item_availability.product_price]
+
                     try:
                         all_carts[item_store].append(elt)
                     except KeyError:
                         all_carts[item_store] = [elt]
 
-                for cart in all_carts.values():
+                for store, cart in all_carts.items():
                     cart_total = 0
-                    for elt in cart:
+                    # True is for a store that delivers the user's address
+                    if store.delivery_area.all().filter(zipcode=zipcode):
+                        cart.append(True)
+                    else: cart.append(False)
+
+                    for elt in cart[:-1]:
                         cart_total += float(elt[3])
                     cart.append("%.2f" % cart_total)
 
                 context['all_carts'] = all_carts
                 context['quantity_set'] = range(21)
 
-            except KeyError:
+            except KeyError: # if the anonymous user hasn't put anything in their cart
                 pass
 
             return render(self.request, 'grocerystore/cart.html', context=context)
@@ -951,8 +951,6 @@ class CartView(View):
                         for item in user_cart:
                             if item.incart_availability.store.pk == i:
                                 item.delete()
-                            # if Availability.objects.get(pk=int(item["name"])).store.pk == i:
-                                # flask_cart.delete(item["name"])
                         messages.info(self.request, "You've just emptied your cart at %s."\
                         % Store.objects.get(pk=i))
                     return redirect('grocerystore:cart', zipcode=zipcode)
@@ -961,7 +959,6 @@ class CartView(View):
 
             for elt in user_cart: # if the user wants to update an item quantity
                 product_to_update = elt.incart_availability
-                # product_to_update = Availability.objects.get(pk=int(elt['name']))
                 try:
                     qty_to_change = int(self.request.POST.get(str(product_to_update.pk)))
                 except TypeError: # loops in the cart until it hits the product to update
@@ -983,7 +980,7 @@ class CartView(View):
                 if Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk not in store_pks:
                     store_pks.append(Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk)
 
-            for i in store_pks: # if the user wants to empty a cart, iterate through all concerned stores
+            for i in store_pks: # if the user wants to empty a cart, iterate through all stores involved
                 try:
                     if self.request.POST['empty '+str(i)]:
                         for item in self.request.session.keys():
@@ -1013,7 +1010,7 @@ class CheckoutView(LoginRequiredMixin, View):
     redirect_field_name = 'redirect_to'
 
     def get(self, request, zipcode, store_id):
-        # if the user types an invalid zipcode directly in the browser
+        # if the user enters an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
             messages.error(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
@@ -1025,13 +1022,8 @@ class CheckoutView(LoginRequiredMixin, View):
                           "out from doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
-        if Zipcode.objects.get(zipcode=int(zipcode)) not in store.delivery_area.all()\
-        or Zipcode.objects.get(zipcode=self.request.user.inflauser.inflauser_address.zip_code) not in store.delivery_area.all():
-            messages.error(self.request, "Checkout impossible (the store you're looking for doesn't deliver in the area you've chosen)")
-            return redirect('grocerystore:start', zipcode=zipcode)
-
         user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
-        if not user_cart:
+        if not user_cart: # if the user's cart is totally empty
             messages.error(self.request, "You need to put items in your cart to checkout!")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
@@ -1040,6 +1032,9 @@ class CheckoutView(LoginRequiredMixin, View):
                    'store': store,
                    'username': self.request.user.username,
                    'payment_form': self.form_class(None)}
+
+        if Zipcode.objects.get(zipcode=self.request.user.inflauser.inflauser_address.zip_code) not in store.delivery_area.all():
+            context['pickup'] = True
 
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if available_stores:
