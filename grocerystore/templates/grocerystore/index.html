@@ -20,16 +20,28 @@
   <body>
 
 
-    <div class="page-header">
+    <div class="page-header" id="inflaskart-welcome">
 
       <h2>Welcome to Inflaskart!</h2>
-      <h3><small>***Inflaskart is a fun app to shop your groceries on line***</small></h3>
+      <h4><small>***Inflaskart is a fun app to shop your groceries on line***</small></h4>
 
     </div>
 
 
     <div class="container"> <!-- beginning of main content -->
+
+      {% if messages %}
+        <div class="messages">
+          <ul>
+            {% for message in messages %}
+              <div class="message"><li class="{{ message.tags }}">{{ message }}</li></div>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
       </br>
+
       {% if hire_me %}
         <div class="panel-group">
           <div class="panel panel-default">
@@ -52,29 +64,26 @@
 
       {% if username %}
 
-        <div class="row">
-          <h5>Hi {{ username }}!</h5>
-          </br>
-          <div class="jumbotron">
-            <p><a id="login" href="{% url 'grocerystore:start' zipcode %}" class="btn btn-success btn-lg" role="button">start shopping</a>
-            <a id="register" href="{% url 'grocerystore:logout' %}" class="btn btn-warning btn-lg" role="button">logout</a></p>
-          </div>
+        <div id="personal-welcome">
+          <h3>Hi {{ username }}!</h3>
+          <p><a id="login" href="{% url 'grocerystore:start' zipcode %}" class="btn btn-success btn-lg" role="button">start shopping</a></p>
+          <p><a id="register" href="{% url 'grocerystore:logout' %}" class="btn btn-warning btn-lg" role="button">logout</a></p>
         </div>
 
       {% else %}
 
-        <div class="jumbotron">
+        <div id="zipcode-input">
           <form id="zipform" action="" method="post">
             {% csrf_token %}
             <label for='zipcode'>Choose a ZIP code: </label>
-            <input type="text" name="zipcode" id="zipcode_input" pattern="[0-9]{4,5}" maxlength="5">
-            <input class="btn btn-success btn-xs" type="submit" value="Go!">
+            <input type="text" name="zipcode" id="zipcode_input" pattern="[0-9]{4,5}" maxlength="5" autofocus>
+            <input class="btn btn-info btn-xs" type="submit" value="Go!">
           </form>
         </div>
-        </br>
-        <div class="jumbotron">
-          <p><a id="login" href="{% url 'grocerystore:login' %}" class="btn btn-success btn-lg" role="button">login</a>
-          <a id="register" href="{% url 'grocerystore:register' %}" class="btn btn-success btn-lg" role="button">sign up</a></p>
+
+        <div id="index-identification">
+          <p><a id="login" href="{% url 'grocerystore:login' %}" class="btn btn-info btn-lg" role="button">login</a></p>
+          <p><a id="register" href="{% url 'grocerystore:register' %}" class="btn btn-info btn-lg" role="button">sign up</a></p>
         </div>
 
       {% endif %}
@@ -83,19 +92,7 @@
 
 
     <footer class="footer navbar-fixed-bottom"> <!-- beginning of footer -->
-      {% if messages %}
-      <div class="messages">
-        <ul>
-          {% for message in messages %}
-            <div class="message"><li class="{{ message.tags }}">{{ message }}</li></div>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
-
-      <div class="container">
         <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
-      </div>
     </footer> <!-- end of footer -->
 
 

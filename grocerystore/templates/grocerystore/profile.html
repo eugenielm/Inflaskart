@@ -3,8 +3,8 @@
 <html lang="en">
 
   <head>
-    <meta charset="UTF-8">
     <title>Inflaskart | Profile</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -19,91 +19,129 @@
 
   <body>
 
+    <div class="nav-container">
+      <nav class="navbar navbar-inverse"> <!-- beginning of nav bar -->
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'grocerystore:index' %}"><span class="glyphicon glyphicon-home"></span></a>
+          </div>
+          <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores<span class="caret"></span></a>
+                  {% if available_stores %}
+                    <ul class="dropdown-menu">
+                      {% for store in available_stores %}
+                        <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+              </li>
+              <li><a href="{% url 'grocerystore:cart' zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
+            </ul>
 
-    <nav class="navbar navbar-inverse"> <!-- beginning of nav bar -->
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="{% url 'grocerystore:index' %}">Inflaskart</a>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span></a>
+                <ul class="dropdown-menu">
+                  {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+                  {% else %}
+                    <li><a href="{% url 'grocerystore:login' %}">Login</a></li>
+                    <li><a href="{% url 'grocerystore:register' %}">Sign up</a></li>
+                  {% endif %}
+                </ul>
+              </li>
+            </ul>
+
+          </div>
         </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-          <ul class="nav navbar-nav">
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores<span class="caret"></span></a>
-                {% if available_stores %}
-                  <ul class="dropdown-menu">
-                    {% for store in available_stores %}
-                      <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
-                    {% endfor %}
-                  </ul>
-                {% endif %}
-            </li>
-            <li><a href="{% url 'grocerystore:cart' zipcode %}">Cart</a></li>
-          </ul>
-
-          <ul class="nav navbar-nav navbar-right">
-            {% if request.user.is_authenticated %}
-              <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-user"></span>Log out</a></li>
-            {% else %}
-              <li><a href="{% url 'grocerystore:login' %}"><span class="glyphicon glyphicon-user"></span>Login</a></li>
-              <li><a href="{% url 'grocerystore:register' %}"><span class="glyphicon glyphicon-user"></span>Sign up</a></li>
-            {% endif %}
-          </ul>
-
-        </div>
-
-      </div>
-
-    </nav> <!-- end of nav bar -->
+      </nav> <!-- end of nav bar -->
+    </div>
 
 
     <div class="page-header">
-      <h4>Your information</h4>
+      <h4>Your contact information</h4>
     </div>
 
 
     <div class="container"> <!-- beginning of main content -->
-      <div id="user_info">
-        <div class="row"><p><span style="font-weight: bold;">Username</span>: {{ request.user.username }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">Email</span>: {{ request.user.email }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">First name</span>: {{ request.user.first_name }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">Last name</span>: {{ request.user.last_name }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">Address</span>: {{ user_address.street_adress1 }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">Address (line 2)</span>: {{ user_address.street_adress2 }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">Apt/Unit</span>: {{ user_address.apt_nb }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">Floor, building, etc.</span>: {{ user_address.other }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">City</span>: {{ user_address.city }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">ZIP code</span>: {{ user_address.zip_code }}</p></div>
-        <div class="row"><p><span style="font-weight: bold;">State</span>: {{ user_address.state }}</p></div>
-        <div class="row">
-          <form id="edit_profile" name="edit_profile" action="" method="post">
-              {% csrf_token %}
-              <input class="btn btn-info btn-xs" type="submit" name="edit_profile" value="Edit profile" />
-          </form>
+
+      {% if messages %}
+        <div class="messages">
+          <ul>
+            {% for message in messages %}
+              <div class="message"><li class="{{ message.tags }}">{{ message }}</li></div>
+            {% endfor %}
+          </ul>
         </div>
+      {% endif %}
+
+      <div class="user_profile">
+        <table>
+          <tr>
+            <td class="field_label">Username</td>
+            <td class="saved-field">{{ request.user.username }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">Email</td>
+            <td class="saved-field">{{ user.email }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">First name</td>
+            <td class="saved-field">{{ user.first_name }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">Last name</td>
+            <td class="saved-field">{{ user.last_name }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">Address</td>
+            <td class="saved-field">{{ user_address.street_address1 }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">Address (line 2)</td>
+            <td class="saved-field">{{ user_address.street_address2 }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">Apt/Unit</td>
+            <td class="saved-field">{{ user_address.apt_nb }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">Floor, building, etc.</td>
+            <td class="saved-field">{{ user_address.other }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">City</td>
+            <td class="saved-field">{{ user_address.city }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">Zip code</td>
+            <td class="saved-field">{{ user_address.zip_code }}</td>
+          </tr>
+          <tr>
+            <td class="field_label">State</td>
+            <td class="saved-field">{{ user_address.state }}</td>
+          </tr>
+        </table>
+
+        <form class="edit_profile" name="edit_profile" action="" method="post">
+            {% csrf_token %}
+            <input class="btn btn-info btn-xs" type="submit" name="edit_profile" value="Edit profile" />
+        </form>
+
       </div>
 
     </div> <!-- end of main content -->
 
 
     <footer class="footer navbar-fixed-bottom"> <!-- beginning of footer -->
-      {% if messages %}
-      <div class="messages">
-        <ul>
-          {% for message in messages %}
-            <div class="message"><li class="{{ message.tags }}">{{ message }}</li></div>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
-
-      <div class="container">
-        <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
-      </div>
+      <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
     </footer> <!-- end of footer -->
 
 

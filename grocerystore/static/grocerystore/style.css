@@ -1,97 +1,686 @@
-.jumbotron {
-  display: block;
-  text-align: center;
+body {background-color: rgba(238, 238, 238, 1)}
+/*****************************************************************************/
+.container {
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
 }
 
-.jumbotron p {margin: 0px}
+/*****************************************************************************/
+/* default links display */
+a {
+  text-decoration: none;
+  color: black;
+}
 
+a:hover {
+  text-decoration: none;
+  color: grey;
+}
+/*****************************************************************************/
+/* page header */
+.page-header {
+  width: 100%;
+  padding: 0px;
+  margin: 60px 0px 0px 0px;
+}
 
-body {background-color: rgba(25, 113, 94, 0.29)}
+div.page-header > h4, div.page-header > h2, div.page-header > h6 {
+  display: inline-block;
+  margin-left: 20px;
+  margin-right: 10px;
+}
 
+div.page-header > a {overflow:auto;}
+/*****************************************************************************/
+/* navigation bar */
+.nav-container {
+  position: fixed;
+  z-index: 1000;
+  width: 100%;
+  top: 0px;
+  margin: 0px;
+  padding: 0px;
+}
 
-.page-header, .footer {
-  margin: 20px;
-  padding: 0px;}
+.navbar {
+  margin: 0px;
+  border-radius: 3px;
+  box-shadow: 2px 5px 10px 0;
+}
 
-div.page-header {margin-bottom: 5px}
+/* Changing the navbar collapse breaking point */
+/*Preventing vertical dividers from appearing collapsed*/
+/*@media (max-width: 420px) {
+.navbar-collapse .nav > .divider-vertical {
+    display: none;
+  }
+}*/
 
-.page-header h1, h2, h3, h4, h5, h6 {margin-top: 5px}
+/*Defining the vertical dividers*/
+/*.navbar .divider-vertical {
+  height: 50px;
+  margin: 0 9px;
+  border-right: 1px solid #ffffff;
+  border-left: 1px solid #DADADA;
+}
 
+.navbar-inverse .divider-vertical {
+  border-right-color: #222222;
+  border-left-color: #111111;
+}
 
-.container div {margin: 0px 0px}
+@media only screen and (min-width: 420px) {
+    .collapse {
+        display: block;
+    }
 
+    .navbar-header {
+        float: left;
+    }
 
+    .navbar-toggle {
+        display: none;
+    }
+
+    .navbar-nav {
+       float: left;
+       margin: 0;
+    }
+    .navbar-nav>li {
+        float: left;
+    }
+    .navbar-nav>li>a {
+       padding-top: 15px;
+       padding-bottom: 15px;
+    }
+    .navbar-right {
+        float: right!important;
+    }
+}
+
+@media only screen and (max-width: 420px) {
+     .collapse {
+        display: none;
+     }
+
+     .navbar-header {
+        display: block;
+     }
+}*/
+/*****************************************************************************/
+/* page footer */
 .footer {
-  margin-bottom: 5px;
+  position: fixed;
+  bottom: 10px;
+  margin-right: 10px;
   text-align: right;
   font-size: 10px;
 }
-
-.footer .messages {text-align: left;}
-
-.footer ul {list-style-type: none}
-
-.footer li {
-  border-style: dashed;
-  border-width: thin;
-  display: inline-block;
-  border-radius: 5px;
-  overflow: visible;
-  overflow: inherit;
-  padding: 3px;
-}
-
-
+/*****************************************************************************/
 /* messages in session */
-.info {background-color: rgba(19, 108, 243, 0.25)}
-.error {background-color: rgba(234, 38, 56, 0.32)}
-.success {background-color: rgba(202, 85, 122, 0.4)}
-
-.panel-title a {
-  text-decoration: none;
+div.messages {
+  display: block;
+  position: fixed;
+  top: 60px;
+  right: 10px;
+  z-index: 100;
 }
 
-
-/* carts display */
-.panel-heading .accordion-toggle:after {
-    /* symbol for "opening" panels */
-    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
-    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
-    float: right;        /* adjust as needed */
-    color: grey;         /* adjust as needed */
-}
-.panel-heading .accordion-toggle.collapsed:after {
-    /* symbol for "collapsed" panels */
-    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+.messages > ul {
+  margin-top: 5px;
+  list-style-type: none;
+  border-style: none;
+  background-color: transparent;
+  float: right;
+  opacity: 0.7;
 }
 
+.messages li {
+  z-index: -1;
+  font-size: 9px;
+  font-weight: bold;
+  color: red;
+}
 
-/* error messages for invalid input in forms */
+/*****************************************************************************/
+/* error messages for invalid user input in forms */
+div.errorlist {
+  position:fixed;
+  top: 90px;
+  left: 20px;
+  z-index: 100;
+}
+
 div.errorlist p {
   display: inline;
   font-size: 10px;
   font-style: italic;
   color: red;
 }
-
-
-form#registration_form {
-  margin: 0px;
+/*****************************************************************************/
+/* index.html */
+div#inflaskart-welcome.page-header {
+  text-align: center;
+  margin-top: 0px;
 }
 
-#user_table td, #address_table td, #login_form td {
+#inflaskart-welcome h2, #inflaskart-welcome h4 {display: block;}
+
+#inflaskart-welcome h2 {
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+}
+
+#inflaskart-welcome h4 {
+  margin-top: 0px;
+  padding-top: 0px;
+}
+
+#personal-welcome, #zipcode-input, #index-identification {
+  left: 0px;
+  right: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  width: 100%;
+  text-align: center;
+}
+
+#personal-welcome p {
   display: inline-block;
-  margin-bottom: 10px;
+  margin: 80px 50px;
 }
 
-#user_table td.field_label, #address_table td.field_label, #login_form td.field_label {
-  width: 140px;
+a#register.btn.btn-warning.btn-lg {width: 150px;}
+
+#zipcode_input {margin: 0px 20px;}
+#index-identification p {display: inline-block;}
+#login {margin-right: 30px;}
+#register {margin-left: 30px;}
+a#login.btn.btn-info.btn-lg {width: 150px;}
+a#register.btn.btn-info.btn-lg {width: 150px;}
+
+
+/*****************************************************************************/
+/* start.html */
+
+.store_choice {
+  display: inline-block;
+  margin: 20px;
+}
+
+.store_choice img {
+  width: 200px;
+  height: auto;
+  /* horizontally center the store logos inside their div */
+  display: block;
+  margin: auto;
+}
+
+.store_choice p {
+  text-align: left;
+  font-size: 12px;
+}
+
+.image {
+  width: 250px;
+  height: 150px;
+  background-color: white;
+  border-radius: 5px;
+  opacity: 1;
+  /* vertically center the store logos inside their div */
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.store_name {margin: 5px}
+
+.image:hover {
+  opacity: 0.7;
+}
+
+/*****************************************************************************/
+/* detail.html */
+
+#product-details-section {
+  margin: 20px;
+  padding: 20px;
+  background-color: white;
+  border-style: none;
+  border-radius: 5px;
+}
+
+div.product_details p {margin-top: 8px;}
+div.product_details a {font-style: oblique;}
+div.qty_selection {margin: 20px 0px 5px 0px}
+
+.other_availabilities {margin: 20px}
+.other_availabilities a {font-style: italic;}
+.other_availabilities li {list-style: none;}
+
+/*****************************************************************************/
+/* store.html */
+
+.category {
+  display: inline-block;
+  vertical-align: top;
+  width: 280px;
+  margin: 20px 0px 0px 0px;
+}
+
+.category .qty_update {
+  margin-left: 20px;
+  display: inline-block;
+  float: right;
+}
+
+.category .panel {
+  border: none;
+}
+
+.category .panel-heading {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.category .panel-group {
+  top: 0px;
+  background-color: white;
+  border-style: none;
+  box-shadow: 1px 1px 8px 0 grey;
+  margin: 0px 20px 20px 20px;
+}
+
+.category .panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* taken from bootstrap.css */
+    float: right;
+    color: black;
+}
+
+.category .panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+.category .panel.panel-default > .panel-heading {background-color: #d7d8d7}
+
+.category .panel-default > .panel-heading {background-color: white}
+
+.category .list-group>a>li {
+  background-color: #ffffff;
+  color: black;
+}
+.category .list-group>a>li:hover {background-color: #f5f5f5;}
+
+/* removes underline on panel-title when the menu collapses */
+.category a.accordion-toggle.btn-block {text-decoration: none}
+
+/*****************************************************************************/
+/* cart.html */
+
+.single-cart .qty_update {
+  margin-left: 20px;
+  display: inline-block;
+  float: right;
+}
+
+.single-cart .checkout-empty {display: inline-block}
+
+.single-cart .checkout-empty form {display: inline;}
+
+#cart-total {
+  display: inline-block;
+  float: right;
   font-weight: bold;
 }
 
-.qty_selection {
+p#empty_cart {margin: 20px}
+
+.single-cart {
   display: inline-block;
-  margin-left: 12px;
+  vertical-align: top;
+  width: 500px;
+  margin: 20px 0px 0px 0px;
+  font-size: 12px;
 }
 
-.available_products a, .list-group-item a {text-decoration: none}
+.single-cart .panel {
+  border: none;
+}
+
+.single-cart .panel-group {
+  top: 0px;
+  background-color: white;
+  border-style: none;
+  box-shadow: 1px 1px 8px 0 grey;
+  margin: 0px 20px 20px 20px;
+}
+
+.single-cart .panel-heading {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.single-cart .panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* taken from bootstrap.css */
+    float: right;
+    color: black;
+}
+
+.single-cart .panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+.single-cart .panel.panel-default > .panel-heading {background-color: #d7d8d7}
+
+.single-cart .panel-default > .panel-heading {background-color: white}
+
+/* removes underline on panel-title when the menu collapses */
+.single-cart a.accordion-toggle.btn-block {text-decoration: none}
+
+.single-cart .list-group-item {overflow: auto;}
+
+.single-cart .list-group-item img {height: 25px}
+
+.single-cart .btn.btn-info.btn-xs.update_qty {
+  font-size: 10px;
+}
+
+/*****************************************************************************/
+/* instock.html */
+
+.available_products {
+  border-style: solid;
+  border-width: thin;
+  border-radius: 3px;
+  background-color: white;
+  display: inline-block;
+  float: left;
+  width: 200px;
+  height: 200px;
+  box-shadow: 1px 1px 20px 0;
+}
+
+.container div.available_products {
+  margin: 20px;
+  padding: 10px;
+  overflow: scroll;
+}
+
+.available_products img {
+  height: 70px;
+  width: auto;
+}
+
+div.available_products p {
+  margin-top: 8px;
+}
+
+p.product-pic {
+  width: auto;
+  text-align: center;
+}
+
+form.qty_selection {margin-top: 10px}
+
+#no_stock {margin: 20px}
+
+/*****************************************************************************/
+/* login.html */
+
+.login-block {
+  margin: 20px 20px 20px 20px;
+  width: 420px;
+}
+
+.login-block td {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 0px;
+}
+
+.login-block td.field_label {
+  width: 140px;
+  padding-right: 0px;
+  font-weight: bold;
+  border-radius: 4px;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.login-block td.input_field {
+  width: 250px;
+  height: 30px;
+  padding: 0px;
+  border-radius: 4px;
+}
+
+/* Ajusting the size of the input area */
+.login-block td.input_field input {
+  border-style: none;
+  width: 250px;
+  height: 30px;
+  padding: 5px;
+}
+
+/* in the header */
+.register-link {
+  display: inline-block;
+}
+.register-link p {
+  display:inline-block;
+  margin-right:5px;
+  font-size: 10px;
+}
+.register-link form {display:inline-block;}
+.register-link input.btn.btn-info.btn-xs {
+  font-size: 10px;
+  width: 50px;
+}
+
+/*****************************************************************************/
+/* registration.html */
+
+.register-block {
+  margin: 20px 20px 20px 20px;
+  width: 420px;
+}
+
+.register-block td.input_field {
+  padding: 5px;
+  width: 250px;
+  height: 30px;
+  border-radius: 4px;
+  overflow: scroll;
+}
+
+.register-block td {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 0px;
+}
+
+.register-block td.field_label {
+  width: 140px;
+  padding-right: 0px;
+  font-weight: bold;
+  border-radius: 4px;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.register-block td.input_field {
+  width: 250px;
+  height: 30px;
+  border-radius: 4px;
+  padding: 0px;
+}
+
+/* Ajusting the size of the input area */
+.register-block td.input_field input {
+  border-style: none;
+  padding: 5px;
+  width: 250px;
+  height: 30px;
+  border-radius: 4px;
+  overflow: scroll;
+}
+
+/* in the header */
+.login-link {
+  display: inline-block;
+}
+.login-link p {
+  display:inline-block;
+  margin-right:5px;
+  font-size: 10px;
+}
+.login-link form {display:inline-block;}
+.login-link input.btn.btn-info.btn-xs {
+  font-size: 10px;
+  width: 40px;
+}
+
+/*****************************************************************************/
+/* profile.html */
+.user_profile {
+  margin: 10px 20px 20px 20px;
+  width: 420px;
+}
+
+form.edit_profile {
+  float: right;
+  margin: 20px 20px 0px 0px;
+}
+
+.user_profile td {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.user_profile td.field_label {
+  width: 140px;
+  padding-right: 0px;
+  font-weight: bold;
+  border-radius: 4px;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.user_profile td.saved-field {
+  width: 250px;
+  height: 30px;
+  border-radius: 4px;
+  background-color: #dadada;
+  overflow: scroll;
+}
+
+.user_profile tr:first-child > td.saved-field {background-color: rgba(238, 238, 238, 1)}
+
+/*****************************************************************************/
+/* profile_update.html */
+
+.user_profile.update {
+  margin: 10px 20px 20px 20px;
+  width: 420px;
+}
+
+td.update-field input {
+  padding: 5px;
+  width: 250px;
+  height: 30px;
+  border-radius: 4px;
+  overflow: scroll;
+}
+
+.user_profile.update td {padding: 0px}
+
+/* Ajusting the size of the input area */
+td.update-field input {
+  border-style: none;
+  padding: 5px;
+  width: 250px;
+  height: 30px;
+  border-radius: 4px;
+  overflow: scroll;
+}
+
+#id_state {
+  width: 250px;
+  height: 30px;
+}
+
+table.user_table tr:first-child > td.update-field {padding: 5px;}
+
+.btn.btn-info.btn-xs.submit {
+  float:right;
+  margin: 20px 20px 0px 0px;
+}
+
+/*****************************************************************************/
+/* checkout.html */
+
+.single-cart.checkout {
+  width: 440px;
+  margin-top: 0px;
+  font-size: 12px;
+}
+
+p.ckt {
+  margin: 10px 20px;
+}
+
+p.ckt.hint {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.panel-group.checkout {
+  margin: 0px 20px;
+}
+
+.single-cart.checkout h4.panel-title {font-size: 14px}
+.single-cart.checkout li.list-group-item {padding: 5px}
+
+#ckt_form {
+  margin: 10px 20px 20px 20px;
+  width: 350px;
+}
+
+#ckt_form td {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 0px;
+}
+
+#ckt_form td.field_label {
+  width: 165px;
+  padding-right: 0px;
+  font-weight: bold;
+  border-radius: 4px;
+  text-align: left;
+  margin-right: 0px;
+}
+
+#ckt_form td.input_field {
+  width: 250px;
+  height: 30px;
+  padding: 0px;
+  border-radius: 4px;
+}
+
+/* Ajusting the size of the input area */
+#ckt_form td.input_field input {
+  border-style: none;
+  width: 250px;
+  height: 30px;
+  padding: 5px;
+}

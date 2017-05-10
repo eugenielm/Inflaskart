@@ -3,7 +3,7 @@
 <html lang="en">
 
   <head>
-      <title>Inflaskart | Registration</title>
+      <title>Inflaskart | Login</title>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <!-- Latest compiled and minified CSS -->
@@ -50,12 +50,12 @@
 
 
     <div class="page-header">
-      <h4>Sign up here!</h4>
-      <div class="login-link">
-        <p>Already have an account?</p>
+      <h4>Welcome to the Inflaskart login page</h4>
+      <div class="register-link">
+        <p>Don't have an account yet?</p>
         <form action="" method="post">
           {% csrf_token %}
-          <input name="login" class="btn btn-info btn-xs" type="submit" value="Login"/>
+          <input name="signup" class="btn btn-info btn-xs" type="submit" value="Sign up!"/>
         </form>
       </div>
     </div>
@@ -73,47 +73,25 @@
         </div>
       {% endif %}
 
-      {% if errors %}
-        <div class="errorlist">
-          {% for er in errors %}
-            <p>Please enter a valid {{ er }}</p>
-          {% endfor %}
-          {% if unavailable_username %}
-            <p>(the username '{{ unavailable_username }}' is already used)</p>
-          {% endif %}
-        </div>
-      {% endif %}
-
-      <div class="register-block">
-        <form id="registration_form" role="form" action="" method="post">
+      <div class="login-block">
+        <form id="login_form" class="form-horizontal" role="form" action="" method="post">
           {% csrf_token %}
-
-          <table class="user_table">
-            {% for field in user_form %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+          <table id="login_table">
+            {% for field in login_form %}
               <tr><td class="field_label">{{ field.label }}</td>
               <td class="input_field">{{ field }}</td></tr>
             {% endfor %}
           </table>
-
-          <table class="address_table">
-            {% for field in address_form %}
-              <tr><td class="field_label">{{ field.label }}</td>
-              <td class="input_field">{{ field }}</td></tr>
-            {% endfor %}
-          </table>
-
-          <input class="btn btn-info btn-xs submit" type="submit" value="Submit" />
-
+          <input class="btn btn-info btn-xs submit" type="submit" value="Log in" />
         </form>
       </div>
 
     </div> <!-- end of main content -->
 
-
     <footer class="footer navbar-fixed-bottom"> <!-- beginning of footer -->
       <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
     </footer> <!-- end of footer -->
-
 
   </body>
 

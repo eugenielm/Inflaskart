@@ -3,8 +3,8 @@
 <html lang="en">
 
   <head>
-    <meta charset="UTF-8">
     <title>Inflaskart | Cart</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -19,47 +19,51 @@
 
   <body>
 
+    <div class="nav-container">
+      <nav class="navbar navbar-inverse"> <!-- beginning of nav bar -->
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'grocerystore:index' %}"><span class="glyphicon glyphicon-home"></span></a>
+          </div>
+          <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores<span class="caret"></span></a>
+                  {% if available_stores %}
+                    <ul class="dropdown-menu">
+                      {% for store in available_stores %}
+                        <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+              </li>
+              <li><a href="{% url 'grocerystore:cart' zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
+            </ul>
 
-    <nav class="navbar navbar-inverse"> <!-- beginning of nav bar -->
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="{% url 'grocerystore:index' %}">Inflaskart</a>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span></a>
+                <ul class="dropdown-menu">
+                  {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+                    <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+                  {% else %}
+                    <li><a href="{% url 'grocerystore:login' %}">Login</a></li>
+                    <li><a href="{% url 'grocerystore:register' %}">Sign up</a></li>
+                  {% endif %}
+                </ul>
+              </li>
+            </ul>
+
+          </div>
         </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-          <ul class="nav navbar-nav">
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores<span class="caret"></span></a>
-                {% if available_stores %}
-                  <ul class="dropdown-menu">
-                    {% for store in available_stores %}
-                      <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
-                    {% endfor %}
-                  </ul>
-                {% endif %}
-            </li>
-            <li><a href="{% url 'grocerystore:cart' zipcode %}">Cart</a></li>
-            {% if request.user.is_authenticated %}
-              <li><a href="{% url 'grocerystore:profile' %}">Profile</a></li>
-            {% endif %}
-          </ul>
-
-          <ul class="nav navbar-nav navbar-right">
-            {% if request.user.is_authenticated %}
-              <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-user"></span>Log out</a></li>
-            {% else %}
-              <li><a href="{% url 'grocerystore:login' %}"><span class="glyphicon glyphicon-user"></span>Login</a></li>
-              <li><a href="{% url 'grocerystore:register' %}"><span class="glyphicon glyphicon-user"></span>Sign up</a></li>
-            {% endif %}
-          </ul>
-
-        </div>
-      </div>
-    </nav> <!-- end of nav bar -->
+      </nav> <!-- end of nav bar -->
+    </div>
 
 
     <div class="page-header">
@@ -68,60 +72,6 @@
 
 
     <div class="container"> <!-- beginning of main content -->
-
-      {% if all_carts %}
-        <div class="row">
-        {% for key, values in all_carts.items %}
-          <div class="panel-group">
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h4 class="panel-title">
-                  <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">{{ key }}</a>
-                </h4>
-              </div>
-              <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
-                <ul class="list-group">
-                  {% for item in values|slice:":-1" %}
-                  <li class="list-group-item">
-                    <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
-                      {% if item.0.product_pic %}<img src="{{item.0.product_pic.url}}" height=20px width=20px alt="" />{% endif %}
-                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <span style="font-weight:bold">${{ item.3 }}</span>
-                    <form class="qty_selection" action="" method="post">
-                      {% csrf_token %}
-                      <select name="{{item.4}}">
-                        {% for quantity in quantity_set %}
-                          <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}>{{ quantity }}</option>
-                        {% endfor %}
-                      </select>
-                      <input class="btn btn-info btn-xs" type="submit" value="Update quantity" />
-                    </form>
-                  </li>
-                {% endfor %}
-                </ul>
-                <div class="panel-footer">
-                  <p><span style="text-decoration:underline">Cart total</span>: <span style="font-weight:bold">${{ values|last }}</span></p>
-                  <a href="{% url 'grocerystore:checkout' zipcode key.pk %}" class="btn btn-success btn-xs" role="button">Checkout</a>
-                  <form action="" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <input class="btn btn-warning btn-xs" name="empty {{key.pk}}" type="submit" value="Empty cart" />
-                  </form>
-                  <p><span style="font-size:10px">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}">{{ key }}</a></span></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </br>
-        {% endfor %}
-        </div>
-
-      {% else %}
-        <div class="row"><p>Your cart is empty.</p></div>
-      {% endif %}
-
-    </div> <!-- end of main content -->
-
-
-    <footer class="footer navbar-fixed-bottom"> <!-- beginning of footer -->
       {% if messages %}
       <div class="messages">
         <ul>
@@ -132,9 +82,61 @@
       </div>
       {% endif %}
 
-      <div class="container">
-        <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
-      </div>
+
+      {% if all_carts %}
+        {% for key, values in all_carts.items %}
+        <div class="single-cart">
+          <div class="panel-group">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">{{ key }}</a>
+                </h4>
+              </div>
+              <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
+                <ul class="list-group">
+                  {% for item in values|slice:":-1" %}
+                  <li class="list-group-item">
+                    <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
+                      {% if item.0.product_pic %}<img src="{{item.0.product_pic.url}}" alt="" />{% endif %}
+                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <span style="font-weight:bold">${{ item.3 }}</span>
+                    <form class="qty_update" action="" method="post">
+                      {% csrf_token %}
+                      <select name="{{item.4}}">
+                        {% for quantity in quantity_set %}
+                          <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}>{{ quantity }}</option>
+                        {% endfor %}
+                      </select>
+                      <input class="btn btn-info btn-xs update_qty" type="submit" value="ok" />
+                    </form>
+                  </li>
+                {% endfor %}
+                </ul>
+                <div class="panel-footer">
+                  <div class="checkout-empty">
+                    <a href="{% url 'grocerystore:checkout' zipcode key.pk %}" class="btn btn-success btn-xs" role="button">Checkout</a>
+                    <form action="" method="post">
+                      {% csrf_token %}
+                      <input class="btn btn-warning btn-xs" name="empty {{key.pk}}" type="submit" value="Empty cart" />
+                    </form>
+                  </div>
+                  <p id="cart-total">Cart total: ${{ values|last }}</p>
+                  <p style="margin:0px"><span style="font-size:10px">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}"><i>{{ key }}</i></a></span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+      {% else %}
+        <p id="empty_cart">Your cart is empty.</p></div>
+      {% endif %}
+
+    </div> <!-- end of main content -->
+
+    <footer class="footer navbar-fixed-bottom"> <!-- beginning of footer -->
+      <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
     </footer> <!-- end of footer -->
 
 

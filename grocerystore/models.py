@@ -139,18 +139,18 @@ class Product(models.Model):
     def __str__(self):
         if len(self.product_dietary.all()) == 0:
             if not self.product_brand_or_variety:
-                return "'" + str(self.product_name) + "'"
+                return str(self.product_name)
             else:
-                return "'" + str(self.product_name) + " - " + str(self.product_brand_or_variety) + "'"
+                return str(self.product_name) + " - " + str(self.product_brand_or_variety)
         else:
             dietaries = ""
             for dietary in self.product_dietary.all():
                 dietaries += (str(dietary.name) + " ")
             if not self.product_brand_or_variety:
-                return "'" + str(self.product_name) + " - " + dietaries + "'"
+                return str(self.product_name) + " - " + dietaries
             else:
-                return "'" + str(self.product_name) + " - " + str(self.product_brand_or_variety) \
-                       + " - " + dietaries + "'"
+                return str(self.product_name) + " - " + str(self.product_brand_or_variety) \
+                       + " - " + dietaries
 
     class Meta:
         ordering = ['product_name']
