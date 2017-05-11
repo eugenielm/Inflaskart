@@ -405,8 +405,10 @@ class IndexView(View):
                 context['hire_me'] = True
         if self.request.user.is_authenticated:
             context['username'] = self.request.user.username
-            context['zipcode'] = Inflauser.objects.get(infla_user=self.request.user)\
-                                 .inflauser_address.zip_code
+            user_zipcode = Inflauser.objects.get(infla_user=self.request.user)\
+                           .inflauser_address.zip_code
+            context['user_zipcode'] = user_zipcode
+            context['zipcode'] = Zipcode.objects.get(zipcode=user_zipcode)
             return render(self.request, 'grocerystore/index.html', context=context)
         return render(self.request, 'grocerystore/index.html')
 

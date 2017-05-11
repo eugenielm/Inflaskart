@@ -77,7 +77,7 @@ class Zipcode(models.Model):
     zip_state = models.ForeignKey(State, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.zip_city) + ", " + str(self.zip_state) + " " + str(self.zipcode)
+        return str(self.zip_city) + ", " + str(self.zip_state.state_postal_code) + " " + str(self.zipcode)
 
 
 @python_2_unicode_compatible

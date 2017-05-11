@@ -163,6 +163,7 @@ div.errorlist p {
 div#inflaskart-welcome.page-header {
   text-align: center;
   margin-top: 0px;
+  margin-bottom: 20px;
 }
 
 #inflaskart-welcome h2, #inflaskart-welcome h4 {display: block;}
@@ -177,30 +178,40 @@ div#inflaskart-welcome.page-header {
   padding-top: 0px;
 }
 
-#personal-welcome, #zipcode-input, #index-identification {
+#personal-welcome, #zipcode-input, #index-identification, #shop_elsewhere {
   left: 0px;
   right: 0px;
   margin-left: 0px;
   margin-right: 0px;
-  padding-top: 50px;
-  padding-bottom: 50px;
   width: 100%;
   text-align: center;
 }
 
 #personal-welcome p {
-  display: inline-block;
-  margin: 80px 50px;
+  margin: 20px 0px;
+}
+
+#logout.btn.btn-warning.btn-sm {
+  font-size: 9px;
+  width: 20px;
+  padding: 2px;
 }
 
 a#register.btn.btn-warning.btn-lg {width: 150px;}
 
-#zipcode_input {margin: 0px 20px;}
+.zip_input {
+  margin: 0px 10px;
+  width: 56px;
+}
+
 #index-identification p {display: inline-block;}
-#login {margin-right: 30px;}
-#register {margin-left: 30px;}
-a#login.btn.btn-info.btn-lg {width: 150px;}
-a#register.btn.btn-info.btn-lg {width: 150px;}
+
+#login, #register {
+  margin: 50px 20px;
+}
+
+a#login.btn.btn-info.btn-lg {width: 130px;}
+a#register.btn.btn-info.btn-lg {width: 130px;}
 
 
 /*****************************************************************************/
@@ -418,6 +429,7 @@ p#keep_shopping {
   width: 200px;
   height: 200px;
   box-shadow: 1px 1px 20px 0;
+  font-size: 12px;
 }
 
 .container div.available_products {
