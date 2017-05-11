@@ -4,6 +4,7 @@ import os
 import sys
 import urllib
 import re
+from datetime import datetime
 from django.shortcuts import redirect, render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -18,7 +19,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sessions.models import Session
 from django.contrib.messages import get_messages
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
-                    Availability, Address, Store, Inflauser, State, Zipcode, ItemInCart
+                    Availability, Address, Store, Inflauser, State, Zipcode, ItemInCart, Order
 from .forms import LoginForm, PaymentForm, UserForm, AddressForm
 
 
@@ -1099,10 +1100,75 @@ class CheckoutView(LoginRequiredMixin, View):
             # would normally require money transfer from the user's bank
             # and to send purchased items list and user's address to delivery company
             user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
+            user = self.request.user
+            user_address = Inflauser.objects.get(infla_user=user).inflauser_address
+            store = Store.objects.get(pk=store_id)
+
             for item in user_cart:
                 if item.incart_availability.store.pk == int(store_id):
+                    try:
+                        order_data['items'].append({
+                            'product_pk': item.incart_availability.product.pk,
+                            'product_name': item.incart_availability.product.product_name,
+                            'product_price': str(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
+                            'product_qty': item.incart_quantity,
+                            'product_unit': item.incart_availability.product_unit,
+                            })
+                    except: # if order_data doesn't exist yet
+                        purchase_date = []
+                        purchase_date.append(datetime.now().year)
+                        purchase_date.append(datetime.now().month)
+                        purchase_date.append(datetime.now().day)
+                        purchase_date.append(datetime.now().hour)
+                        purchase_date.append(datetime.now().second)
+                        order_data = {
+                        'purchase_date': purchase_date, # a datetime.datetime object isn't JSON serializable
+                        'order_nb': "",
+                        'user': {
+                            'user_pk': user.pk,
+                            'username': user.username, # type unicode
+                            'user_email': user.email,
+                            'user_firstname': user.first_name,
+                            'user_lastname': user.last_name,
+                            'user_address': {
+                                'street_address1': user_address.street_address1,
+                                'street_address2': user_address.street_address2,
+                                'apt_nb': user_address.apt_nb,
+                                'other': user_address.other,
+                                'city': user_address.city,
+                                'zip_code': user_address.zip_code,
+                                'state_name': user_address.state.state_name,
+                                'state_postal_code': user_address.state.state_postal_code,
+                                },
+                            },
+                        'store': {
+                            'store_pk': store_id,
+                            'store_name': store.store_name,
+                            'store_address': {
+                                'store_location': store.store_location,
+                                'store_address': store.store_address,
+                                'store_city': store.store_city,
+                                'store_zipcode': store.store_zipcode,
+                                'store_state': store.store_state.state_name,
+                                'store_state_postal_code': store.store_state.state_postal_code,
+                                },
+                            },
+                        'items': [{
+                            'product_pk': item.incart_availability.product.pk,
+                            'product_name': item.incart_availability.product.product_name,
+                            'product_price': str(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
+                            'product_qty': item.incart_quantity,
+                            'product_unit': item.incart_availability.product_unit,
+                            }],
+                        }
+
                     item.delete()
-            messages.success(self.request, "Congratulations for your fake purchase!")
+
+            order = Order.objects.create(order_data=order_data)
+            order.order_data['order_nb'] = int(10000 + order.pk)
+            order.save()
+            messages.success(self.request, "Congratulations for your virtual purchase!")
             return redirect('grocerystore:index')
+
         messages.error(self.request, "Please be sure to enter valid credit cart information.")
         return redirect('grocerystore:checkout', zipcode=zipcode, store_id=store_id)

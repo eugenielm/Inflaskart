@@ -213,35 +213,6 @@ class ItemInCart(models.Model):
 class Order(models.Model):
     """The order number will be set to the pk + some random start value (e.g.: 1000)"""
     order_data = JSONField() # all important details about the order
-    # data = {
-    #     'order_nb': eg. (10000 + self.pk),
-    #     'purchase_date': "",
-    #     'user': { # store all the important user's details here again in case the user instance is deleted by mistake
-    #         'user_pk': "",
-    #         'username': "",
-    #         'user_email': "",
-    #         'user_firstname': "",
-    #         'user_lastname': "",
-    #         'user_street_address': "",
-    #         'user_city_zipcode_state': "",
-    #     },
-    #     'store': {
-    #         'store_pk': "",
-    #         'store_name': "",
-    #         'store_street_address': "",
-    #         'store_city_zipcode_state': "",
-    #     }
-    #     'items': [{
-    #         'product_name': "",
-    #         'product_pk': "",
-    #         'product_price': "",
-    #         'product_qty': "",
-    #         'product_unit': "",
-    #         }, {
-    #         'other item' etc.,
-    #         },
-    #     ],
-    # }
 
     class Meta:
         ordering = ['-data__purchase_date', 'data__username']
