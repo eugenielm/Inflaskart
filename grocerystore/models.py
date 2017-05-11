@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 import json
 
@@ -21,6 +22,7 @@ Availability model's store field)
 - Product (used by the Availability model's product field)
 - Availability (used by the ItemInCart model's incart_availability field)
 - ItemInCart
+- Order
 """
 
 
@@ -43,7 +45,7 @@ class Address(models.Model):
     street_address2 = models.CharField(max_length=100, blank=True, verbose_name="Address (line 2)")
     apt_nb = models.CharField(max_length=20, blank=True, verbose_name="Apt/Unit") # can be an integer or a character
     other = models.CharField(max_length=50, blank=True, verbose_name="Floor, building, etc.")
-    city = models.CharField(max_length=30)
+    city = models.CharField(max_length=50)
     zip_code = models.PositiveIntegerField(error_messages={'invalid': "Please enter a valid ZIP code."})
     state = models.ForeignKey(State, on_delete=models.CASCADE, error_messages={'invalid': "Please enter a valid ZIP code."})
 
@@ -71,15 +73,18 @@ class Inflauser(models.Model):
 class Zipcode(models.Model):
     """Used by the delivery_area field of the Store class."""
     zipcode = models.PositiveIntegerField(error_messages={'invalid': "Please enter a valid ZIP code."})
+    zip_city = models.CharField(max_length=50)
+    zip_state = models.ForeignKey(State, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.zipcode)
+        return str(self.zip_city) + ", " + str(self.zip_state) + " " + str(self.zipcode)
 
 
 @python_2_unicode_compatible
 class Store(models.Model):
     store_name = models.CharField(max_length=30, verbose_name="store")
-    store_location = models.CharField(max_length=30, default=None, verbose_name="location name")
+    store_location = models.CharField(max_length=30, verbose_name="location name")
+    store_address = models.CharField(max_length=200, verbose_name="Address")
     store_city = models.CharField(max_length=30, verbose_name="city")
     store_zipcode = models.PositiveIntegerField(error_messages={'invalid': "Please enter a valid ZIP code."})
     store_state = models.ForeignKey(State, on_delete=models.CASCADE, verbose_name="state")
@@ -96,8 +101,10 @@ class Store(models.Model):
 @python_2_unicode_compatible
 class ProductCategory(models.Model):
     top_category = models.CharField(max_length=30, verbose_name="top product category")
+
     def __str__(self):
         return str(self.top_category)
+
     class Meta:
         ordering = ['top_category',]
         verbose_name_plural = "product categories"
@@ -105,10 +112,12 @@ class ProductCategory(models.Model):
 
 @python_2_unicode_compatible
 class ProductSubCategory(models.Model):
-    parent = models.ForeignKey(ProductCategory, blank=True, default=None, verbose_name="top product category")
-    sub_category_name = models.CharField(max_length=30, blank=True, default=None, verbose_name="product sub-category")
+    parent = models.ForeignKey(ProductCategory, verbose_name="top product category")
+    sub_category_name = models.CharField(max_length=30, verbose_name="product sub-category")
+
     def __str__(self):
         return str(self.parent.top_category) + " / " + str(self.sub_category_name)
+
     class Meta:
         ordering = ['parent', 'sub_category_name']
         verbose_name = "product sub-category"
@@ -118,8 +127,10 @@ class ProductSubCategory(models.Model):
 @python_2_unicode_compatible
 class Dietary(models.Model):
     name = models.CharField(max_length=30, verbose_name="dietary")
+
     def __str__(self):
         return str(self.name)
+
     class Meta:
         ordering = ['name']
         verbose_name_plural = "dietaries"
@@ -128,7 +139,7 @@ class Dietary(models.Model):
 @python_2_unicode_compatible
 class Product(models.Model):
     product_name = models.CharField(max_length=60, verbose_name="product")
-    product_category = models.ForeignKey(ProductSubCategory, default=None)
+    product_category = models.ForeignKey(ProductSubCategory, on_delete=models.CASCADE)
     product_dietary = models.ManyToManyField(Dietary, blank=True)
     product_brand_or_variety = models.CharField(max_length=50, blank=True, verbose_name="product brand/variety")
     product_description = models.TextField(blank=True)
@@ -186,15 +197,51 @@ class Availability(models.Model):
         ordering = ['product__product_name']
         verbose_name_plural = "availabilities"
 
-
 @python_2_unicode_compatible
 class ItemInCart(models.Model):
+    """An instance of this class is created when a user puts an item in their cart"""
     incart_user = models.ForeignKey(User, on_delete=models.CASCADE)
     incart_availability = models.ForeignKey(Availability, on_delete=models.CASCADE)
     incart_quantity = models.PositiveIntegerField()
 
     def __str__(self):
-        return str(self.incart_user) + ": " + str(self.incart_quantity) + " " + str(self.incart_availability.product.product_name)
+        return str(self.incart_quantity) + " " + str(self.incart_availability.product.product_name)
 
     class Meta:
-        ordering = ['incart_user__username', 'incart_availability__product__product_name']
+        ordering = ['incart_availability__product__product_name']
+
+class Order(models.Model):
+    """The order number will be set to the pk + some random start value (e.g.: 1000)"""
+    order_data = JSONField() # all important details about the order
+    # data = {
+    #     'order_nb': eg. (10000 + self.pk),
+    #     'purchase_date': "",
+    #     'user': { # store all the important user's details here again in case the user instance is deleted by mistake
+    #         'user_pk': "",
+    #         'username': "",
+    #         'user_email': "",
+    #         'user_firstname': "",
+    #         'user_lastname': "",
+    #         'user_street_address': "",
+    #         'user_city_zipcode_state': "",
+    #     },
+    #     'store': {
+    #         'store_pk': "",
+    #         'store_name': "",
+    #         'store_street_address': "",
+    #         'store_city_zipcode_state': "",
+    #     }
+    #     'items': [{
+    #         'product_name': "",
+    #         'product_pk': "",
+    #         'product_price': "",
+    #         'product_qty': "",
+    #         'product_unit': "",
+    #         }, {
+    #         'other item' etc.,
+    #         },
+    #     ],
+    # }
+
+    class Meta:
+        ordering = ['-data__purchase_date', 'data__username']
