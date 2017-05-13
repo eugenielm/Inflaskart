@@ -112,10 +112,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'America/Los_Angeles'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+# it's an error to set the TIME_ZONE because postgreSQL supports time zones
+# cf. https://docs.djangoproject.com/en/1.11/ref/settings/#time-zone
+# TIME_ZONE = 'America/Los_Angeles'
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

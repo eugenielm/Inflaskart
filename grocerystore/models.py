@@ -2,13 +2,13 @@
 from __future__ import unicode_literals
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 import json
 
 
 """
-This module contains 11 model classes:
+This module contains 13 model classes:
 - State (used by the Address model's state field, by the Store model's
 store_state field)
 - Address (used by the Inflauser model's inflauser_address field)
@@ -23,6 +23,7 @@ Availability model's store field)
 - Availability (used by the ItemInCart model's incart_availability field)
 - ItemInCart
 - Order
+- ProductHistory
 """
 
 
@@ -119,7 +120,7 @@ class ProductSubCategory(models.Model):
         return str(self.parent.top_category) + " / " + str(self.sub_category_name)
 
     class Meta:
-        ordering = ['parent', 'sub_category_name']
+        ordering = ['parent__top_category', 'sub_category_name']
         verbose_name = "product sub-category"
         verbose_name_plural = "product sub-categories"
 
@@ -212,7 +213,14 @@ class ItemInCart(models.Model):
 
 class Order(models.Model):
     """The order number will be set to the pk + some random start value (e.g.: 1000)"""
-    order_data = JSONField() # all important details about the order
+    data = JSONField() # all the important details about the order
+
+class ProductPurchase(models.Model):
+    bought_product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    customer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    purchase_store = models.ForeignKey(Store, on_delete=models.SET_NULL, null=True)
+    purchase_dates = ArrayField(models.DateTimeField()) # https://docs.djangoproject.com/en/1.11/ref/models/fields/#datefield
+    nb_of_purchases = models.PositiveIntegerField(default=1)
 
     class Meta:
-        ordering = ['-data__purchase_date', 'data__username']
+        ordering = ['customer__username','bought_product__product_name']
