@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <title>Inflaskart | {{store.store_name}}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    {% load static from staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
+  </head>
+
+
+  <body>
+
+    <div class="nav-container">
+      <nav class="navbar navbar-inverse"> <!-- beginning of nav bar -->
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'grocerystore:index' %}"><span class="glyphicon glyphicon-home"></span></a>
+          </div>
+          <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores<span class="caret"></span></a>
+                  {% if available_stores %}
+                    <ul class="dropdown-menu">
+                      {% for store in available_stores %}
+                        <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+              </li>
+              <li><a href="{% url 'grocerystore:cart' zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
+            </ul>
+
+            <form class="nav navbar-nav navbar-form" role="search" action="" method="post">
+              {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="search">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+                  <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav> <!-- end of nav bar -->
+    </div>
+
+
+    <div class="page-header">
+      <h4>Buy it again</h4> <h6>at <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></h6>
+    </div>
+
+
+    <div class="container"> <!-- beginning of main content -->
+
+      {% if messages %}
+        <div class="messages">
+          <ul>
+            {% for message in messages %}
+              <div class="message"><li class="{{ message.tags }}">{{ message }}</li></div>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if available_products %}
+        {% for availability in available_products %}
+          <div class="available_products">
+            <a href="{% url 'grocerystore:detail' zipcode store_id availability.product.pk %}">
+            {% if availability.product.product_pic %}
+              <p class="product-pic"><img src="{{ availability.product.product_pic.url }}" alt="{{ availability.product.product_name }}"/></p>
+            {% endif %}
+            <p>{{ availability.product }}</a></p>
+            <p>${{ availability.product_price }} / {{ availability.product_unit }}</p>
+            <form class="qty_selection" action="" method="post">
+              {% csrf_token %}
+              <select name="{{availability.pk}}">
+                {% for quantity in quantity_set %}
+                  <option value="{{quantity}}">{{ quantity }}</option>
+                {% endfor %}
+              </select>
+              <input class="btn btn-info btn-xs" type="submit" value="Add">
+            </form>
+          </div>
+        {% endfor %}
+
+      {% else %}
+      <div id="no_stock">
+        <p>Sorry, you've never bought anything in this store.</p>
+        <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}" style="text-decoration: underline">{{ store }}</a></p>
+      </div>
+      {% endif %}
+
+    </div> <!-- end of main content -->
+
+
+    <footer class="footer navbar-fixed-bottom"> <!-- beginning of footer -->
+      <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
+    </footer> <!-- end of footer -->
+
+
+  </body>
+
+</html>
