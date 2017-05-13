@@ -84,26 +84,22 @@
 
 
       {% if all_carts %}
+      <div class="panel-group all_carts" id="accordion">
         {% for key, values in all_carts.items %}
-        <div class="single-cart">
-          <div class="panel-group">
-            <div class="panel panel-default">
+            <div class="panel panel-default single-cart">
               <div class="panel-heading">
                 <h4 class="panel-title">
-                  <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">{{ key }}
+                  <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}">{{ key }}
                     {% if not values|slice:"-1"|last %}
                       <span class="glyphicon glyphicon-exclamation-sign"></span>
                     {% endif %}
                   </a>
                 </h4>
               </div>
-              <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
+              <div id="collapse{{key.pk}}" class="panel-collapse collapse">
                 <ul class="list-group">
                   {% for item in values|slice:":-2" %}
                   <li class="list-group-item">
-                    <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
-                      {% if item.0.product_pic %}<img src="{{item.0.product_pic.url}}" alt="" />{% endif %}
-                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <span style="font-weight:bold">${{ item.3 }}</span>
                     <form class="qty_update" action="" method="post">
                       {% csrf_token %}
                       <select name="{{item.4}}">
@@ -113,6 +109,9 @@
                       </select>
                       <input class="btn btn-info btn-xs update_qty" type="submit" value="ok" />
                     </form>
+                    <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
+                      <img src="{{item.0.product_pic.url}}" title="{{item.0}}" alt="{{item.0}}" />
+                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <span style="font-weight:bold">${{ item.3 }}</span>
                   </li>
                 {% endfor %}
                 </ul>
@@ -127,15 +126,14 @@
                   <p id="cart-total">Cart total: ${{ values|last }}</p>
                   <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}"><i>{{ key }}</i></a>
                   {% if not values|slice:"-1"|last %}
-                    <span id="no_delivery">No delivery in {{zipcode}}</span>
+                    <span id="no_delivery">No delivery in {{ user_zipcode }}</span>
                   {% endif %}
                   </p>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
         {% endfor %}
+      </div>
 
       {% else %}
         <p id="empty_cart">Your cart is empty.</p></div>

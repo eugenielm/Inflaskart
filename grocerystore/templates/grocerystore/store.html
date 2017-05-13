@@ -48,7 +48,7 @@
             <form class="nav navbar-nav navbar-form" role="search" action="" method="post">
               {% csrf_token %}
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search" name="search">
+                    <input type="text" class="form-control" placeholder="Look for an item" name="search">
                     <div class="input-group-btn">
                         <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
                     </div>
@@ -93,30 +93,34 @@
         </div>
       {% endif %}
 
+      {% if purchases_here %}
+      <div id="buy_again">
+        <h4><a href="{% url 'grocerystore:buyagain' zipcode store_id %}">Buy again</a></h4>
+      </div>
+      {% endif %}
+
+      <div class="panel-group category" id="accordion">
       {% for key, values in all_categories.items %}
-      <div class="category">
-        <div class="panel-group">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4 class="panel-title">
-                <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
-              </h4>
-            </div>
-            <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
-              <ul class="list-group">
-                {% for item in values %}
-                  <a href="{% url 'grocerystore:instock' zipcode store_id key.pk item.pk %}">
-                    <li class="list-group-item">
-                      {{ item.sub_category_name }}
-                    </li>
-                  </a>
-              {% endfor %}
-              </ul>
-            </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
+            </h4>
+          </div>
+          <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
+            <ul class="list-group">
+              {% for item in values %}
+                <a href="{% url 'grocerystore:instock' zipcode store_id key.pk item.pk %}">
+                  <li class="list-group-item">
+                    {{ item.sub_category_name }}
+                  </li>
+                </a>
+            {% endfor %}
+            </ul>
           </div>
         </div>
-      </div>
       {% endfor %}
+      </div>
 
 
     </div> <!-- end of main content -->

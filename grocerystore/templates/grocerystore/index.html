@@ -23,6 +23,7 @@
     <div class="page-header" id="inflaskart-welcome">
 
       <h2>Welcome to Inflaskart!</h2>
+      <a title="Log out" id="logout" class="btn btn-warning btn-sm" href="{% url 'grocerystore:logout' %}" role="button"><span class="glyphicon glyphicon-off"></span></a>
       <h4><small>***Inflaskart is a fun app to shop your groceries on line***</small></h4>
 
     </div>
@@ -40,32 +41,27 @@
         </div>
       {% endif %}
 
-      </br>
-
       {% if hire_me %}
-        <div class="panel-group">
+        <div class="hire_me">
           <div class="panel panel-default">
-            <div class="panel-heading" style="background-color:rgba(202, 85, 122, 0.4)">
+            <div class="panel-heading">
               <h5 class="panel-title">
-                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse1">Liked your experience?</a>
+                <a class="accordion-toggle btn-block" data-toggle="collapse" href="#collapse1" aria-expanded="false">Liked your experience, {{username}}?</a>
               </h5>
             </div>
-            <div id="collapse1" class="panel-collapse collapse">
+            <div id="collapse1" class="panel-collapse collapse" aria-expanded="false">
               <div class="panel-footer">
-                <p style="font-weight:bold">Looking for an enthusiastic entry level backend of fullstack developer in SF?</p>
+                <p style="font-weight:bold">Looking for a backend/fullstack developer in SF?</p>
                 <p style="font-weight:bold">Hire me!</p>
-                <p name="resume"><span style="text-decoration:underline"><a href="/path/to/my/file/resume.pdf" download="LE_MOULEC_eugenie_resume.pdf" class="btn btn-info btn-xs" role="button">Download resume</a></span></p>
+                <p name="resume"><span style="text-decoration:underline"><a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf" class="btn btn-info btn-xs" role="button">Download resume</a></span></p>
               </div>
             </div>
           </div>
         </div>
-      </br>
       {% endif %}
 
       {% if username %}
-
         <div id="personal-welcome">
-          <h4>Hi {{ username }}! <a title="Log out" id="logout" class="btn btn-warning btn-sm" href="{% url 'grocerystore:logout' %}" role="button"><span class="glyphicon glyphicon-off"></span></a></h4>
           <p><a href="{% url 'grocerystore:start' user_zipcode %}" class="btn btn-success btn-md" role="button">Shop in {{ zipcode }}</a></p>
           <form id="shop_elsewhere" action="" method="post">
             {% csrf_token %}
