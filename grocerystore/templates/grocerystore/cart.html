@@ -89,14 +89,14 @@
             <div class="panel panel-default single-cart">
               <div class="panel-heading">
                 <h4 class="panel-title">
-                  <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}">{{ key }}
+                  <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">{{ key }}
                     {% if not values|slice:"-1"|last %}
                       <span class="glyphicon glyphicon-exclamation-sign"></span>
                     {% endif %}
                   </a>
                 </h4>
               </div>
-              <div id="collapse{{key.pk}}" class="panel-collapse collapse">
+              <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
                 <ul class="list-group">
                   {% for item in values|slice:":-2" %}
                   <li class="list-group-item">

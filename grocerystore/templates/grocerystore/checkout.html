@@ -61,6 +61,7 @@
                 <ul class="dropdown-menu">
                   {% if request.user.is_authenticated %}
                     <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+                    <li><a href="{% url 'grocerystore:orders' zipcode store.pk %}">Your orders in this store</a></li>
                     <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
                   {% else %} <!-- this shouldn't be needed -->
                     <li><a href="{% url 'grocerystore:login' %}">Login</a></li>
@@ -91,10 +92,13 @@
       </div>
       {% endif %}
 
-      <p class="ckt">The total amount is <span style="font-weight:bold;">${{ cart_total }}</span>. No taxes, no delivery fee. Nice, hum?</p>
+      <p class="ckt">The total amount is <span style="font-weight:bold;">${{ cart_total }}</span>.</p>
       {% if pickup %}
       <p id="pickup">Please note that this store doesn't deliver your current address.
-        You'll need to pick up your order at their location within 24 hours.</span></p>
+        You'll need to pick up your before {{ deadline }}, at the store location below:</p>
+        <p>{{ store.store_name }}</p>
+        <p>{{ store.store_address }}</p>
+        <p>{{ store.store_city }}, {{ store.store_state.state_postal_code }} {{ store.store_zipcode }}</p>
       {% endif %}
       <div class="single-cart checkout">
         <div class="panel-group checkout">
@@ -113,6 +117,14 @@
                       {{ item.0 }}</a>: {{ item.1 }} x ${{item.2}}/{{ item.3 }}: <span style="font-weight:bold">${{ item.4 }}</span>
                   </li>
                 {% endfor %}
+                <li class="list-group-item">Personal shopper fee: <b>${{ service }}</b></li>
+                {% if sales_tax %}
+                  <li class="list-group-item">San Francisco county sales tax (8.50% when applicable): <b>${{ sales_tax }}</b></li>
+                {% endif %}
+
+                {% if delivery_fee %}
+                  <li class="list-group-item">Delivery fee for an order under $20: <b>$3</b></li>
+                {% endif %}
               </ul>
               <div class="panel-footer">
                 <p id="cart-total">Cart total: ${{ cart_total }}</p>
@@ -123,12 +135,31 @@
         </div>
       </div>
 
-      <p class="ckt hint">This is a demo so for a more peaceful-mind experience, please enter a fake CC information!
-      (but not too fake or it's gonna be rejected ;-))</p>
+      {% if not pickup %}
+
+        <form id="delivery_hours" action="" method="post">
+          {% csrf_token %}
+
+        </form>
+      </div>
+      {% endif %}
 
       <div id="ckt_form">
         <form id="payment_form" action="" method="post">
           {% csrf_token %}
+
+          <div id="delivery_choice">
+            <select name="delivery_time" autofocus>
+              <option disabled selected value>--- Choose a delivery time ---</option>
+              {% for delivery_time in delivery_time_set %}
+                <option value="{{delivery_time}}">{{ delivery_time }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <p>This is a demo so for a more peaceful-mind experience, please enter a fake CC information!
+          (but not too fake or it's gonna be rejected ;-))</p>
+
           <table class="payment_table">
           {% for field in payment_form %}
             <tr><td class="field_label">{{ field.label }}</td>

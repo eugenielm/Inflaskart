@@ -59,9 +59,14 @@
               <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span></a>
                 <ul class="dropdown-menu">
-                  <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
-                  <li><a href="{% url 'grocerystore:orders' zipcode store.pk %}">Your orders in this store</a></li>
-                  <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+                  {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+                    <li><a href="{% url 'grocerystore:orders' zipcode store.pk %}">Your orders in this store</a></li>
+                    <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+                  {% else %}
+                    <li><a href="{% url 'grocerystore:login' %}">Login</a></li>
+                    <li><a href="{% url 'grocerystore:register' %}">Sign up</a></li>
+                  {% endif %}
                 </ul>
               </li>
             </ul>
@@ -72,7 +77,7 @@
 
 
     <div class="page-header">
-      <h4>Buy it again</h4> <h6>at <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></h6>
+      <h4>Your orders</h4> <h6>at <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></h6>
     </div>
 
 
@@ -88,30 +93,53 @@
         </div>
       {% endif %}
 
-      {% if available_products %}
-          {% for availability in available_products %}
-            <div class="available_product">
-              <a href="{% url 'grocerystore:detail' zipcode store_id availability.product.pk %}">
-              {% if availability.product.product_pic %}
-                <p class="product-pic"><img src="{{ availability.product.product_pic.url }}" alt="{{ availability.product.product_name }}"/></p>
-              {% endif %}
-              <p>{{ availability.product }}</a></p>
-              <p>${{ availability.product_price }} / {{ availability.product_unit }}</p>
-              <form class="qty_selection" action="" method="post">
-                {% csrf_token %}
-                <select name="{{availability.pk}}">
-                  {% for quantity in quantity_set %}
-                    <option value="{{quantity}}">{{ quantity }}</option>
-                  {% endfor %}
-                </select>
-                <input class="btn btn-info btn-xs" type="submit" value="Add">
-              </form>
+      {% if user_orders %}
+      <div class="panel-group orders" id="accordion">
+        {% for order in user_orders %}
+        <div class="panel panel-default single-order">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ order.data.order_nb }}" aria-expanded="false">
+                Order #{{ order.data.order_nb }} placed on {{ order.data.purchase_date.1 }}/{{ order.data.purchase_date.2 }},
+                {{ order.data.purchase_date.0 }}</a>
+            </h4>
+          </div>
+          <div id="collapse{{ order.data.order_nb }}" class="panel-collapse collapse" aria-expanded="false">
+            <ul class="list-group">
+              {% for item in order.data.items %}
+              <li class="list-group-item">
+                <form class="qty_update" action="" method="post">
+                  {% csrf_token %}
+                  <select name="{{item.availability_pk}}">
+                    {% for quantity in quantity_set %}
+                      <option value="{{quantity}}" {% if quantity == item.product_qty %} selected="selected" {% endif %}>{{ quantity }}</option>
+                    {% endfor %}
+                  </select>
+                  <input class="btn btn-info btn-xs update_qty" type="submit" value="add in cart" />
+                </form>
+                {{ item.product_qty }} <a href="{% url 'grocerystore:detail' zipcode store_id item.product_pk %}">
+                {{ item.product_name }}</a> (${{ item.unit_price }} / {{ item.product_unit }}): <b>${{ item.total_item_price }}</b>
+              </li>
+              {% endfor %}
+            </ul>
+            <div class="panel-footer">
+              <div class="add_everything">
+                <form action="" method="post">
+                  {% csrf_token %}
+                  <input class="btn btn-warning btn-sm" name="everything {{ order.pk }}" type="submit" value="Place the same order" />
+                </form>
+                <p id="order_total">Order total was <b>${{ order.data.order_total }}</b></p>
+                <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}"><i>{{ store }}</i></a></p>
+              </div>
             </div>
-          {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
 
       {% else %}
-      <div id="no_stock">
-        <p>Sorry, you've never bought anything in this store.</p>
+      <div id="no_orders">
+        <p>You never placed any order in this store.</p>
         <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}" style="text-decoration: underline">{{ store }}</a></p>
       </div>
       {% endif %}

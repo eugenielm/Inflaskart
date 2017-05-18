@@ -61,6 +61,7 @@
                 <ul class="dropdown-menu">
                   {% if request.user.is_authenticated %}
                     <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+                    <li><a href="{% url 'grocerystore:orders' zipcode store_id %}">Your orders in this store</a></li>
                     <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
                   {% else %}
                     <li><a href="{% url 'grocerystore:login' %}">Login</a></li>
@@ -76,7 +77,7 @@
 
 
     <div class="page-header">
-      <h4>'{{ subcategory }}' section</h4> <h6>at <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></h6>
+      <h4>'{{ subcategory }}' section</h4> <h6>at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></h6>
     </div>
 
 
@@ -93,25 +94,25 @@
       {% endif %}
 
       {% if available_products %}
-        {% for availability in available_products %}
-          <div class="available_products">
-            <a href="{% url 'grocerystore:detail' zipcode store_id availability.product.pk %}">
-            {% if availability.product.product_pic %}
-              <p class="product-pic"><img src="{{ availability.product.product_pic.url }}" alt="{{ availability.product.product_name }}"/></p>
-            {% endif %}
-            <p>{{ availability.product }}</a></p>
-            <p>${{ availability.product_price }} / {{ availability.product_unit }}</p>
-            <form class="qty_selection" action="" method="post">
-              {% csrf_token %}
-              <select name="{{availability.pk}}">
-                {% for quantity in quantity_set %}
-                  <option value="{{quantity}}">{{ quantity }}</option>
-                {% endfor %}
-              </select>
-              <input class="btn btn-info btn-xs" type="submit" value="Add">
-            </form>
-          </div>
-        {% endfor %}
+          {% for availability in available_products %}
+            <div class="available_product">
+              <a href="{% url 'grocerystore:detail' zipcode store_id availability.product.pk %}">
+              {% if availability.product.product_pic %}
+                <p class="product-pic"><img src="{{ availability.product.product_pic.url }}" alt="{{ availability.product.product_name }}"/></p>
+              {% endif %}
+              <p>{{ availability.product }}</a></p>
+              <p>${{ availability.product_price }} / {{ availability.product_unit }}</p>
+              <form class="qty_selection" action="" method="post">
+                {% csrf_token %}
+                <select name="{{availability.pk}}">
+                  {% for quantity in quantity_set %}
+                    <option value="{{quantity}}">{{ quantity }}</option>
+                  {% endfor %}
+                </select>
+                <input class="btn btn-info btn-xs" type="submit" value="Add">
+              </form>
+            </div>
+          {% endfor %}
 
       {% else %}
       <div id="no_stock">

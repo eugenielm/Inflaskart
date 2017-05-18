@@ -61,6 +61,7 @@
                 <ul class="dropdown-menu">
                   {% if request.user.is_authenticated %}
                     <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+                    <li><a href="{% url 'grocerystore:orders' zipcode store.pk %}">Your orders in this store</a></li>
                     <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
                   {% else %}
                     <li><a href="{% url 'grocerystore:login' %}">Login</a></li>
@@ -94,9 +95,16 @@
       {% endif %}
 
       {% if purchases_here %}
-      <div id="buy_again">
-        <h4><a href="{% url 'grocerystore:buyagain' zipcode store_id %}">Buy again</a></h4>
-      </div>
+      <a href="{% url 'grocerystore:buyagain' zipcode store_id %}">
+        <div id="buy_again">
+          <h4>Buy it again</h4>
+        </div>
+      </a>
+      <a href="{% url 'grocerystore:orders' zipcode store_id %}">
+        <div id="old_order">
+          <h4>Re-place a previous order</h4>
+        </div>
+      </a>
       {% endif %}
 
       <div class="panel-group category" id="accordion">
@@ -104,7 +112,7 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
-              <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
+              <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
             </h4>
           </div>
           <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">

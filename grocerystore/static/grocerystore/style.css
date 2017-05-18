@@ -2,7 +2,7 @@ body {background-color: rgba(238, 238, 238, 1)}
 /*****************************************************************************/
 .container {
   width: 100%;
-  margin: 0px;
+  margin: 20px 0px 0px 0px;
   padding: 0px;
 }
 
@@ -22,7 +22,7 @@ a:hover {
 .page-header {
   width: 100%;
   padding: 0px;
-  margin: 70px 20px 20px 20px;
+  margin: 70px 20px 0px 20px;
 }
 
 div.page-header > h4, div.page-header > h2, div.page-header > h6 {
@@ -186,6 +186,7 @@ div#inflaskart-welcome.page-header {
   right: 0px;
   margin-left: 0px;
   margin-right: 0px;
+  margin-top: 50px;
   width: 100%;
   text-align: center;
 }
@@ -212,10 +213,6 @@ a#register.btn.btn-warning.btn-lg {width: 150px;}
 }
 
 #index-identification p {display: inline-block;}
-
-#login, #register {
-  margin: 50px 20px;
-}
 
 a#login.btn.btn-info.btn-lg {width: 130px;}
 a#register.btn.btn-info.btn-lg {width: 130px;}
@@ -254,19 +251,24 @@ a#register.btn.btn-info.btn-lg {width: 130px;}
 
 .hire_me a { text-decoration: none }
 
+#manual {
+  margin: 40px 20px 20px 20px;
+  text-align: center;
+  font-size: 12px;
+  font-style: italic;
+}
 
-
-
-
-
-
-
+#manual p {
+  margin: 0px;
+}
 /*****************************************************************************/
 /* start.html */
 
+.all_stores {margin: 0px 20px 20px 20px}
+
 .store_choice {
   display: inline-block;
-  margin: 20px;
+  margin: 0px 5px 10px 0px;
 }
 
 .store_choice img {
@@ -303,7 +305,7 @@ a#register.btn.btn-info.btn-lg {width: 130px;}
 /* detail.html */
 
 #product-details-section {
-  margin: 20px;
+  margin: 0px 20px 20px 20px;
   padding: 20px;
   background-color: white;
   border-style: none;
@@ -322,7 +324,8 @@ div.qty_selection {margin: 20px 0px 5px 0px}
 /* store.html */
 
 .panel-group.category {
-  margin: 0px 20px;
+  margin: 10px 20px 10px 20px;
+  width: 300px;
 }
 
 .panel-group.category .panel.panel-default {
@@ -360,6 +363,26 @@ div.qty_selection {margin: 20px 0px 5px 0px}
 
 /* removes underline on panel-title when the menu collapses */
 .panel-group.category a.accordion-toggle.btn-block {text-decoration: none}
+
+div#buy_again, div#old_order {
+  margin: 0px 20px 10px 20px;
+  padding: 10px 15px;
+  width: 300px;
+  background-color: #d7d8d7;
+  border-style: none;
+  border-radius: 5px;
+  box-shadow: 1px 1px 8px 0 grey;
+}
+
+div#buy_again h4, div#old_order h4 {
+  margin: 0px;
+  font-size: 16px;
+}
+
+div#buy_again:hover, div#old_order:hover {
+  text-decoration: none;
+  background-color: #efecf1;
+}
 
 /*****************************************************************************/
 /* cart.html */
@@ -437,7 +460,7 @@ p#keep_shopping {
 /*****************************************************************************/
 /* instock.html */
 
-.available_products {
+.available_product {
   border-style: solid;
   border-width: thin;
   border-radius: 3px;
@@ -448,20 +471,17 @@ p#keep_shopping {
   height: 200px;
   box-shadow: 1px 1px 20px 0;
   font-size: 12px;
-}
-
-.container div.available_products {
-  margin: 20px;
+  margin: 0px 0px 10px 20px;
   padding: 10px;
   overflow: scroll;
 }
 
-.available_products img {
+.available_product img {
   height: 70px;
   width: auto;
 }
 
-div.available_products p {
+div.available_product p {
   margin-top: 8px;
 }
 
@@ -476,23 +496,8 @@ form.qty_selection {margin-top: 10px}
 
 
 /*****************************************************************************/
-/* buyagain.html */
-/* see instock.html */
-div#buy_again {
-  margin: 0px 20px 10px 20px;
-  padding: 10px;
-  width: 110px;
-  text-align: center;
-  background-color: #e8b5b5;
-  border-style: solid;
-  border-width: thin;
-  border-radius: 5px;
-  box-shadow: 2px 5px 10px 0;
-}
 
-div#buy_again h4 {margin: 0px;}
-
-div#buy_again a {text-decoration: none}
+/* buyagain.html: see instock.html above */
 
 /*****************************************************************************/
 /* login.html */
@@ -696,25 +701,28 @@ table.user_table tr:first-child > td.update-field {padding: 5px;}
   font-size: 12px;
 }
 
-p.ckt {
-  margin: 10px 20px;
+.single-cart.checkout .panel.panel-default {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
 }
 
-p.ckt.hint {
-  margin-top: 30px;
-  margin-bottom: 30px;
+p.ckt {
+  margin: 0px 20px 10px 20px;
 }
 
 .panel-group.checkout {
-  margin: 0px 20px;
+  margin: 0px 0px 0px 20px;
+  box-shadow: 1px 1px 8px 0 grey;
 }
 
 .single-cart.checkout h4.panel-title {font-size: 14px}
 .single-cart.checkout li.list-group-item {padding: 5px}
 
+.payment_table {margin-top: 20px}
+
 #ckt_form {
-  margin: 10px 20px 20px 20px;
-  width: 350px;
+  margin: 30px 20px 20px 20px;
+  width: 450px;
 }
 
 #ckt_form td {
@@ -754,4 +762,81 @@ p#pickup {
   font-size: 10px;
   font-weight: bold;
   font-style: italic;
+}
+
+#store_address p {
+  margin-top: -10px;
+  margin-left: 30px;
+  color: red;
+  font-size: 12px;
+  font-style: italic;
+}
+
+#delivery_choice {
+  margin: 20px 20px 20px 0px;
+}
+
+#payment_form > p {
+  font-size: 12px;
+  font-style: italic;
+  margin: 0px;
+}
+
+/*****************************************************************************/
+/* orders.html */
+
+.panel-group.orders {margin: 0px 20px 0px 20px}
+
+.panel.panel-default.single-order {
+  margin-bottom: 10px;
+}
+
+.single-order .panel-heading {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  background-color: #d7d8d7;
+}
+
+.single-order .add_everything p {
+  font-size: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.single-order .panel-title > a {text-decoration: none;}
+
+.single-order .add_everything a {text-decoration: none}
+
+#no_orders p {margin: 0px 20px 0px 20px}
+
+.single-order .qty_update {
+  margin-left: 10px;
+  display: inline-block;
+  float: right;
+}
+
+.panel.panel-default.single-order {
+  font-size: 12px;
+  top: 0px;
+  border-style: none;
+  box-shadow: 1px 1px 8px 0 grey;
+}
+
+.single-order .panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* taken from bootstrap.css */
+    float: right;
+    color: black;
+}
+
+.single-order .panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+#order_total {
+  display: inline-block;
+  float: right;
+  font-size: 12px;
 }

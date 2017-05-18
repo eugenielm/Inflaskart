@@ -61,6 +61,7 @@
                 <ul class="dropdown-menu">
                   {% if request.user.is_authenticated %}
                     <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+                    <li><a href="{% url 'grocerystore:orders' zipcode store.pk %}">Your orders in this store</a></li>
                     <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
                   {% else %}
                     <li><a href="{% url 'grocerystore:login' %}">Login</a></li>

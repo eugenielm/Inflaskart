@@ -89,16 +89,18 @@
         </div>
       {% endif %}
 
-      <form action="" method="post">
-        {% csrf_token %}
-        {% for store in available_stores %}
-          <div class="store_choice">
-            <a href="{% url 'grocerystore:store' zipcode.zipcode store.pk %}">
-            <p class="image">{% if store.store_pic %}<img src="{{ store.store_pic.url }}" alt="" />{% endif %}</p>
-            <p class="store_name">{{ store }}</p></a>
-          </div>
-        {% endfor %}
-      </form>
+      <div class="all_stores">
+        <form action="" method="post">
+          {% csrf_token %}
+          {% for store in available_stores %}
+            <div class="store_choice">
+              <a href="{% url 'grocerystore:store' zipcode.zipcode store.pk %}">
+              <p class="image">{% if store.store_pic %}<img src="{{ store.store_pic.url }}" alt="" />{% endif %}</p>
+              <p class="store_name">{{ store }}</p></a>
+            </div>
+          {% endfor %}
+        </form>
+      </div>
 
     </div> <!-- end of main content -->
 
