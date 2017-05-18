@@ -29,6 +29,7 @@ Availability model's store field)
 
 @python_2_unicode_compatible
 class State(models.Model):
+    """This model is used for federal countries."""
     state_name = models.CharField(max_length=50)
     state_postal_code = models.CharField(max_length=2)
 
@@ -41,7 +42,7 @@ class State(models.Model):
 
 @python_2_unicode_compatible
 class Address(models.Model):
-    """Used by the inflauser_address field of the Inflauser class."""
+    """Used by the inflauser_address field of the Inflauser model."""
     street_address1 = models.CharField(max_length=100, verbose_name="Address")
     street_address2 = models.CharField(max_length=100, blank=True, verbose_name="Address (line 2)")
     apt_nb = models.CharField(max_length=20, blank=True, verbose_name="Apt/Unit") # can be an integer or a character
@@ -60,6 +61,7 @@ class Address(models.Model):
 
 @python_2_unicode_compatible
 class Inflauser(models.Model):
+    """Used as an extension of the User model to allow them to store their address."""
     infla_user = models.OneToOneField(User)
     inflauser_address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
@@ -83,6 +85,8 @@ class Zipcode(models.Model):
 
 @python_2_unicode_compatible
 class Store(models.Model):
+    """Model used for each store. Several store objects may have the same brand,
+    ie. the same store_name."""
     store_name = models.CharField(max_length=30, verbose_name="store")
     store_location = models.CharField(max_length=30, verbose_name="location name")
     store_address = models.CharField(max_length=200, verbose_name="Address")
@@ -101,6 +105,7 @@ class Store(models.Model):
 
 @python_2_unicode_compatible
 class ProductCategory(models.Model):
+    """Model used for product categories. Each category has several sub-categories."""
     top_category = models.CharField(max_length=30, verbose_name="top product category")
 
     def __str__(self):
@@ -113,6 +118,8 @@ class ProductCategory(models.Model):
 
 @python_2_unicode_compatible
 class ProductSubCategory(models.Model):
+    """Model used for product sub-categories. Each sub-category has only one
+    parent category."""
     parent = models.ForeignKey(ProductCategory, verbose_name="top product category")
     sub_category_name = models.CharField(max_length=30, verbose_name="product sub-category")
 
@@ -127,6 +134,7 @@ class ProductSubCategory(models.Model):
 
 @python_2_unicode_compatible
 class Dietary(models.Model):
+    """Model used for product dietaries: it can be organic, gluten-free, etc."""
     name = models.CharField(max_length=30, verbose_name="dietary")
 
     def __str__(self):
@@ -147,6 +155,8 @@ class Product(models.Model):
     product_pic = models.ImageField(upload_to='products/', blank=True, verbose_name="product picture")
     user_id_required = models.BooleanField(default=False, verbose_name="ID required")
     product_store = models.ManyToManyField(Store, through='Availability', verbose_name="availability(ies) in store(s)")
+    # sales tax is applicable in California except for groceries and prescription drugs
+    taxability = models.BooleanField(default=True)
 
     def __str__(self):
         if len(self.product_dietary.all()) == 0:
@@ -170,6 +180,7 @@ class Product(models.Model):
 
 @python_2_unicode_compatible
 class Availability(models.Model):
+    """This model is used as an intermediate between Product and Store instances."""
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
     product_unit = models.CharField(max_length=20, verbose_name="unit")
@@ -198,9 +209,10 @@ class Availability(models.Model):
         ordering = ['product__product_name']
         verbose_name_plural = "availabilities"
 
+
 @python_2_unicode_compatible
 class ItemInCart(models.Model):
-    """An instance of this class is created when a user puts an item in their cart"""
+    """An instance of this model is created when a user puts an item in their cart."""
     incart_user = models.ForeignKey(User, on_delete=models.CASCADE)
     incart_availability = models.ForeignKey(Availability, on_delete=models.CASCADE)
     incart_quantity = models.PositiveIntegerField()
@@ -211,15 +223,21 @@ class ItemInCart(models.Model):
     class Meta:
         ordering = ['incart_availability__product__product_name']
 
+
 class Order(models.Model):
-    """The order number will be set to the pk + some random start value (e.g.: 1000)"""
+    """An instance of this model is created each time an order is placed.
+    The order number will be set to the pk + some specific start value (e.g.: 1000)"""
     data = JSONField() # all the important details about the order
 
+
 class ProductPurchase(models.Model):
+    """All bought items are stored as ProductPurchase instances - for data
+    analysis purposes."""
     bought_product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     customer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     purchase_store = models.ForeignKey(Store, on_delete=models.SET_NULL, null=True)
-    purchase_dates = ArrayField(models.DateTimeField()) # https://docs.djangoproject.com/en/1.11/ref/models/fields/#datefield
+    # https://docs.djangoproject.com/en/1.11/ref/models/fields/#datefield
+    purchase_dates = ArrayField(models.DateTimeField())
     nb_of_purchases = models.PositiveIntegerField(default=1)
 
     class Meta:
