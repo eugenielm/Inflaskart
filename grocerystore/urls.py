@@ -21,6 +21,10 @@ urlpatterns = [
             views.SearchView.as_view(), name='search'),
     url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/category/(?P<category_id>[0-9a-zA-Z%]+)/subcategory/(?P<subcategory_id>[0-9a-zA-Z%]+)/$',
             views.Instock.as_view(), name='instock'),
-    url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/buyagain/$', views.BuyAgainView.as_view(),name='buyagain'),
-    url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/checkout/$', views.CheckoutView.as_view(),name='checkout'),
+    url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/buyagain/$', \
+            views.BuyAgainView.as_view(),name='buyagain'),
+    url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/orders/$', \
+            views.OrdersHistory.as_view(),name='orders'),
+    url(r'^(?P<zipcode>[0-9]{4,5})/store/(?P<store_id>[0-9a-zA-Z%]+)/checkout/$', \
+            views.CheckoutView.as_view(),name='checkout'),
 ]

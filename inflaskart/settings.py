@@ -117,7 +117,7 @@ USE_L10N = True
 USE_TZ = True
 # it's an error to set the TIME_ZONE because postgreSQL supports time zones
 # cf. https://docs.djangoproject.com/en/1.11/ref/settings/#time-zone
-# TIME_ZONE = 'America/Los_Angeles'
+TIME_ZONE = 'America/Los_Angeles'
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

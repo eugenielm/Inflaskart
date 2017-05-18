@@ -4,7 +4,8 @@ import os
 import sys
 import urllib
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 from django.shortcuts import redirect, render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -104,10 +105,6 @@ class UserRegisterView(View):
         if form1.is_valid() and form2.is_valid():
             inflauser_address = form2.save(commit=False)
             inflauser_address.zip_code = form2.cleaned_data['zip_code']
-            if len(Store.objects.filter(delivery_area__zipcode=inflauser_address.zip_code)) == 0:
-                messages.error(self.request, "Sorry, we're unable to create an account "\
-                "because there's currently no store delivering in your zipcode area.")
-                return redirect('grocerystore:index')
             inflauser_address.street_address1 = form2.cleaned_data['street_address1']
             inflauser_address.street_address2 = form2.cleaned_data['street_address2']
             inflauser_address.apt_nb = form2.cleaned_data['apt_nb']
@@ -296,7 +293,7 @@ class ProfileView(LoginRequiredMixin, View):
         available_stores = available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if available_stores:
             context['available_stores'] = available_stores
-        return render(self.request, 'grocerystore/profile.html', context=context)
+        return render(self.request, self.template_name, context=context)
 
     def post(self, request):
         return redirect('grocerystore:profile_update')
@@ -319,7 +316,7 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if available_stores:
             context['available_stores'] = available_stores
-        return render(self.request, 'grocerystore/profile_update.html', context=context)
+        return render(self.request, self.template_name, context=context)
 
     def post(self, request):
         user = self.request.user
@@ -372,17 +369,10 @@ class ProfileUpdateView(LoginRequiredMixin, View):
                 errors.append(er)
 
             context['errors'] = errors
-            return render(self.request, 'grocerystore/profile_update.html', context=context)
+            return render(self.request, self.template_name, context=context)
 
         # if the user entered only valid information
         inflauser_address = new_address.save(commit=False)
-        if len(Store.objects.filter(delivery_area__zipcode=new_address.cleaned_data['zip_code'])) == 0:
-            messages.error(self.request, "Sorry, we're unable to update your zipcode "\
-            "because there's no store delivering this area.")
-            context = {'address_form': new_address, 'zipcode': zipcode}
-            if available_stores:
-                context['available_stores'] = available_stores
-            return render(self.request, 'grocerystore/profile_update.html', context=context)
         inflauser_address.street_address1 = new_address.cleaned_data['street_address1']
         inflauser_address.street_address2 = new_address.cleaned_data['street_address2']
         inflauser_address.apt_nb = new_address.cleaned_data['apt_nb']
@@ -412,8 +402,8 @@ class IndexView(View):
                            .inflauser_address.zip_code
             context['user_zipcode'] = user_zipcode
             context['zipcode'] = Zipcode.objects.get(zipcode=user_zipcode)
-            return render(self.request, 'grocerystore/index.html', context=context)
-        return render(self.request, 'grocerystore/index.html')
+            return render(self.request, self.template_name, context=context)
+        return render(self.request, self.template_name)
 
     def post(self, request):
         zipcode = self.request.POST.get('zipcode')
@@ -439,7 +429,7 @@ class StartView(View):
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if len(available_stores) > 0:
             context['available_stores'] = available_stores
-        return render(self.request, 'grocerystore/start.html', context=context)
+        return render(self.request, self.template_name, context=context)
 
     def post(self, request, zipcode):
         form = self.form_class(self.request.POST)
@@ -492,9 +482,9 @@ class StoreView(View):
 
         if self.request.user.is_authenticated:
             user = self.request.user
-            user_purchases = ProductPurchase.objects.filter(customer=user)\
-                             .filter(purchase_store=store)
-            if user_purchases:
+            user_orders = Order.objects.filter(data__user__user_pk=user.pk)\
+                          .filter(data__store__store_pk=store_id)
+            if user_orders:
                 context['purchases_here'] = True
 
         return render(self.request, 'grocerystore/store.html', context=context)
@@ -571,7 +561,7 @@ class Instock(View):
         if len(available_stores) > 0:
             context['available_stores'] = available_stores
 
-        return render(self.request, 'grocerystore/instock.html', context=context)
+        return render(self.request, self.template_name, context=context)
 
     def post(self, request, zipcode, store_id, category_id, subcategory_id):
         try:
@@ -685,10 +675,11 @@ class BuyAgainView(LoginRequiredMixin, View):
         if len(available_stores) > 0:
             context['available_stores'] = available_stores
 
-        return render(self.request, 'grocerystore/buyagain.html', context=context)
+        return render(self.request, self.template_name, context=context)
 
     def post(self, request, zipcode, store_id):
         user = self.request.user
+        store = Store.objects.get(pk=store_id)
         try:
             searched_item = self.request.POST.get('search')
             if searched_item.replace(" ", "").replace("-", "").isalpha():
@@ -712,8 +703,7 @@ class BuyAgainView(LoginRequiredMixin, View):
         except: pass # if the user doesn't use the search tool
 
         # get list of the products bought by the user in this specific store
-        bought_here = ProductPurchase.objects.filter(customer=user)\
-                      .filter(purchase_store=Store.objects.get(pk=store_id))
+        bought_here = ProductPurchase.objects.filter(customer=user).filter(purchase_store=store)
 
         # filter the available products
         available_here = []
@@ -734,6 +724,8 @@ class BuyAgainView(LoginRequiredMixin, View):
                        .get(incart_availability=availability)
                 item.incart_quantity = quantity_to_add
                 item.save()
+                return redirect('grocerystore:buyagain', zipcode=zipcode,
+                                                         store_id=store_id)
             # create an ItemInCart instance if the item isn't in the
             # cart, and save it in the database
             except:
@@ -788,7 +780,7 @@ class SearchView(View):
             available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
             if len(available_stores) > 0:
                 context['available_stores'] = available_stores
-            return render(self.request, 'grocerystore/search.html', context=context)
+            return render(self.request, self.template_name, context=context)
 
         else: # in case the search result is empty but still the user types the searched_item in the url
             messages.error(self.request, "unfortunately no available item matches your research at %s" % store)
@@ -1018,7 +1010,7 @@ class CartView(View):
             context['all_carts'] = all_carts
             context['quantity_set'] = range(21)
 
-            return render(self.request, 'grocerystore/cart.html', context=context)
+            return render(self.request, self.template_name, context=context)
 
         else: # if the user is anonymous
             available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
@@ -1059,7 +1051,7 @@ class CartView(View):
             except KeyError: # if the anonymous user hasn't put anything in their cart
                 pass
 
-            return render(self.request, 'grocerystore/cart.html', context=context)
+            return render(self.request, self.template_name, context=context)
 
     def post(self, request, zipcode):
         if self.request.user.is_authenticated:
@@ -1143,7 +1135,7 @@ class CheckoutView(LoginRequiredMixin, View):
             store = Store.objects.get(pk=store_id)
         except:
             messages.error(self.request, "Sorry, the store you want to check "\
-                          "out from doesn't exist.")
+                                         "out from doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
@@ -1157,15 +1149,13 @@ class CheckoutView(LoginRequiredMixin, View):
                    'username': self.request.user.username,
                    'payment_form': self.form_class(None)}
 
-        if Zipcode.objects.get(zipcode=self.request.user.inflauser.inflauser_address.zip_code) not in store.delivery_area.all():
-            context['pickup'] = True
-
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if available_stores:
             context['available_stores'] = available_stores
 
         cart_total = float(0)
         in_cart = []
+        sales_tax = float(0.00)
         for item in user_cart:
             if item.incart_availability.store.pk == int(store_id):
                 availability = item.incart_availability
@@ -1176,24 +1166,68 @@ class CheckoutView(LoginRequiredMixin, View):
                 cart_total += item_total
                 item_total = "%.2f" % item_total
                 item_unit = availability.product_unit
+                if product.taxability:
+                    # NB: need to use a sales tax API in real life ;-)
+                    # 8.5% is the sales tax rate in San Francisco county
+                    sales_tax += float(sales_tax * 0.085)
                 elt = [product, quantity, item_price, item_unit, item_total]
                 in_cart.append(elt)
-
-        cart_total = "%.2f" % cart_total
 
         if float(cart_total) == 0.00:
             messages.info(self.request, "You must put items in your cart to be able "\
                                         "to place an order!")
             return redirect('grocerystore:store', zipcode=zipode, store_id=store_id)
 
-        context['cart_total'] = cart_total
+        service = float(cart_total * 0.10)
+
+        if cart_total < 20 and \
+        Zipcode.objects.get(zipcode=self.request.user.inflauser.inflauser_address.zip_code) in store.delivery_area.all():
+            cart_total += 3.00
+            context['delivery_fee'] = True
+
+        cart_total += sales_tax
+        if not sales_tax == float(0.00):
+            context['sales_tax'] = "%.2f" % sales_tax
+        cart_total += service
+        context['service'] = "%.2f" % service
+        context['cart_total'] = "%.2f" % cart_total
         context['in_cart'] = in_cart
 
-        return render(self.request, "grocerystore/checkout.html", context=context)
+        now = datetime.now()
+        if now.hour >= 19 and now.hour < 24:
+            delivery_time_set = ["tomorrow 11am-1pm", "tomorrow 1pm-3pm", "tomorrow 3pm-5pm", "tomorrow 5pm-8pm"]
+        elif now.hour >= 18:
+            delivery_time_set = ["today 7pm-9pm", "tomorrow 11am-1pm", "tomorrow 1pm-3pm", "tomorrow 3pm-5pm"]
+        elif now.hour >= 17:
+            delivery_time_set = ["today 6pm-8pm", "tomorrow 11am-1pm", "tomorrow 1pm-3pm", "tomorrow 3pm-5pm"]
+        elif now.hour >= 16:
+            delivery_time_set = ["today 5pm-7pm", "today 7pm-9pm", "tomorrow 11am-1pm", "tomorrow 1pm-3pm"]
+        elif now.hour >= 15:
+            delivery_time_set = ["today 4pm-6pm", "today 6pm-8pm", "tomorrow 11am-1pm", "tomorrow 1pm-3pm"]
+        elif now.hour >= 14:
+            delivery_time_set = ["today 3pm-5pm", "today 5pm-7pm", "today 7pm-9pm", "tomorrow 11am-1pm"]
+        elif now.hour >= 13:
+            delivery_time_set = ["today 2pm-4pm", "today 4pm-6pm", "today 6pm-8pm", "tomorrow 11am-1pm"]
+        elif now.hour >= 12:
+            delivery_time_set = ["today 1pm-3pm", "today 3pm-5pm", "today 5pm-7pm", "today 7pm-9pm"]
+        elif now.hour >= 11:
+            delivery_time_set = ["today noon-2pm", "today 2pm-4pm", "today 4pm-6pm", "today 6pm-8pm"]
+        else:
+            delivery_time_set = ["today 11am-1pm", "today 1pm-3pm", "today 3pm-5pm", "today 5pm-7pm"]
+
+        context['delivery_time_set'] = delivery_time_set
+
+        if Zipcode.objects.get(zipcode=self.request.user.inflauser.inflauser_address.zip_code) not in store.delivery_area.all():
+            one_day_delta = timedelta(hours=24)
+            deadline = now + one_day_delta
+            context['pickup'] = True
+            context['deadline'] = deadline
+
+        return render(self.request, self.template_name, context=context)
 
     def post(self, request, zipcode, store_id):
         """Empties the cart and redirect to the index shopping page.
-        NB: this is a fake checkout!"""
+        NB: this is a virtual checkout!"""
         try:
             searched_item = self.request.POST.get('search')
             if searched_item.replace(" ", "").replace("-", "").isalpha():
@@ -1216,26 +1250,37 @@ class CheckoutView(LoginRequiredMixin, View):
 
         except: pass
 
+        try:
+            delivery_time = self.request.POST['delivery_time']
+        except:
+            messages.error(self.request, "Please select a delivery time.")
+            return redirect('grocerystore:checkout', zipcode=zipcode, store_id=store_id)
+
         payment_data = self.form_class(self.request.POST)
-        if payment_data.is_valid():
+
+        if payment_data.is_valid() and not delivery_time == "--- Choose a delivery time ---":
             # would normally require money transfer from the user's bank
             # and to send purchased items list and user's address to delivery company
             user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
             user = self.request.user
             user_address = Inflauser.objects.get(infla_user=user).inflauser_address
             store = Store.objects.get(pk=store_id)
+            order_total = 0.00
 
             for item in user_cart:
                 if item.incart_availability.store.pk == int(store_id):
                     try:
                         order_data['items'].append({
                             'product_pk': item.incart_availability.product.pk,
+                            'availability_pk': item.incart_availability.pk,
                             'product_name': item.incart_availability.product.product_name,
-                            'product_price': str(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
+                            'unit_price': str(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
                             'product_qty': item.incart_quantity,
+                            'total_item_price': "%.2f" % (float(item.incart_availability.product_price) * item.incart_quantity),
                             'product_unit': item.incart_availability.product_unit,
                             })
-                    except: # if order_data hasn't been declared yet
+                        order_total += float(item.incart_availability.product_price) * item.incart_quantity
+                    except: # if order_data hasn't been declared yet, ie. it's the first loop of the iteration
                         purchase_date = []
                         purchase_date.append(datetime.now().year)
                         purchase_date.append(datetime.now().month)
@@ -1245,6 +1290,8 @@ class CheckoutView(LoginRequiredMixin, View):
                         order_data = {
                         'purchase_date': purchase_date, # a datetime.datetime object isn't JSON serializable
                         'order_nb': "",
+                        'order_total': "",
+                        'delivery_time': delivery_time,
                         'user': {
                             'user_pk': user.pk,
                             'username': user.username, # type unicode
@@ -1276,12 +1323,15 @@ class CheckoutView(LoginRequiredMixin, View):
                             },
                         'items': [{
                             'product_pk': item.incart_availability.product.pk,
+                            'availability_pk': item.incart_availability.pk,
                             'product_name': item.incart_availability.product.product_name,
-                            'product_price': str(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
+                            'unit_price': str(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
                             'product_qty': item.incart_quantity,
+                            'total_item_price': "%.2f" % (float(item.incart_availability.product_price) * item.incart_quantity),
                             'product_unit': item.incart_availability.product_unit,
                             }],
                         }
+                        order_total += float(item.incart_availability.product_price) * item.incart_quantity
 
                     try:
                         item_history = ProductPurchase.objects.filter(customer=user)\
@@ -1298,9 +1348,89 @@ class CheckoutView(LoginRequiredMixin, View):
 
             order = Order.objects.create(data=order_data)
             order.data['order_nb'] = int(10000 + order.pk)
+            order.data['order_total'] = "%.2f" % order_total
             order.save()
             messages.success(self.request, "Congratulations for your virtual purchase!")
             return redirect('grocerystore:index')
 
         messages.error(self.request, "Please be sure to enter valid credit cart information.")
         return redirect('grocerystore:checkout', zipcode=zipcode, store_id=store_id)
+
+
+class OrdersHistory(LoginRequiredMixin, View):
+    template_name = 'grocerystore/orders.html'
+    login_url = 'grocerystore:login'
+    redirect_field_name = 'redirect_to'
+
+    def get(self, request, zipcode, store_id):
+        user = self.request.user
+        context = {
+            'user': user,
+            'store_id': store_id,
+            'store': Store.objects.get(pk=store_id),
+            'zipcode': zipcode,
+            'quantity_set': range(1, 21),
+        }
+
+        user_orders = Order.objects.filter(data__user__user_pk=user.pk)\
+                      .filter(data__store__store_pk=store_id)
+
+        if user_orders:
+            context['user_orders'] = user_orders
+
+        available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+        if available_stores:
+            context['available_stores'] = available_stores
+
+        return render(self.request, self.template_name, context=context)
+
+    def post(self, request, zipcode, store_id):
+        user = self.request.user
+        user_orders = Order.objects.filter(data__user__user_pk=user.pk)\
+                      .filter(data__store__store_pk=store_id)
+
+        for order in user_orders:
+            try:
+                self.request.POST['everything '+str(order.pk)]
+                for elt in order.data['items']:
+                    try:
+                        availability = Availability.objects.get(pk=elt['availability_pk'])
+                    except Availability.DoesNotExist:
+                        messages.error(self.request, "Sorry, %s isn't available anymore at %s" % (elt['product_name'], order.data['store']['store_name']))
+                        continue
+                    try:
+                        item = ItemInCart.objects.filter(incart_user=user)\
+                               .get(incart_availability=availability)
+                        item.incart_quantity = int(elt['product_qty'])
+                        item.save()
+                    except:
+                        ItemInCart.objects.create(incart_user=user,
+                                                  incart_availability=availability,
+                                                  incart_quantity=int(elt['product_qty']))
+
+                return redirect('grocerystore:cart', zipcode=zipcode)
+
+            except:
+                for elt in order.data['items']:
+                    try:
+                        availability = Availability.objects.get(pk=elt['availability_pk'])
+                    except Availability.DoesNotExist:
+                        messages.error(self.request, "%s isn't available anymore" % elt['product_name'])
+                        continue
+                    try:
+                        quantity_to_add = int(self.request.POST.get(str(elt['availability_pk'])))
+                    except: continue
+
+                    try:
+                        item = ItemInCart.objects.filter(incart_user=user)\
+                               .get(incart_availability=availability)
+                        item.incart_quantity = quantity_to_add
+                        item.save()
+                        messages.info(self.request, "%s quantity updated to %s" % (item.incart_availability.product, quantity_to_add))
+                        return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
+                    except:
+                        ItemInCart.objects.create(incart_user=user,
+                                                  incart_availability=availability,
+                                                  incart_quantity=quantity_to_add)
+                        messages.info(self.request, "%s %s added in your cart" % (quantity_to_add, item.incart_availability.product))
+                        return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
