@@ -27,7 +27,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="{% url 'grocerystore:index' %}"><span class="glyphicon glyphicon-home"></span></a>
+          <a class="navbar-brand" href="{% url 'grocerystore:index' %}"><img src="{% static 'grocerystore/logo.png' %}" alt="Inflaskart logo" height="31"></a>
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
           <ul class="nav navbar-nav">
@@ -134,7 +134,8 @@
       </div>
 
       {% else %}
-        <p id="empty_cart">Your cart is empty.</p></div>
+        <p class="empty_cart">Your cart is empty.</p>
+        <p class="empty_cart">Keep shopping in <a href="{% url 'grocerystore:start' zipcode %}">{{ area }}.</a></p>
       {% endif %}
 
     </div> <!-- end of main content -->

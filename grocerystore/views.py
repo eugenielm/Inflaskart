@@ -995,19 +995,23 @@ class CartView(View):
                 except KeyError:
                     all_carts[item_store] = [elt]
 
-            for store, cart in all_carts.items(): # cart is a list of elts (elts are lists too)
-                cart_total = 0
-                # True is for a store that delivers the user's address
-                if store.delivery_area.all().filter(zipcode=user_zipcode):
-                    cart.append(True)
-                else: cart.append(False)
+            if all_carts:
+                for store, cart in all_carts.items(): # cart is a list of elts (elts are lists too)
+                    cart_total = 0
+                    # True is for a store that delivers the user's address
+                    if store.delivery_area.all().filter(zipcode=user_zipcode):
+                        cart.append(True)
+                    else: cart.append(False)
 
-                for elt in cart[:-1]:
-                    cart_total += float(elt[3]) # elt[3]=item_price
-                cart.append("%.2f" % cart_total)
+                    for elt in cart[:-1]:
+                        cart_total += float(elt[3]) # elt[3]=item_price
+                    cart.append("%.2f" % cart_total)
 
-            context['all_carts'] = all_carts
-            context['quantity_set'] = range(21)
+                    context['all_carts'] = all_carts
+                    context['quantity_set'] = range(21)
+
+            else:
+                context['area'] = Zipcode.objects.get(zipcode=int(zipcode))
 
             return render(self.request, self.template_name, context=context)
 
@@ -1016,23 +1020,23 @@ class CartView(View):
             if len(available_stores) > 0:
                 context['available_stores'] = available_stores
 
-            try:
-                for item in self.request.session.keys():
-                    item_availability_pk = int(self.request.session[item]['name'])
-                    item_availability = Availability.objects.get(pk=item_availability_pk)
-                    item_store = item_availability.store
-                    item_product = item_availability.product
-                    item_price = "%.2f" % (float(self.request.session[item]["qty"])\
-                    * float(item_availability.product_price))
-                    elt = [item_product, self.request.session[item]["qty"],
-                           item_availability.product_unit, item_price,
-                           item_availability_pk, item_product.pk, item_availability.product_price]
+            for item in self.request.session.keys():
+                item_availability_pk = int(self.request.session[item]['name'])
+                item_availability = Availability.objects.get(pk=item_availability_pk)
+                item_store = item_availability.store
+                item_product = item_availability.product
+                item_price = "%.2f" % (float(self.request.session[item]["qty"])\
+                * float(item_availability.product_price))
+                elt = [item_product, self.request.session[item]["qty"],
+                       item_availability.product_unit, item_price,
+                       item_availability_pk, item_product.pk, item_availability.product_price]
 
-                    try:
-                        all_carts[item_store].append(elt)
-                    except KeyError:
-                        all_carts[item_store] = [elt]
+                try:
+                    all_carts[item_store].append(elt)
+                except KeyError:
+                    all_carts[item_store] = [elt]
 
+            if all_carts:
                 for store, cart in all_carts.items():
                     cart_total = 0
                     # True is for a store that delivers the user's address
@@ -1047,8 +1051,8 @@ class CartView(View):
                 context['all_carts'] = all_carts
                 context['quantity_set'] = range(21)
 
-            except KeyError: # if the anonymous user hasn't put anything in their cart
-                pass
+            else: # if the anonymous user hasn't put anything in their cart
+                context['area'] = Zipcode.objects.get(zipcode=zipcode)
 
             return render(self.request, self.template_name, context=context)
 
