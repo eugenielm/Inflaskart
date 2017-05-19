@@ -33,14 +33,6 @@ div.page-header > h4, div.page-header > h2, div.page-header > h6 {
 div.page-header > a {overflow:auto;}
 /*****************************************************************************/
 /* navigation bar */
-.nav-container {
-  position: fixed;
-  z-index: 1000;
-  width: 100%;
-  top: 0px;
-  margin: 0px;
-  padding: 0px;
-}
 
 .navbar {
   margin: 0px;
@@ -48,80 +40,45 @@ div.page-header > a {overflow:auto;}
   box-shadow: 2px 5px 10px 0;
 }
 
-/* Changing the navbar collapse breaking point */
-/*Preventing vertical dividers from appearing collapsed*/
-/*@media (max-width: 420px) {
-.navbar-collapse .nav > .divider-vertical {
-    display: none;
-  }
-}*/
-
-/*Defining the vertical dividers*/
-/*.navbar .divider-vertical {
-  height: 50px;
-  margin: 0 9px;
-  border-right: 1px solid #ffffff;
-  border-left: 1px solid #DADADA;
-}
-
-.navbar-inverse .divider-vertical {
-  border-right-color: #222222;
-  border-left-color: #111111;
-}
-
-@media only screen and (min-width: 420px) {
-    .collapse {
-        display: block;
-    }
-
-    .navbar-header {
-        float: left;
-    }
-
-    .navbar-toggle {
-        display: none;
-    }
-
-    .navbar-nav {
-       float: left;
-       margin: 0;
-    }
-    .navbar-nav>li {
-        float: left;
-    }
-    .navbar-nav>li>a {
-       padding-top: 15px;
-       padding-bottom: 15px;
-    }
-    .navbar-right {
-        float: right!important;
-    }
-}
-
-@media only screen and (max-width: 420px) {
-     .collapse {
-        display: none;
-     }
-
-     .navbar-header {
-        display: block;
-     }
-}*/
 /*****************************************************************************/
 /* page footer */
 .footer {
-  position: fixed;
-  bottom: 10px;
-  margin-right: 10px;
-  text-align: right;
+  margin: 0px;
   font-size: 10px;
+  height: 40px;
+  background-color: #222;
+  padding: 0px 5px;
+  color: #bfbfbf;
+  box-shadow: 2px -2px 4px 2px;
 }
+
+#footer_links {
+  height: 40px;
+  width: 100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow: scroll;
+}
+
+p#footer_contact {
+  margin: 0px;
+  padding-left: 3px;
+}
+
+.footer a {
+  text-decoration: none;
+  color: #bfbfbf;
+  padding: 0px 3px 0px 3px;
+}
+.footer a:hover {color: white}
+
 /*****************************************************************************/
 /* messages in session */
 div.messages {
   display: block;
   position: fixed;
-  top: 80px;
+  top: 60px;
   right: 10px;
   z-index: 100;
 }
@@ -159,44 +116,57 @@ div.errorlist p {
 }
 /*****************************************************************************/
 /* index.html */
-div#inflaskart-welcome.page-header {
+
+#index_black_bar {
+  height: 51px;
+  width: 100%;
+  margin: 0px;
+  background-color: #222;
+}
+
+#index_black_bar h3 {
   text-align: center;
-  margin: 20px 0px 20px 0px;
-}
-
-#inflaskart-welcome h2, #inflaskart-welcome h4 {display: block;}
-#inflaskart-welcome a {
-  position: absolute;
-  top: 35px;
-  right: 10px
-}
-
-#inflaskart-welcome h2 {
+  color: #bfbfbf;
   margin-bottom: 0px;
+  margin-top: 5px;
   padding-bottom: 0px;
 }
 
-#inflaskart-welcome h4 {
+#index_black_bar h5 {
+  text-align: center;
+  color: #bfbfbf;
   margin-top: 0px;
   padding-top: 0px;
 }
 
-#personal-welcome, #zipcode-input, #index-identification {
-  left: 0px;
-  right: 0px;
-  margin-left: 0px;
-  margin-right: 0px;
-  margin-top: 50px;
+form#shop_elsewhere {
+  margin-top: 20px;
+}
+
+#logout_button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  z-index: 1000;
+}
+
+#logout_button p {
+  margin: 2px 0px 5px 0px;
+  font-size: 8px;
+  color: #bfbfbf;
+}
+
+#logout_button a {float: right;}
+
+.personal-welcome {
+  margin-top: 85px;
   width: 100%;
+  height: 100px;
   text-align: center;
 }
 
-#personal-welcome p {
-  margin: 60px 20px 0px 20px;
-}
-
-form#shop_elsewhere {
-  margin-top: 40px;
+#zipcode-input {
+  margin-bottom: 20px;
 }
 
 #logout.btn.btn-warning.btn-sm {
@@ -205,8 +175,6 @@ form#shop_elsewhere {
   padding: 2px;
 }
 
-a#register.btn.btn-warning.btn-lg {width: 150px;}
-
 .zip_input {
   margin: 0px 10px;
   width: 56px;
@@ -214,13 +182,16 @@ a#register.btn.btn-warning.btn-lg {width: 150px;}
 
 #index-identification p {display: inline-block;}
 
-a#login.btn.btn-info.btn-lg {width: 130px;}
-a#register.btn.btn-info.btn-lg {width: 130px;}
+a#login.btn.btn-info.btn-lg {
+  width: 100px;
+  margin-right: 38px;
+}
+a#register.btn.btn-info.btn-lg {width: 100px;}
 
 /* if hire_me */
 .hire_me {
-  width: 80%;
-  margin: 30px auto 30px auto;
+  width: 350px;
+  margin: 50px auto -50px auto;
   font-size: 12px;
 }
 
@@ -247,6 +218,11 @@ a#register.btn.btn-info.btn-lg {width: 130px;}
 .hire_me .panel-heading .accordion-toggle.collapsed:after {
     /* symbol for "collapsed" panels */
     content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+.hire_me p#resume {
+  display: inline-block;
+  margin: 0px 0px 0px 10px;
 }
 
 .hire_me a { text-decoration: none }
@@ -335,9 +311,13 @@ div.qty_selection {margin: 20px 0px 5px 0px}
   box-shadow: 1px 1px 8px 0 grey;
 }
 
-.category .panel-heading {
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
+/* panel heading background color when hovering */
+div.link_div {
+  background-color: #d7d8d7;
+  border-radius: 4px;
+}
+div.link_div:hover {
+  background-color: #efecf1;
 }
 
 .panel-group.category .panel-heading .accordion-toggle:after {
@@ -352,8 +332,6 @@ div.qty_selection {margin: 20px 0px 5px 0px}
     /* symbol for "collapsed" panels */
     content: "\e080";    /* adjust as needed, taken from bootstrap.css */
 }
-
-.panel-group.category .panel.panel-default > .panel-heading {background-color: #d7d8d7}
 
 .panel-group.category .list-group>a>li {
   background-color: #ffffff;
@@ -370,7 +348,7 @@ div#buy_again, div#old_order {
   width: 300px;
   background-color: #d7d8d7;
   border-style: none;
-  border-radius: 5px;
+  border-radius: 4px;
   box-shadow: 1px 1px 8px 0 grey;
 }
 
@@ -492,7 +470,7 @@ p.product-pic {
 
 form.qty_selection {margin-top: 10px}
 
-#no_stock {margin: 20px}
+#no_stock {margin: 0px 20px 20px 20px}
 
 
 /*****************************************************************************/
@@ -503,8 +481,8 @@ form.qty_selection {margin-top: 10px}
 /* login.html */
 
 .login-block {
-  margin: 20px 20px 20px 20px;
-  width: 420px;
+  margin: 0px 20px 20px 20px;
+  width: 340px;
 }
 
 .login-block td {
@@ -523,7 +501,7 @@ form.qty_selection {margin-top: 10px}
 }
 
 .login-block td.input_field {
-  width: 250px;
+  width: 170px;
   height: 30px;
   padding: 0px;
   border-radius: 4px;
@@ -532,7 +510,7 @@ form.qty_selection {margin-top: 10px}
 /* Ajusting the size of the input area */
 .login-block td.input_field input {
   border-style: none;
-  width: 250px;
+  width: 170px;
   height: 30px;
   padding: 5px;
 }
@@ -556,7 +534,7 @@ form.qty_selection {margin-top: 10px}
 /* registration.html */
 
 .register-block {
-  margin: 20px 20px 20px 20px;
+  margin: 0px 20px 20px 20px;
   width: 420px;
 }
 
@@ -618,13 +596,13 @@ form.qty_selection {margin-top: 10px}
 /*****************************************************************************/
 /* profile.html */
 .user_profile {
-  margin: 10px 20px 20px 20px;
+  margin: 0px 20px 20px 20px;
   width: 420px;
 }
 
 form.edit_profile {
   float: right;
-  margin: 20px 20px 0px 0px;
+  margin: 0px 20px 0px 0px;
 }
 
 .user_profile td {
@@ -656,7 +634,7 @@ form.edit_profile {
 /* profile_update.html */
 
 .user_profile.update {
-  margin: 10px 20px 20px 20px;
+  margin: 0px 20px 20px 20px;
   width: 420px;
 }
 
@@ -689,7 +667,7 @@ table.user_table tr:first-child > td.update-field {padding: 5px;}
 
 .btn.btn-info.btn-xs.submit {
   float:right;
-  margin: 20px 20px 0px 0px;
+  margin: 0px 20px 0px 0px;
 }
 
 /*****************************************************************************/

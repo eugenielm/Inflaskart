@@ -19,19 +19,18 @@
 
   <body>
 
-
-    <div class="page-header" id="inflaskart-welcome">
-
-      <h2>Welcome to Inflaskart!</h2>
-      {% if self.request.user.is_authenticated %}
-        <a title="Log out" id="logout" class="btn btn-warning btn-sm" href="{% url 'grocerystore:logout' %}" role="button"><span class="glyphicon glyphicon-off"></span></a>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="index_black_bar">
+      <h3>Welcome to Inflaskart</h3>
+      <h5><small>*** Enjoy shopping your groceries online! ***</small></h5>
+      {% if username %}
+        <div id="logout_button">
+          <p>Greetings, {{username}}!</p>
+          <a title="Log out" id="logout" class="btn btn-warning btn-sm" href="{% url 'grocerystore:logout' %}" role="button"><span class="glyphicon glyphicon-off"></span></a>
+        </div>
       {% endif %}
-      <h4><small>***Inflaskart is a fun app to shop your groceries on line***</small></h4>
+    </nav>
 
-    </div>
-
-
-    <div class="container"> <!-- beginning of main content -->
+    <div class="container" style="margin-bottom:30px;margin-top:30px"> <!-- beginning of main content -->
 
       {% if messages %}
         <div class="messages">
@@ -54,8 +53,8 @@
             <div id="collapse1" class="panel-collapse collapse" aria-expanded="false">
               <div class="panel-footer">
                 <p style="font-weight:bold">Looking for a backend/fullstack developer in SF?</p>
-                <p style="font-weight:bold">Hire me!</p>
-                <p name="resume"><span style="text-decoration:underline"><a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf" class="btn btn-info btn-xs" role="button">Download resume</a></span></p>
+                <p style="font-weight:bold;display:inline-block">Hire me!</p>
+                <p id="resume"><span style="text-decoration:underline"><a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf" class="btn btn-info btn-xs" role="button">Download resume</a></span></p>
               </div>
             </div>
           </div>
@@ -63,7 +62,7 @@
       {% endif %}
 
       {% if username %}
-        <div id="personal-welcome">
+        <div class="personal-welcome">
           <p><a href="{% url 'grocerystore:start' user_zipcode %}" class="btn btn-success btn-md" role="button">Shop in {{ zipcode }}</a></p>
           <form id="shop_elsewhere" action="" method="post">
             {% csrf_token %}
@@ -74,43 +73,58 @@
         </div>
 
       {% else %}
+        <div class="personal-welcome">
+          <div id="zipcode-input">
+            <form id="zipform" action="" method="post">
+              {% csrf_token %}
+              <label for='zipcode'>Choose a ZIP code</label>
+              <input type="text" name="zipcode" class="zip_input" pattern="[0-9]{4,5}" maxlength="5" placeholder="zipcode" autofocus>
+              <input class="btn btn-info btn-xs" type="submit" value="Go!">
+            </form>
+          </div>
 
-        <div id="zipcode-input">
-          <form id="zipform" action="" method="post">
-            {% csrf_token %}
-            <label for='zipcode'>Choose a ZIP code</label>
-            <input type="text" name="zipcode" class="zip_input" pattern="[0-9]{4,5}" maxlength="5" placeholder="zipcode" autofocus>
-            <input class="btn btn-info btn-xs" type="submit" value="Go!">
-          </form>
-        </div>
-
-        <div id="index-identification">
-          <p><a id="login" href="{% url 'grocerystore:login' %}" class="btn btn-info btn-lg" role="button">login</a></p>
-          <p><a id="register" href="{% url 'grocerystore:register' %}" class="btn btn-info btn-lg" role="button">sign up</a></p>
+          <div id="index-identification">
+            <p><a id="login" href="{% url 'grocerystore:login' %}" class="btn btn-info btn-lg" role="button">login</a></p>
+            <p><a id="register" href="{% url 'grocerystore:register' %}" class="btn btn-info btn-lg" role="button">sign up</a></p>
+          </div>
         </div>
 
       {% endif %}
 
       <div id="manual">
-        <p style="font-size:40px;letter-spacing: 5px;font-style:normal;margin-bottom:20px">*****</p>
+        <p style="font-size:16px;letter-spacing: 15px;font-style:normal;margin-bottom:10px">***<i>MANUAL</i>***</p>
         <p>Inflaskart is a demo web application that allows you to virtually shop your
           groceries online.</p>
-        <p>All the available virtual stores are located in the SF bay area, and
-          delivery is available in the following zipcodes:</p>
-        <p>.................................</p>
+        <p>All the available virtual stores are located in San Francisco, CA,
+          in the following zip code areas:</p>
+        </br>
+        <p>94102, 94103, 94104, 94105, 94107, 94108, 94109, 94110, 94111, 94112,
+        94114, 94115, 94116, 94117, 94118, 94121, 94122, 94123, 94124, 94127,
+        94129, 94131, 94132, 94133, 94134, 94158.</p>
+        </br>
+        <p>This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map of the city</a> may be helpful (source: cccarto.com).</p>
+        </br>
         <p>Delivery is free (depending on each store's delivery area) for any order
           over $20. There's a $3 delivery fee for orders under $20.</p>
         <p>There's a 10% service fee for your personal shopper.</p>
-        <p>If you find an item in a store that doesn't deliver your address, you can
-          place your order and pick it up at the store location within 24hrs after
-          placing your order.</p>
+        <p>If you want to purchase an item in stock in a store that doesn't deliver
+          your address, you can place your order and pick it up at the store location
+          within 24hrs after checking out.</p>
       </div>
 
     </div> <!-- end of main content -->
 
 
     <footer class="footer navbar-fixed-bottom"> <!-- beginning of footer -->
-        <span class="text-muted">Contact: cowboy.de.tchernobyl@gmail.com</span>
+      <div id="footer_links">
+        <a target="_blank" href="https://www.github.com/eugenielm/">Github</a>
+        |
+        <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
+        |
+        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Download resume</a>
+        |
+        <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
+      </div>
     </footer> <!-- end of footer -->
 
 
