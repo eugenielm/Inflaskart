@@ -1,17 +1,13 @@
 Inflaskart
 ==========
 
-'Inflaskart' is a work-in-progress clone of Instacart implemented using Django,
+'Inflaskart' is a demo of a clone of Instacart implemented using Django,
 ie. it is an online grocery shopping application.
 
-An SQLite database (sqlite3) is used to store the model instances.
-
-The display is implemented using Bootstrap, plus an external style sheet.
-
-To configure another database, please read the following documentation:
-https://docs.djangoproject.com/en/1.10/intro/tutorial02/
-https://docs.djangoproject.com/en/1.10/topics/install/#database-installation
-
+The display is implemented using HTML5/CSS3 and Bootstrap.
+A postgreSQL database is used to store the model instances.
+It needs to be PostgreSQL >= 9.4 to support the jsonb type used in Django's
+JSONField (which is used in the Order model).
 
 More about Django web framework: https://docs.djangoproject.com/en/1.10/
 
@@ -20,13 +16,14 @@ Repository content
 ------------------
 + manage.py: implements the Django command-line utility for administrative tasks
 
-+ inflaskart = the Django project package containing the scripts below:
++ inflaskart = the Django project package containing the following:
     - __init__.py
     - settings.py
     - urls.py
     - wsgi.py
+    - a static directory containing the favicon
 
-+ grocerystore = the Django app package containing the scripts below:
++ grocerystore = the Django app package containing the following:
     - __init__.py
     - admin.py
     - apps.py
@@ -37,14 +34,14 @@ Repository content
     - views.py
     - a migrations folder (containing only __init__.py)
     - a templates folder
-    - a static folder (containing a very basic style sheet)
+    - a static folder (containing a style sheet and the logo)
 
 + requirements.txt
 
 
 How does it work
 ----------------
-In order to be able to use Inflaskart (locally) to shop, you need to:
+In order to be able to set up Inflaskart (locally), you need to:
 
 1. Clone this repository
 
@@ -53,9 +50,10 @@ modules/applications using the following command:
     ```sh
     pip install -r requirements.txt
     ```
+NB: it's best practice to do this step in a virtual environment
 
-3. Create your database tables based on the application models (NB: the application
-is called 'grocerystore').
+3. Create your database tables based on the application models (NB: the
+application is called 'grocerystore')
 In order to do that, navigate to this repository and create your database migrations:
     ```sh
     python manage.py makemigrations grocerystore
@@ -80,12 +78,11 @@ application, you need to create an admin profile:
     python manage.py createsuperuser
     ```
 Then you will be prompted for your email address and password.
-More info: https://docs.djangoproject.com/en/1.10/intro/tutorial02/#introducing-the-django-admin
+More info here: https://docs.djangoproject.com/en/1.10/intro/tutorial02/#introducing-the-django-admin
 
 6. You can access the admin page in your browser by typing in the following URL:
 'localhost:8000/admin/‘
 The more stores, products and availabilities you create, the better!
-(don't forget to create state instances as well)
 
 7. Then access the Inflaskart index page in your browser on
 'localhost:8000/grocerystore/‘, and have fun!
@@ -99,27 +96,33 @@ enter the following command:
   python manage.py test
   ```
 
+Features
+--------
+The user can create an account and then log in/out.
+
+Though it is possible to navigate in the application anonymously (ie. without
+being logged in or registered), the user must create an account and be logged in
+to be able to place an order.
+
+The user can shop in different stores, including stores that don't deliver their
+address. In that case, they are notified that they need to pick up their order
+instead of getting it delivered.
+
+It is not possible to buy more than 20 items of the same product.
+There's no delivery fee if the order total amount is $20 or more; otherwise there's
+a $3 fee for delivery.
+The user has access to his/her order history.
+
+An ID is required upon delivery of alcoholic beverages.
+
 
 Room for improvement
 --------------------
-This project is still under development:
-- the style sheet is still a little basic
+This project is still WIP:
 - need to implement a way to verify a user's email address;
 - need to implement a way to allow the user to check their password when signing
 up (ie: entering it twice);
 - need to implement a way to allow the user to change their password;
-- need to implement a way to store the user's credit card information securely;
-- need to implement orders history;
-- need to properly implement the checkout process.
-
-Nota Bene: The user's cart is meant to hold ALL the items the user puts in their
-cart, ie. items from different stores if the user shops in different stores.
-Should the users put larger quantities of items than expected in their cart, it
-would be necessary to have a cart per store and hence change the URL distribution,
-and the models and views files accordingly.
-
-
-Requirements
-------------
-Django 1.10.6
-Pillow 4.0.0 (for images)
+- in real life, need to implement a way to store the user's credit card information
+securely and properly implement the checkout process;
+- in real life, a sales tax API might be needed to automatically calculate applicable taxes
