@@ -25,10 +25,12 @@
       {% if username %}
         <div id="logout_button">
           <p>Greetings, {{username}}!</p>
-          <a title="Log out" id="logout" class="btn btn-warning btn-sm" href="{% url 'grocerystore:logout' %}" role="button"><span class="glyphicon glyphicon-off"></span></a>
+          <a title="Log out" id="logout" class="btn btn-default btn-sm" href="{% url 'grocerystore:logout' %}" role="button"><span class="glyphicon glyphicon-off"></span></a>
         </div>
       {% endif %}
     </nav>
+
+    <a href="{% url 'grocerystore:index' %}"><img src="{% static 'grocerystore/logo.png' %}" alt="Inflaskart logo" height="31" id="index_logo"></a>
 
     <div class="container" style="margin-bottom:30px;margin-top:30px"> <!-- beginning of main content -->
 
@@ -93,7 +95,7 @@
 
       <div id="manual">
         <p style="font-size:16px;letter-spacing: 15px;font-style:normal;margin-bottom:10px">***<i>MANUAL</i>***</p>
-        <p>Inflaskart is a demo web application that allows you to virtually shop your
+        <p>Inflaskart is a web application demo that allows you to virtually shop your
           groceries online.</p>
         <p>All the available virtual stores are located in San Francisco, CA,
           in the following zip code areas:</p>
@@ -102,7 +104,7 @@
         94114, 94115, 94116, 94117, 94118, 94121, 94122, 94123, 94124, 94127,
         94129, 94131, 94132, 94133, 94134, 94158.</p>
         </br>
-        <p>This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map of the city</a> may be helpful (source: cccarto.com).</p>
+        <p>This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> of the city may be helpful (source: cccarto.com).</p>
         </br>
         <p>Delivery is free (depending on each store's delivery area) for any order
           over $20. There's a $3 delivery fee for orders under $20.</p>

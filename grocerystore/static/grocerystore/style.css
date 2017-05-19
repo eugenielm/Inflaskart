@@ -40,6 +40,18 @@ div.page-header > a {overflow:auto;}
   box-shadow: 2px 5px 10px 0;
 }
 
+a.navbar-brand {padding:10px}
+a.navbar-brand > img {
+  border-radius:3px;
+  box-shadow: 2px 2px #ea8323;
+}
+
+/* background color of dropdown menus in navbar */
+.nav>li:hover {background-color: #565454}
+.nav>li.dropdown.open>ul.dropdown-menu {background-color: black}
+.nav>li.dropdown.open>ul.dropdown-menu>li:hover {background-color: #565454}
+ul.dropdown-menu {border-radius: 0px}
+
 /*****************************************************************************/
 /* page footer */
 .footer {
@@ -117,6 +129,15 @@ div.errorlist p {
 /*****************************************************************************/
 /* index.html */
 
+img#index_logo {
+  border-radius: 3px;
+  box-shadow: 2px 2px #ea8323;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10001;
+}
+
 #index_black_bar {
   height: 51px;
   width: 100%;
@@ -157,6 +178,11 @@ form#shop_elsewhere {
 }
 
 #logout_button a {float: right;}
+
+a#logout.btn.btn-default.btn-sm {
+  border-radius: 5px;
+  padding: 2px 5px 0px 5px;
+}
 
 .personal-welcome {
   margin-top: 85px;
@@ -421,7 +447,10 @@ div#buy_again:hover, div#old_order:hover {
   font-weight: bold;
 }
 
-p#empty_cart {margin: 20px}
+p.empty_cart {margin: 0px 20px 5px 20px}
+
+.empty_cart a {text-decoration: underline;}
+.empty_cart a:hover {text-decoration: none;}
 
 p#keep_shopping {
   margin:0px;
