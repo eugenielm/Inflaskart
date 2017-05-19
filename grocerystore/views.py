@@ -354,10 +354,9 @@ class ProfileUpdateView(LoginRequiredMixin, View):
             errors.append("last name")
 
         if not new_address.is_valid() \
-           or not (new_first_name.replace(" ", "").isalpha() and not new_first_name.replace("-", "").isalpha()) \
-           or not (new_last_name.replace(" ", "").isalpha() and not new_last_name.replace("-", "").isalpha())\
+           or not new_first_name.replace(" ", "").replace("-", "").isalpha() \
+           or not new_last_name.replace(" ", "").replace("-", "").isalpha() \
            or not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", new_email):
-
             context = {'address_form': new_address,
                        'zipcode': zipcode}
             if available_stores:
