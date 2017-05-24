@@ -99,8 +99,7 @@ class UserRegisterView(View):
                 errors.append(er)
             context['errors'] = errors
             return render(self.request, self.template_name, context=context)
-        except:
-            pass
+        except: pass
 
         if form1.is_valid() and form2.is_valid():
             inflauser_address = form2.save(commit=False)
@@ -399,8 +398,7 @@ class IndexView(View):
             context['username'] = self.request.user.username
             user_zipcode = Inflauser.objects.get(infla_user=self.request.user)\
                            .inflauser_address.zip_code
-            context['user_zipcode'] = user_zipcode
-            context['zipcode'] = Zipcode.objects.get(zipcode=user_zipcode)
+            context['zipcode'] = user_zipcode
             return render(self.request, self.template_name, context=context)
         return render(self.request, self.template_name)
 
@@ -423,8 +421,14 @@ class StartView(View):
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
             messages.error(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
+
         context = {}
-        context['zipcode'] = Zipcode.objects.get(zipcode=zipcode)
+        try:
+            context['zipcode'] = Zipcode.objects.get(zipcode=zipcode)
+        except: # if there's no store that delivers the requested zipcode
+            messages.error(self.request, "No store delivers the %s area, please try another zip code" % zipcode)
+            return redirect('grocerystore:index')
+
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if len(available_stores) > 0:
             context['available_stores'] = available_stores
