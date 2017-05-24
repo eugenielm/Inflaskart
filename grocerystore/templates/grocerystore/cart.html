@@ -135,7 +135,11 @@
 
       {% else %}
         <p class="empty_cart">Your cart is empty.</p>
-        <p class="empty_cart">Keep shopping in <a href="{% url 'grocerystore:start' zipcode %}">{{ area }}.</a></p>
+        {% if area %}
+          <p class="empty_cart">Keep shopping in <a href="{% url 'grocerystore:start' zipcode %}">{{ area }}.</a></p>
+        {% else %}
+          <p class="empty_cart">There is no store available in {{ zipcode }}, you can choose another area <a href="{% url 'grocerystore:index' %}">here</a>.</p>
+        {% endif %}
       {% endif %}
 
     </div> <!-- end of main content -->
