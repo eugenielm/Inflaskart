@@ -61,7 +61,8 @@ class Address(models.Model):
 
 @python_2_unicode_compatible
 class Inflauser(models.Model):
-    """Used as an extension of the User model to allow them to store their address."""
+    """Extension of the User model to allow users to store their address."""
+    # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#extending-user
     infla_user = models.OneToOneField(User)
     inflauser_address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
