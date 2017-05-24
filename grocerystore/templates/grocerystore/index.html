@@ -19,15 +19,25 @@
 
   <body>
 
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="index_top_bar">
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="index_top_bar"> <!-- beginning of nav bar -->
+  <div class="container-fluid">
+    <div id="welcome_navbar">
       <h3>Welcome to Inflaskart</h3>
       <p>*** Enjoy shopping your groceries online! ***</p>
-      {% if username %}
-        <div id="logout_button">
-          <a title="Log out" id="logout" class="btn btn-default btn-sm" href="{% url 'grocerystore:logout' %}" role="button"><span class="glyphicon glyphicon-off"></span></a>
-        </div>
-      {% endif %}
-    </nav>
+    </div>
+    {% if username %}
+    <div class="dropdown dropdown_index">
+        <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+            <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+        </ul>
+    </div>
+    {% endif %}
+  </div>
+</nav> <!-- end of nav bar -->
+
 
     <div class="container" style="margin-bottom:30px;margin-top:30px"> <!-- beginning of main content -->
 
