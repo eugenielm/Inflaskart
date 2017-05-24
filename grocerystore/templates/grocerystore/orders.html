@@ -124,7 +124,7 @@
               <div class="add_everything">
                 <form action="" method="post">
                   {% csrf_token %}
-                  <input class="btn btn-warning btn-sm" name="everything {{ order.pk }}" type="submit" value="Place the same order" />
+                  <input class="btn btn-success btn-sm" name="everything {{ order.pk }}" type="submit" value="Add everything in cart" />
                 </form>
                 <p id="order_total">Order total was <b>${{ order.data.order_total }}</b></p>
                 <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}"><i>{{ store }}</i></a></p>
@@ -151,7 +151,7 @@
         |
         <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
         |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Download resume</a>
+        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
         |
         <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
       </div>

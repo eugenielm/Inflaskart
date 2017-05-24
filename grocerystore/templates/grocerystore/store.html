@@ -75,7 +75,7 @@
 
 
     <div class="page-header">
-      <h4>Shopping at {{ store }}</h4>
+      <h4>{{ store.store_name }}</h4> <h6>({{store.store_location}})</h6>
       <a style="font-size:10px" href="{% url 'grocerystore:checkout' zipcode store.pk %}" class="btn btn-success btn-xs">Checkout</a>
     </div>
 
@@ -92,42 +92,44 @@
         </div>
       {% endif %}
 
-      {% if purchases_here %}
-      <a href="{% url 'grocerystore:buyagain' zipcode store_id %}">
-        <div id="buy_again">
-          <h4>Buy it again</h4>
-        </div>
-      </a>
-      <a href="{% url 'grocerystore:orders' zipcode store_id %}">
-        <div id="old_order">
-          <h4>Re-place a previous order</h4>
-        </div>
-      </a>
-      {% endif %}
+      <div id="store_categories">
+        {% if purchases_here %}
+        <a href="{% url 'grocerystore:buyagain' zipcode store_id %}">
+          <div id="buy_again">
+            <h4>Buy it again</h4>
+          </div>
+        </a>
+        <a href="{% url 'grocerystore:orders' zipcode store_id %}">
+          <div id="old_order">
+            <h4>Re-place a previous order</h4>
+          </div>
+        </a>
+        {% endif %}
 
-      <div class="panel-group category" id="accordion">
-      {% for key, values in all_categories.items %}
-        <div class="panel panel-default topcategory">
-          <div class="link_div">
-            <div class="panel-heading">
-              <h4 class="panel-title">
-                <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
-              </h4>
+        <div class="panel-group category" id="accordion">
+        {% for key, values in all_categories.items %}
+          <div class="panel panel-default">
+            <div class="link_div">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
+                </h4>
+              </div>
+            </div>
+            <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
+              <ul class="list-group">
+                {% for item in values %}
+                  <a href="{% url 'grocerystore:instock' zipcode store_id key.pk item.pk %}">
+                    <li class="list-group-item">
+                      {{ item.sub_category_name }}
+                    </li>
+                  </a>
+              {% endfor %}
+              </ul>
             </div>
           </div>
-          <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
-            <ul class="list-group">
-              {% for item in values %}
-                <a href="{% url 'grocerystore:instock' zipcode store_id key.pk item.pk %}">
-                  <li class="list-group-item">
-                    {{ item.sub_category_name }}
-                  </li>
-                </a>
-            {% endfor %}
-            </ul>
-          </div>
+        {% endfor %}
         </div>
-      {% endfor %}
       </div>
 
 
@@ -140,7 +142,7 @@
         |
         <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
         |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Download resume</a>
+        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
         |
         <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
       </div>

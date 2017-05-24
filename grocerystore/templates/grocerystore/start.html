@@ -67,9 +67,10 @@
     <div class="page-header">
 
       {% if available_stores %}
-          <h4>Stores available in {{zipcode}}</h4>
+          <h4>Stores in {{zipcode}}</h4>
       {% else %}
           <h4>Sorry, there's no store available in the ZIP code area you've chosen.</h4>
+          <p>Go back to the <a href="{% url 'grocerystore:index' %}">index page</a> to shop elsewhere.</p>
       {% endif %}
 
     </div>
@@ -94,7 +95,7 @@
             <div class="store_choice">
               <a href="{% url 'grocerystore:store' zipcode.zipcode store.pk %}">
               <p class="image">{% if store.store_pic %}<img src="{{ store.store_pic.url }}" alt="" />{% endif %}</p>
-              <p class="store_name">{{ store }}</p></a>
+              <p class="store_name">{{ store.store_location }}</p></a>
             </div>
           {% endfor %}
         </form>
@@ -109,7 +110,7 @@
         |
         <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
         |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Download resume</a>
+        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
         |
         <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
       </div>

@@ -75,7 +75,7 @@
 
 
     <div class="page-header">
-      <h4>Checking out at <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{store}}</a></h4>
+      <h4>Checking out at <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{store.store_name}} </h4> <h6>({{store.store_location}})</h6></a>
     </div>
 
 
@@ -177,7 +177,7 @@
         |
         <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
         |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Download resume</a>
+        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Rsume</a>
         |
         <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
       </div>

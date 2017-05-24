@@ -19,18 +19,15 @@
 
   <body>
 
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="index_black_bar">
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="index_top_bar">
       <h3>Welcome to Inflaskart</h3>
-      <h5><small>*** Enjoy shopping your groceries online! ***</small></h5>
+      <p>*** Enjoy shopping your groceries online! ***</p>
       {% if username %}
         <div id="logout_button">
-          <p>Greetings, {{username}}!</p>
           <a title="Log out" id="logout" class="btn btn-default btn-sm" href="{% url 'grocerystore:logout' %}" role="button"><span class="glyphicon glyphicon-off"></span></a>
         </div>
       {% endif %}
     </nav>
-
-    <a href="{% url 'grocerystore:index' %}"><img src="{% static 'grocerystore/logo.png' %}" alt="Inflaskart logo" height="31" id="index_logo"></a>
 
     <div class="container" style="margin-bottom:30px;margin-top:30px"> <!-- beginning of main content -->
 
@@ -65,7 +62,7 @@
 
       {% if username %}
         <div class="personal-welcome">
-          <p><a href="{% url 'grocerystore:start' user_zipcode %}" class="btn btn-success btn-md" role="button">Shop in {{ zipcode }}</a></p>
+          <p><a href="{% url 'grocerystore:start' zipcode %}" class="btn btn-success btn-md" role="button">Shop in {{ zipcode }}</a></p>
           <form id="shop_elsewhere" action="" method="post">
             {% csrf_token %}
             <label for='zipcode'>Shop elsewhere:</label>
@@ -123,7 +120,7 @@
         |
         <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
         |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Download resume</a>
+        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
         |
         <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
       </div>

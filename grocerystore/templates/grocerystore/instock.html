@@ -75,7 +75,7 @@
 
 
     <div class="page-header">
-      <h4>'{{ subcategory }}' section</h4> <h6>at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></h6>
+      <h4>'{{ subcategory }}' </h4> <h6>at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></h6>
     </div>
 
 
@@ -92,30 +92,36 @@
       {% endif %}
 
       {% if available_products %}
+        <div id="all_products">
           {% for availability in available_products %}
-            <div class="available_product">
-              <a href="{% url 'grocerystore:detail' zipcode store_id availability.product.pk %}">
-              {% if availability.product.product_pic %}
-                <p class="product-pic"><img src="{{ availability.product.product_pic.url }}" alt="{{ availability.product.product_name }}"/></p>
-              {% endif %}
-              <p>{{ availability.product }}</a></p>
-              <p>${{ availability.product_price }} / {{ availability.product_unit }}</p>
-              <form class="qty_selection" action="" method="post">
-                {% csrf_token %}
-                <select name="{{availability.pk}}">
-                  {% for quantity in quantity_set %}
-                    <option value="{{quantity}}">{{ quantity }}</option>
-                  {% endfor %}
-                </select>
-                <input class="btn btn-info btn-xs" type="submit" value="Add">
-              </form>
-            </div>
+          <div class="available_product">
+            <a href="{% url 'grocerystore:detail' zipcode store_id availability.product.pk %}">
+              <div class="product_button">
+                <div class="product_button_content"> <!-- div needed to center vertically -->
+                  {% if availability.product.product_pic %}
+                    <img src="{{ availability.product.product_pic.url }}" alt="{{ availability.product.product_name }}">
+                  {% endif %}
+                  <p>{{ availability.product }}</p>
+                  <p>${{ availability.product_price }} / {{ availability.product_unit }}</p>
+                </div>
+              </div></a>
+            <form class="qty_selection" action="" method="post">
+              {% csrf_token %}
+              <select name="{{availability.pk}}">
+                {% for quantity in quantity_set %}
+                  <option value="{{quantity}}">{{ quantity }}</option>
+                {% endfor %}
+              </select>
+              <input class="btn btn-info btn-xs" type="submit" value="Add">
+            </form>
+          </div>
           {% endfor %}
+        </div>
 
       {% else %}
       <div id="no_stock">
         <p>Sorry, there's nothing available in this section.</p>
-        <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}" style="text-decoration: underline">{{ store }}</a></p>
+        <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}" style="text-decoration: underline">{{ store }}</a>.</p>
       </div>
       {% endif %}
 
@@ -128,7 +134,7 @@
         |
         <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
         |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Download resume</a>
+        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
         |
         <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
       </div>

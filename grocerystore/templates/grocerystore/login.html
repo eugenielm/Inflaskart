@@ -23,11 +23,6 @@
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation"> <!-- beginning of nav bar -->
       <div class="container-fluid">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
           <a class="navbar-brand" href="{% url 'grocerystore:index' %}"><img src="{% static 'grocerystore/logo.png' %}" alt="Inflaskart logo" height="31"></a>
         </div>
         {% if request.user.is_authenticated %}
@@ -48,9 +43,9 @@
 
 
     <div class="page-header">
-      <h4>Welcome to the Inflaskart login page</h4>
+      <h4>Login page</h4>
       <div class="register-link">
-        <p>Don't have an account yet?</p>
+        <p>Don't have an account?</p>
         <form action="" method="post">
           {% csrf_token %}
           <input name="signup" class="btn btn-info btn-xs" type="submit" value="Sign up!"/>
@@ -70,8 +65,7 @@
           </ul>
         </div>
       {% endif %}
-
-      <div class="login-block">
+      <div class="login_block">
         <form id="login_form" class="form-horizontal" role="form" action="" method="post">
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}" />
@@ -93,7 +87,7 @@
         |
         <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
         |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Download resume</a>
+        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
         |
         <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
       </div>
