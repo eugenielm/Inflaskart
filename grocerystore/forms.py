@@ -4,7 +4,7 @@ from datetime import date
 from calendar import monthrange
 from django import forms
 from django.contrib.auth.models import User
-from django.core.validators import RegexValidator
+# from django.core.validators import RegexValidator
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
                     Store, Address, Availability, Inflauser, State, Zipcode
 
@@ -34,16 +34,34 @@ class UserForm(forms.ModelForm):
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
 
+    def clean(self):
+        cleaned_data = super(UserForm, self).clean()
+        first_name = cleaned_data.get("first_name")
+        last_name = cleaned_data.get("last_name")
+
+        if not first_name.replace(" ", "").replace("-", "").replace("'", "").isalpha():
+            self.add_error('first_name', "Invalid first name.")
+
+        if not last_name.replace(" ", "").replace("-", "").replace("'", "").isalpha():
+            self.add_error('last_name', "Invalid last name.")
+
+        return cleaned_data
+
+
 class AddressForm(forms.ModelForm):
     zip_code = forms.RegexField(max_length=5, min_length=4, regex=r'^[0-9]{4,5}$',
                error_messages={'invalid': "Please enter a valid ZIP code",
                                'required': "Please fill in this field."})
 
-    city = forms.RegexField(min_length=2, max_length=50, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
-                            error_messages={'invalid': 'Please enter a valid city.'})
+    city = forms.RegexField(min_length=2, max_length=50,
+                            regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>0123456789]{2,}$',
+                            error_messages={'invalid': 'Invalid city.',
+                                            'required': "Please fill in this field."})
 
-    street_address1 = forms.RegexField(label="Address", min_length=2, max_length=50, regex=r'^[^#@\"%$€*_!?;/=+&{}<>]+$',
-                            error_messages={'invalid': 'Please enter a valid address.'})
+    street_address1 = forms.RegexField(label="Address", min_length=4, max_length=50,
+                                       regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>]{5,}$',
+                                       error_messages={'invalid': 'Invalid address.',
+                                                       'required': "Please fill in this field."})
 
     class Meta:
         model = Address

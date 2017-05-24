@@ -103,18 +103,49 @@ class UserRegisterView(View):
 
         if form1.is_valid() and form2.is_valid():
             inflauser_address = form2.save(commit=False)
+
+            city = ""
+            for part in form2.cleaned_data['city'].split()[:-1]:
+                city += (part.capitalize() + " ")
+            city += form2.cleaned_data['city'].split()[-1].capitalize()
+
             inflauser_address.zip_code = form2.cleaned_data['zip_code']
             inflauser_address.street_address1 = form2.cleaned_data['street_address1']
             inflauser_address.street_address2 = form2.cleaned_data['street_address2']
             inflauser_address.apt_nb = form2.cleaned_data['apt_nb']
             inflauser_address.other = form2.cleaned_data['other']
-            inflauser_address.city = form2.cleaned_data['city']
+            inflauser_address.city = city
             inflauser_address.state = form2.cleaned_data['state']
             inflauser_address.save()
 
             user = form1.save(commit=False)
-            username = form1.cleaned_data['username']
-            email = form1.cleaned_data['email']
+
+            capitalized_last_name = ""
+            # a last name can contain either white spaces or hyphens (but not both)
+            if "-" in form1.cleaned_data['last_name']:
+                for part in form1.cleaned_data['last_name'].split("-")[:-1]:
+                    capitalized_last_name += (part.capitalize() + "-")
+                capitalized_last_name += form1.cleaned_data['last_name'].split("-")[-1].capitalize()
+            else:
+                for part in form1.cleaned_data['last_name'].split()[:-1]:
+                    capitalized_last_name += (part.capitalize() + " ")
+                capitalized_last_name += form1.cleaned_data['last_name'].split()[-1].capitalize()
+
+            capitalized_first_name = ""
+            # a last name can contain either white spaces or hyphens (but not both)
+            if "-" in form1.cleaned_data['first_name']:
+                for part in form1.cleaned_data['first_name'].split("-")[:-1]:
+                    capitalized_first_name += (part.capitalize() + "-")
+                capitalized_first_name += form1.cleaned_data['first_name'].split("-")[-1].capitalize()
+            else:
+                for part in form1.cleaned_data['first_name'].split()[:-1]:
+                    capitalized_first_name += (part.capitalize() + " ")
+                capitalized_first_name += form1.cleaned_data['first_name'].split()[-1].capitalize()
+
+            user.username = form1.cleaned_data['username']
+            user.email = form1.cleaned_data['email']
+            user.first_name = capitalized_first_name
+            user.last_name = capitalized_last_name
             password = form1.cleaned_data['password']
             user.set_password(password)
             user.save()
@@ -122,7 +153,7 @@ class UserRegisterView(View):
             inflauser = Inflauser(infla_user=user, inflauser_address=inflauser_address)
             inflauser.save()
 
-            user = authenticate(username=username, password=password)
+            user = authenticate(username=user.username, password=password)
             if user is not None:
                 # updating the user's cart if they added products in their cart
                 # before registering
@@ -334,22 +365,49 @@ class ProfileUpdateView(LoginRequiredMixin, View):
                 user.email = new_email
                 user.save()
         else:
+            user.email = new_email
             errors.append("email")
 
-        if new_first_name.replace(" ", "").isalpha() and len(new_first_name) < 20:
+        if new_first_name.replace(" ", "").replace("-","").isalpha() and len(new_first_name) < 20:
             if not new_first_name == user.first_name:
-                messages.info(self.request, "Your first name has been updated.")
-                user.first_name = new_first_name
+                # NB: str.capwords() raises a UnicodeEncodeError
+                capitalized_first_name = ""
+                # a first name can contain either white spaces or a hyphens (but not both)
+                if "-" in new_first_name:
+                    for part in new_first_name.split("-")[:-1]:
+                        capitalized_first_name += (part.capitalize() + "-")
+                    capitalized_first_name += new_first_name.split("-")[-1].capitalize()
+                else:
+                    for part in new_first_name.split()[:-1]:
+                        capitalized_first_name += (part.capitalize() + " ")
+                    capitalized_first_name += new_first_name.split()[-1].capitalize()
+
+                user.first_name = capitalized_first_name
                 user.save()
+                messages.info(self.request, "Your first name has been updated.")
         else:
+            # keep the invalid first name the user has just entered - without saving it in the db
+            user.first_name = new_first_name
             errors.append("first name")
 
-        if new_last_name.replace(" ", "").isalpha() and len(new_last_name) < 20:
+        if new_last_name.replace(" ", "").replace("-","").isalpha() and len(new_last_name) < 20:
             if not new_last_name == user.last_name:
-                messages.info(self.request, "Your last name has been updated.")
-                user.last_name = new_last_name
+                capitalized_last_name = ""
+                # a last name can contain either white spaces or hyphens (but not both)
+                if "-" in new_last_name:
+                    for part in new_last_name.split("-")[:-1]:
+                        capitalized_last_name += (part.capitalize() + "-")
+                    capitalized_last_name += new_last_name.split("-")[-1].capitalize()
+                else:
+                    for part in new_last_name.split()[:-1]:
+                        capitalized_last_name += (part.capitalize() + " ")
+                    capitalized_last_name += new_last_name.split()[-1].capitalize()
+                user.last_name = capitalized_last_name
                 user.save()
+                messages.info(self.request, "Your last name has been updated.")
         else:
+            # keep the invalid last name the user has just entered - without saving it in the db
+            user.last_name = new_last_name
             errors.append("last name")
 
         if not new_address.is_valid() \
@@ -371,11 +429,17 @@ class ProfileUpdateView(LoginRequiredMixin, View):
 
         # if the user entered only valid information
         inflauser_address = new_address.save(commit=False)
+
+        city = ""
+        for part in new_address.cleaned_data['city'].split()[:-1]:
+            city += (part.capitalize() + " ")
+        city += new_address.cleaned_data['city'].split()[-1].capitalize()
+
         inflauser_address.street_address1 = new_address.cleaned_data['street_address1']
         inflauser_address.street_address2 = new_address.cleaned_data['street_address2']
         inflauser_address.apt_nb = new_address.cleaned_data['apt_nb']
         inflauser_address.other = new_address.cleaned_data['other']
-        inflauser_address.city = new_address.cleaned_data['city']
+        inflauser_address.city = city
         inflauser_address.zip_code = new_address.cleaned_data['zip_code']
         inflauser_address.state = new_address.cleaned_data['state']
         inflauser_address.save()
@@ -426,7 +490,7 @@ class StartView(View):
         try:
             context['zipcode'] = Zipcode.objects.get(zipcode=zipcode)
         except: # if there's no store that delivers the requested zipcode
-            messages.error(self.request, "No store delivers the %s area, please try another zip code" % zipcode)
+            messages.error(self.request, "There is no store available in the %s area, please try another zip code" % zipcode)
             return redirect('grocerystore:index')
 
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
@@ -459,10 +523,15 @@ class StoreView(View):
             messages.error(self.request, "The store you're looking for doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
-        if Zipcode.objects.get(zipcode=int(zipcode)) not in store.delivery_area.all():
-            messages.error(self.request, "The store you're looking for doesn't "\
-                                         "deliver in the area you've chosen.")
-            return redirect('grocerystore:start', zipcode=zipcode)
+        try:
+            zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
+            if zipcode_obj not in store.delivery_area.all():
+                messages.error(self.request, "The store you're looking for doesn't "\
+                                             "deliver in the area you've chosen.")
+                return redirect('grocerystore:start', zipcode=zipcode)
+        except:
+            messages.error(self.request, "There is no store available in the %s area." % zipcode)
+            return redirect('grocerystore:index')
 
         all_categories = {}
         # = {'category1': [subcat1, ..., subcatN], 'category2': [subcat1, ..., subcatN], etc.}
@@ -1015,7 +1084,9 @@ class CartView(View):
                     context['quantity_set'] = range(21)
 
             else:
-                context['area'] = Zipcode.objects.get(zipcode=int(zipcode))
+                try: # the zip code area where the user is shopping may not be an area where delivery is available
+                    context['area'] = Zipcode.objects.get(zipcode=int(zipcode))
+                except: pass
 
             return render(self.request, self.template_name, context=context)
 
@@ -1056,7 +1127,9 @@ class CartView(View):
                 context['quantity_set'] = range(21)
 
             else: # if the anonymous user hasn't put anything in their cart
-                context['area'] = Zipcode.objects.get(zipcode=zipcode)
+                try:
+                    context['area'] = Zipcode.objects.get(zipcode=zipcode)
+                except: pass
 
             return render(self.request, self.template_name, context=context)
 
