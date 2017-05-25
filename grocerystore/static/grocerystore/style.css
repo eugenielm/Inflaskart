@@ -34,7 +34,8 @@ div.page-header h2, div.page-header h4, div.page-header h5, div.page-header h6 {
   margin: 0px;
 }
 
-div.page-header h4 {font-size: 2.8vh}
+div.page-header h4 {font-size: 16px}
+div.page-header h6 {font-size: 12px}
 
 div.page-header > a {overflow:auto;}
 /*****************************************************************************/
@@ -274,7 +275,7 @@ a#register.btn.btn-info.btn-lg {width: 100px;}
 
 p.store_name {
   text-align: left;
-  font-size: 2vh;
+  font-size: small;
 }
 
 .image {
@@ -328,7 +329,7 @@ div.other_availabilities {font-size: 1.8vh}
 
 #store_categories {
   width: 300px;
-  margin: 20px auto 0px auto;
+  margin: 20px auto 60px auto;
 }
 
 .panel-group.category .panel.panel-default {
@@ -394,14 +395,14 @@ div#buy_again:hover, div#old_order:hover {
 /* cart.html */
 
 .all_carts {
-  margin: 10px 0px;
+  margin: 10px 0px 60px 0px;
 }
 
-.all_carts .panel-collapse.collapse.in {font-size:1.8vh}
+.all_carts .single-cart h4.panel-title {font-size: 2.5vh}
 
 .panel.panel-default.single-cart {
   display: block;
-  font-size: 12px;
+  font-size: 1.8vh;
   border-style: none;
   box-shadow: 1px 1px 8px 0 grey;
   margin: 10px auto;
@@ -483,7 +484,7 @@ p#keep_shopping {
 
 #no_stock {margin: 10px}
 
-#all_products {margin: 10px}
+#all_products {margin: 10px 10px 60px 10px}
 
 .available_product {
   width: 135px;
@@ -531,7 +532,6 @@ form.qty_selection {margin-top: 5px}
 /*****************************************************************************/
 
 /* buyagain.html: see instock.html above */
-
 
 /*****************************************************************************/
 /* login.html */
@@ -649,17 +649,14 @@ form.qty_selection {margin-top: 5px}
 /* profile.html */
 
 .user_profile {
-  /*width: 56vh;*/
   width: 315px;
   height: 413px;
-  margin: auto;
-  position: absolute;
-  top: 40px; left: 0; bottom: 0; right: 0;
+  margin: 5vw auto 10vw auto;
+  position: relative;
+  top: 0; left: 0; bottom: 0; right: 0;
 }
 
-form.edit_profile {
-  float: right;
-}
+form.edit_profile {float: right;}
 
 .user_profile td {
   display: inline-block;
@@ -680,7 +677,6 @@ form.edit_profile {
   border-style: none;
   padding: 5px;
   width: 190px;
-  /*width: 33vh;*/
   height: 25px;
   border-radius: 4px;
   overflow: scroll;
@@ -698,13 +694,12 @@ form.edit_profile {
 .user_profile.update {
   width: 315px;
   height: 413px;
-  margin: auto;
-  position: absolute;
-  top: 30px; left: 0; bottom: 0; right: 0;
+  margin: 5vw auto 10vw auto;
+  position: relative;
+  top: 0; left: 0; bottom: 0; right: 0;
 }
 
 .user_profile.update td {
-  /*padding: 0px;*/
   display: inline-block;
   margin-bottom: 10px;
   padding: 0px;
@@ -732,82 +727,106 @@ td.update-field input {
 
 table.user_table tr:first-child > td.update-field {padding: 5px;}
 
-/*.btn.btn-info.btn-xs.submit {
-  float:right;
-  margin: 0px 20px 0px 0px;
-}*/
-
 /*****************************************************************************/
 /* checkout.html */
 
-.single-cart.checkout {
-  width: 450px;
-  margin-top: 0px;
-  font-size: 12px;
+.container.checkout {
+  height: 100%;
+  position: relative;
+  top: 0vh; left:0px; right: 0px; bottom: 0vh;
+  width: 53vh;
+  text-align: center;
+  margin: 3vh auto 15vh auto;
 }
+
+.single-cart.checkout {margin: 25px 0px;}
 
 .single-cart.checkout .panel.panel-default {
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
 }
 
-p.ckt {
-  margin: 0px 20px 10px 20px;
+#ckt_form {margin-top:25px;}
+
+#ckt_form p {
+  text-align: left;
+  font-size: 2vh;
+  font-style: italic;
+  margin: 20px 0px 20px 0px;
+}
+
+#delivery_choice {
+  font-size: 2vh;
 }
 
 .panel-group.checkout {
-  margin: 0px 0px 0px 20px;
   box-shadow: 1px 1px 8px 0 grey;
+  font-size:1.8vh;
 }
 
-.single-cart.checkout h4.panel-title {font-size: 14px}
-.single-cart.checkout li.list-group-item {padding: 5px}
+.panel-group.checkout .panel-heading {padding: 7px}
 
-.payment_table {margin-top: 20px}
+.single-cart.checkout h4.panel-title {font-size: 2.5vh}
 
-#ckt_form {
-  margin: 30px 20px 20px 20px;
-  width: 450px;
+.single-cart.checkout li.list-group-item {
+  padding: 5px 10px;
+  text-align: left;
+}
+
+.single-cart.checkout div.panel-footer p {text-align: left;}
+
+.single-cart.checkout li.list-group-item .item_in_cart {
+  display: inline-block;
+  width: 85%;
+}
+.single-cart.checkout li.list-group-item span {
+  display: inline-block;
+  float: right;
+  line-height: 25px;
+}
+
+#cc_submission input.btn.btn-success.btn-xs.submit {
+  float:right;
+  font-size: 2vh;
+  margin-right: 12px;
 }
 
 #ckt_form td {
   display: inline-block;
   margin-bottom: 10px;
   padding: 0px;
+  font-size: 2vh;
 }
 
 #ckt_form td.field_label {
-  width: 165px;
+  width: 22vh;
   padding-right: 0px;
-  font-weight: bold;
   border-radius: 4px;
-  text-align: left;
-  margin-right: 0px;
+  text-align: right;
+  margin-right: 5px;
 }
 
-#ckt_form td.input_field {
-  width: 250px;
-  height: 30px;
+#ckt_form td.input-field {
+  width: 28vh;
   padding: 0px;
   border-radius: 4px;
+  text-align: left;
 }
 
 /* Ajusting the size of the input area */
-#ckt_form td.input_field input {
+#ckt_form td.input-field input {
   border-style: none;
-  width: 250px;
-  height: 30px;
   padding: 5px;
+  width: 28vh;
 }
 
-p#pickup {
-  margin-top: -10px;
-  margin-left: 20px;
-  color: red;
+.container.checkout>p {
   font-size: 10px;
-  font-weight: bold;
   font-style: italic;
+  margin: 0px
 }
+
+p#pickup {color: red;}
 
 #store_address p {
   margin-top: -10px;
@@ -815,16 +834,6 @@ p#pickup {
   color: red;
   font-size: 12px;
   font-style: italic;
-}
-
-#delivery_choice {
-  margin: 20px 20px 20px 0px;
-}
-
-#payment_form > p {
-  font-size: 12px;
-  font-style: italic;
-  margin: 0px;
 }
 
 /*****************************************************************************/

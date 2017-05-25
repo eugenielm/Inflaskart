@@ -272,12 +272,7 @@ class UserLoginView(View):
             except: # the user didn't put anything in their cart before logging in
                 pass
 
-            if not_available:
-                messages.error(self.request, "Before logging in, you shopped "\
-                "items in a store that doesn't deliver your current address.")
-
             login(self.request, user)
-            messages.info(self.request, "You're now logged in, %s" % user.username)
             inflauser = Inflauser.objects.get(infla_user=user)
             try:
                 redirect_to = self.request.GET['redirect_to']
@@ -537,11 +532,12 @@ class StoreView(View):
         # = {'category1': [subcat1, ..., subcatN], 'category2': [subcat1, ..., subcatN], etc.}
         for category in ProductCategory.objects.all():
             for subcat in category.productsubcategory_set.all():
-                try:
-                    all_categories[category].append(subcat)
-                except KeyError:
-                    all_categories[category] = [subcat]
-        ordered_before = [] # liste of product_pks
+                # a category shouldn't be displayed if the store has nothing in stock for it
+                if Availability.objects.filter(store=store).filter(product__product_category=subcat):
+                    try:
+                        all_categories[category].append(subcat)
+                    except KeyError:
+                        all_categories[category] = [subcat]
 
         context = {}
         context['all_categories'] = all_categories
