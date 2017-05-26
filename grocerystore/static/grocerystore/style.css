@@ -556,6 +556,8 @@ form.qty_selection {margin-top: 5px}
   top: 2vh;
 }
 
+form#login_form.form-horizontal {width: 100%;}
+
 .btn.btn-info.btn-xs.submit {
   float:right;
 }
