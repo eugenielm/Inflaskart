@@ -8,8 +8,6 @@ body {
   padding: 0px;
   margin: 0px 0px 40px 0px;
   width: 100%;
-  position: absolute;
-  top: 90px;
 }
 
 /*****************************************************************************/
@@ -185,6 +183,7 @@ ul.dropdown-menu.dropdown-menu-right {
 }
 
 .personal-welcome {
+  margin-top: 90px;
   height: 100px;
   text-align: center;
 }
@@ -246,7 +245,7 @@ a#register.btn.btn-info.btn-lg {width: 100px;}
 .hire_me a { text-decoration: none }
 
 #manual {
-  margin: 40px 20px 20px 20px;
+  margin: 30px 20px 20px 20px;
   text-align: center;
   font-size: 12px;
   font-style: italic;
