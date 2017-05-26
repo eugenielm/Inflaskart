@@ -11,6 +11,7 @@ body {
   position: absolute;
   top: 90px;
   bottom: 40px;
+  display: block;
   /* to be sure the bottom of pages is visible on mobile screens */
   height: auto;
   min-height: 100% !important;
