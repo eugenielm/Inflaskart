@@ -5,7 +5,7 @@ body {
   /* to be sure the bottom of pages is visible on mobile screens */
   position: absolute;
   overflow: auto;
-  height: 100%;
+  height: 120%;
 }
 /*****************************************************************************/
 .container {
