@@ -20,7 +20,7 @@ DEBUG = True
 
 
 # updated for deployment on Heroku
-ALLOWED_HOSTS = ['.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['inflaskart.herokuapp.com', '127.0.0.1', 'localhost']
 
 
 INSTALLED_APPS = [
