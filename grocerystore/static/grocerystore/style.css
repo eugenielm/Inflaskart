@@ -7,12 +7,12 @@ body {
   position: absolute;
   top: 0px;
   margin: 0px;
-  padding-bottom: 40px;
+  padding-bottom: 50px;
   }
 /*****************************************************************************/
 .container {
   padding: 0px;
-  margin: 0px 0px 30px 0px;
+  margin: 0px;
   width: 100%;
 }
 
@@ -552,8 +552,9 @@ form.qty_selection {margin-top: 5px}
   height: 95px;
   padding-right: 5px;
   margin: 5vw auto;
+  position: relative;
+  top: 3vh;
 }
-
 
 .btn.btn-info.btn-xs.submit {
   float:right;
@@ -635,6 +636,9 @@ form.qty_selection {margin-top: 5px}
   border-radius: 4px;
   overflow: scroll;
 }
+
+
+form#registration_form .btn.btn-info.btn-xs.submit {margin-top: 5px;}
 
 /* need to adjust the select box for state choice */
 .register-block select#id_state {
