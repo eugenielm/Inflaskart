@@ -2,16 +2,15 @@ html {height: 100%}
 
 body {
   background-color: rgba(238, 238, 238, 1);
-  /* to be sure the bottom of pages is visible on mobile screens */
-  position: absolute;
-  overflow: auto;
-  height: 120%;
-}
+  }
 /*****************************************************************************/
 .container {
   padding: 0px;
   margin: 0px 0px 50px 0px;
   width: 100%;
+  /* to be sure the bottom of pages is visible on mobile screens */
+  position: relative;
+  overflow: auto;
 }
 
 /*****************************************************************************/
