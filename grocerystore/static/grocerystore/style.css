@@ -9,8 +9,7 @@ body {
   margin: 0px 0px 50px 0px;
   width: 100%;
   /* to be sure the bottom of pages is visible on mobile screens */
-  position: relative;
-  overflow: auto;
+  overflow: scroll;
 }
 
 /*****************************************************************************/
