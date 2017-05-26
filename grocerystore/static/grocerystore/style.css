@@ -12,7 +12,7 @@ body {
 /*****************************************************************************/
 .container {
   padding: 0px;
-  margin: 0px;
+  margin: 0px 0px 30px 0px;
   width: 100%;
 }
 
@@ -553,7 +553,7 @@ form.qty_selection {margin-top: 5px}
   padding-right: 5px;
   margin: 5vw auto;
   position: relative;
-  top: 3vh;
+  top: 2vh;
 }
 
 .btn.btn-info.btn-xs.submit {
@@ -606,7 +606,7 @@ form.qty_selection {margin-top: 5px}
 
 .register-block {
   width: 320px;
-  height: 385px;
+  height: 390px;
   padding-right: 10px;
   margin: 0px auto;
   position: relative;
