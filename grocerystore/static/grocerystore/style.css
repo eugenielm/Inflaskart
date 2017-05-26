@@ -573,6 +573,8 @@ form.qty_selection {margin-top: 5px}
   border-style: none;
 }
 
+.login_block td.input_field input {border-style: none}
+
 /* in the header */
 .register-link {
   display: inline-block;
@@ -598,7 +600,7 @@ form.qty_selection {margin-top: 5px}
   padding-right: 10px;
   margin: 0px auto;
   position: relative;
-  top: 0; left: 0; bottom: 0; right: 0;
+  top: 4vh; left: 0; bottom: 0; right: 0;
 }
 
 .register-block td {
