@@ -16,7 +16,7 @@ import dj_database_url
 
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 # updated for deployment on Heroku
