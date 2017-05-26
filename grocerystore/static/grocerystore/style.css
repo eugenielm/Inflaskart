@@ -121,7 +121,7 @@ div.messages, div.errorlist {
   position: fixed;
   top: 52px;
   right: 10px;
-  z-index: 100;
+  /*z-index: 100;*/
 }
 
 .messages > ul {
@@ -325,7 +325,7 @@ div.product_details p {
 div.product_details a {font-style: oblique;}
 div.qty_selection {margin: 10px 0px 0px 0px}
 
-.other_availabilities {margin: 20px 10px 60px 10px}
+.other_availabilities {margin: 10px 10px -30px 10px}
 .other_availabilities a {font-style: italic;}
 .other_availabilities li {list-style: none;}
 
