@@ -598,7 +598,7 @@ form.qty_selection {margin-top: 5px}
   width: 320px;
   height: 385px;
   padding-right: 10px;
-  margin: 0px auto;
+  margin: 0px auto 50px auto;
   position: relative;
   top: 4vh; left: 0; bottom: 0; right: 0;
 }
