@@ -1,7 +1,13 @@
-html {height: 100%;padding}
+html {height: 100%; width: 100%}
 
 body {
   background-color: rgba(238, 238, 238, 1);
+  min-height: 100%;
+  min-width: 100%;
+  position: absolute;
+  top: 0px;
+  margin: 0px;
+  padding-bottom: 40px;
   }
 /*****************************************************************************/
 .container {
@@ -73,6 +79,7 @@ ul.dropdown-menu {border-radius: 0px}
   margin: 20px 0px 0px 0px;
   font-size: 10px;
   height: 40px;
+  width: 100%;
   background-color: #156667;
   padding: 0px 5px;
   box-shadow: 2px -2px 10px 2px;
@@ -81,7 +88,7 @@ ul.dropdown-menu {border-radius: 0px}
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
   position: absolute;
-  bottom: 0px;
+  bottom: 0px; right: 0px; left: 0px;
 }
 
 #footer_links {
@@ -738,15 +745,12 @@ table.user_table tr:first-child > td.update-field {padding: 5px;}
 /* checkout.html */
 
 .container.checkout {
-  height: 100%;
-  position: relative;
-  top: 0vh; left:0px; right: 0px; bottom: 0vh;
   width: 53vh;
   text-align: center;
-  margin: 3vh auto 15vh auto;
+  margin: 3vh auto;
 }
 
-.single-cart.checkout {margin: 25px 0px;}
+.single-cart.checkout {margin: 0px;}
 
 .single-cart.checkout .panel.panel-default {
   border-top-left-radius: 0px;
