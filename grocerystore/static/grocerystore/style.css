@@ -12,7 +12,7 @@ body {
 /*****************************************************************************/
 .container {
   padding: 0px;
-  margin: 0px;
+  margin: 0px 0px 30px 0px;
   width: 100%;
 }
 
@@ -76,6 +76,7 @@ ul.dropdown-menu {border-radius: 0px}
 /*****************************************************************************/
 /* page footer */
 .footer {
+  display: block;
   margin: 20px 0px 0px 0px;
   font-size: 10px;
   height: 40px;
@@ -339,7 +340,7 @@ div.other_availabilities {font-size: 1.8vh}
 
 #store_categories {
   width: 300px;
-  margin: 20px auto 60px auto;
+  margin: 20px auto;
 }
 
 .panel-group.category .panel.panel-default {
@@ -550,9 +551,7 @@ form.qty_selection {margin-top: 5px}
   width: 235px;
   height: 95px;
   padding-right: 5px;
-  margin: 0px auto;
-  position: relative;
-  top: 20vh; left: 0; bottom: 0; right: 0;
+  margin: 5vw auto;
 }
 
 
