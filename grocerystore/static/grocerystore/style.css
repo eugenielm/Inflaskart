@@ -6,15 +6,10 @@ body {
 /*****************************************************************************/
 .container {
   padding: 0px;
-  margin: 0px;
+  margin: 0px 0px 40px 0px;
   width: 100%;
   position: absolute;
   top: 90px;
-  bottom: 40px;
-  display: block;
-  /* to be sure the bottom of pages is visible on mobile screens */
-  height: auto;
-  min-height: 100% !important;
 }
 
 /*****************************************************************************/
@@ -190,7 +185,6 @@ ul.dropdown-menu.dropdown-menu-right {
 }
 
 .personal-welcome {
-  margin-top: 75px;
   height: 100px;
   text-align: center;
 }
