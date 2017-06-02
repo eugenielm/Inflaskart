@@ -641,7 +641,7 @@ form#login_form.form-horizontal .btn.btn-info.btn-xs.submit {
   width: 320px;
   height: 390px;
   padding-right: 10px;
-  margin: 0px auto 5vh auto;
+  margin: 0px auto 8vh auto;
   position: relative;
   top: 3vh; left: 0; bottom: 0; right: 0;
 }
@@ -785,7 +785,10 @@ td.update-field input {
 
 table.user_table tr:first-child > td.update-field {padding: 5px;}
 
-form#profile_form > input.btn.btn-info.btn-xs.submit {font-size: small}
+form#profile_form > input.btn.btn-info.btn-xs.submit {
+  font-size: small;
+  float: right;
+}
 
 /*****************************************************************************/
 /* checkout.html */
@@ -961,6 +964,8 @@ p#pickup {color: red;}
     /* symbol for "collapsed" panels */
     content: "\e080";    /* adjust as needed, taken from bootstrap.css */
 }
+
+.single-order .list-group-item img {height: 5vh}
 
 #order_total {
   display: inline-block;
