@@ -641,7 +641,7 @@ form#login_form.form-horizontal .btn.btn-info.btn-xs.submit {
   width: 320px;
   height: 390px;
   padding-right: 10px;
-  margin: 0px auto 8vh auto;
+  margin: 0px auto 2vh auto;
   position: relative;
   top: 3vh; left: 0; bottom: 0; right: 0;
 }
@@ -673,6 +673,7 @@ form#login_form.form-horizontal .btn.btn-info.btn-xs.submit {
 
 form#registration_form .btn.btn-info.btn-xs.submit {
   margin-top: 5px;
+  margin-bottom: 70px;
   float:right;
   font-size: small;
 }
