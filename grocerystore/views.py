@@ -1211,6 +1211,13 @@ class CartView(View):
                 except:
                     continue
 
+            for i in store_pks: # if the user wants to checkout in a given store
+                try:
+                    if self.request.POST['checkout '+str(i)]:
+                        return redirect('grocerystore:checkout', zipcode=zipcode, store_id=i)
+                except:
+                    continue
+
             for item in self.request.session.keys():
                 product_to_update = Availability.objects.get(pk=int(self.request.session[item]["name"]))
                 try:
@@ -1281,7 +1288,7 @@ class CheckoutView(LoginRequiredMixin, View):
         if float(cart_total) == 0.00:
             messages.info(self.request, "You must put items in your cart to be able "\
                                         "to place an order!")
-            return redirect('grocerystore:store', zipcode=zipode, store_id=store_id)
+            return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         # calculating service fee before adding sales taxes
         service = float(cart_total * 0.10)

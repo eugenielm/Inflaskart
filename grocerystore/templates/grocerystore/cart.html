@@ -109,13 +109,16 @@
                     </form>
                     <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
                       <img src="{{item.0.product_pic.url}}" title="{{item.0}}" alt="{{item.0}}" />
-                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <span style="font-weight:bold">${{ item.3 }}</span>
+                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <b>${{ item.3 }}</b>
                   </li>
                 {% endfor %}
                 </ul>
                 <div class="panel-footer">
                   <div class="checkout-empty">
-                    <a href="{% url 'grocerystore:checkout' zipcode key.pk %}" class="btn btn-success btn-xs" role="button">Checkout</a>
+                    <form action="" method="post">
+                      {% csrf_token %}
+                      <input class="btn btn-success btn-xs" name="checkout {{key.pk}}" type="submit" value="Checkout" />
+                    </form>
                     <form action="" method="post">
                       {% csrf_token %}
                       <input class="btn btn-warning btn-xs" name="empty {{key.pk}}" type="submit" value="Empty cart" />
@@ -124,7 +127,11 @@
                   <p id="cart-total">Cart total: ${{ values|last }}</p>
                   <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}"><i>{{ key }}</i></a>
                   {% if not values|slice:"-1"|last %}
-                    <span id="no_delivery">No delivery in {{ user_zipcode }}</span>
+                    {% if user_zipcode %}
+                      <span id="no_delivery">No delivery in {{ user_zipcode }}</span>
+                    {% else %}
+                      <span id="no_delivery">Delivery may not be available depending on your address</span>
+                    {% endif %}
                   {% endif %}
                   </p>
                 </div>
@@ -138,7 +145,11 @@
         {% if area %}
           <p class="empty_cart">Keep shopping in <a href="{% url 'grocerystore:start' zipcode %}">{{ area }}.</a></p>
         {% else %}
-          <p class="empty_cart">There is no store available in {{ zipcode }}, you can choose another area <a href="{% url 'grocerystore:index' %}">here</a>.</p>
+          {% if request.user.is_authenticated %}
+            <p class="empty_cart">There is no store available in {{ zipcode }}, you can choose another area <a href="{% url 'grocerystore:index' %}">here</a>.</p>
+          {% else %}
+            <p class="empty_cart">Choose another area to shop in <a href="{% url 'grocerystore:index' %}">here</a>.</p>
+          {% endif %}
         {% endif %}
       {% endif %}
 
