@@ -31,15 +31,23 @@
         <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+            <li><a href="{% url 'grocerystore:cart' zipcode %}">Your cart</a></li>
             <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
         </ul>
     </div>
+    {% else %}
+      <div class="dropdown dropdown_index">
+          <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="{% url 'grocerystore:cart' zipcode %}">Your cart</a></li>
+          </ul>
+      </div>
     {% endif %}
   </div>
 </nav> <!-- end of nav bar -->
 
 
-    <div class="container"> <!-- beginning of main content -->
+    <div class="container" style="margin-bottom:-10px"> <!-- beginning of main content -->
 
       {% if messages %}
         <div class="messages">
@@ -72,54 +80,36 @@
 
       {% if username %}
         <div class="personal-welcome">
-          <p><a href="{% url 'grocerystore:start' zipcode %}" class="btn btn-success btn-md" role="button">Shop in {{ zipcode }}</a></p>
-          <form id="shop_elsewhere" action="" method="post">
+          <p style="margin:0px auto 3vh auto"><a href="{% url 'grocerystore:start' zipcode %}" class="btn btn-success btn-md" role="button">Shop in {{ zipcode }}</a></p>
+          <form class="zipcode_choice" action="" method="post">
             {% csrf_token %}
-            <label for='zipcode'>Shop elsewhere:</label>
-            <input type="text" name="zipcode" class="zip_input" pattern="[0-9]{4,5}" maxlength="5" placeholder="zipcode" autofocus>
-            <input class="btn btn-success btn-xs" type="submit" value="Go!">
+            <select name="zipcode_choice" onchange='if (this.value != "-- Shop elsewhere --") { this.form.submit(); }'>
+              {% for zipcode in zipcode_set %}
+                <option value="{{zipcode}}">{{ zipcode }}</option>
+              {% endfor %}
+            </select>
           </form>
+          <p style="font-size:small;font-style:italic">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> of the city may be helpful (source: cccarto.com)</p>
         </div>
 
       {% else %}
         <div class="personal-welcome">
-          <div id="zipcode-input">
-            <form id="zipform" action="" method="post">
-              {% csrf_token %}
-              <label for='zipcode'>Choose a ZIP code</label>
-              <input type="text" name="zipcode" class="zip_input" pattern="[0-9]{4,5}" maxlength="5" placeholder="zipcode" autofocus>
-              <input class="btn btn-info btn-xs" type="submit" value="Go!">
-            </form>
-          </div>
+          <form class="zipcode_choice" action="" method="post">
+            {% csrf_token %}
+            <select name="zipcode_choice" onchange='if(this.value != "-- Choose a ZIP code area to shop in --") { this.form.submit(); }'>
+              {% for zipcode in zipcode_set %}
+                <option value="{{zipcode}}">{{ zipcode }}</option>
+              {% endfor %}
+            </select>
+          </form>
+          <p style="font-size:small;font-style:italic">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> may be helpful (source: cccarto.com)</p>
 
           <div id="index-identification">
-            <p><a id="login" href="{% url 'grocerystore:login' %}" class="btn btn-info btn-lg" role="button">login</a></p>
-            <p><a id="register" href="{% url 'grocerystore:register' %}" class="btn btn-info btn-lg" role="button">sign up</a></p>
+            <p><a id="login" href="{% url 'grocerystore:login' %}" class="btn btn-info btn-md" role="button">login</a></p>
+            <p><a id="register" href="{% url 'grocerystore:register' %}" class="btn btn-info btn-md" role="button">sign up</a></p>
           </div>
         </div>
-
       {% endif %}
-
-      <div id="manual">
-        <p style="font-size:16px;letter-spacing: 15px;font-style:normal;margin-bottom:10px">***<i>MANUAL</i>***</p>
-        <p>Inflaskart is a web application demo that allows you to virtually shop your
-          groceries online.</p>
-        <p>All the available virtual stores are located in San Francisco, CA,
-          in the following zip code areas:</p>
-        </br>
-        <p>94102, 94103, 94104, 94105, 94107, 94108, 94109, 94110, 94111, 94112,
-        94114, 94115, 94116, 94117, 94118, 94121, 94122, 94123, 94124, 94127,
-        94129, 94131, 94132, 94133, 94134, 94158.</p>
-        </br>
-        <p>This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> of the city may be helpful (source: cccarto.com).</p>
-        </br>
-        <p>Delivery is free for any order over $20 (depending on each store's
-          delivery area). There's a $3 delivery fee for orders under $20.</p>
-        <p>There's a 10% service fee for your personal shopper.</p>
-        <p>If you want to purchase an item in stock in a store that doesn't deliver
-          your address, you can place your order and pick it up at the store location
-          within 24hrs after checking out.</p>
-      </div>
 
     </div> <!-- end of main content -->
 

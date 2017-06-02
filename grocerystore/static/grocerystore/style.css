@@ -121,7 +121,6 @@ div.messages, div.errorlist {
   position: fixed;
   top: 52px;
   right: 10px;
-  /*z-index: 100;*/
 }
 
 .messages > ul {
@@ -135,9 +134,10 @@ div.messages, div.errorlist {
 
 .messages li {
   z-index: -1;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: bold;
   color: red;
+  text-align: right;
 }
 
 div.errorlist p {
@@ -172,7 +172,7 @@ div.errorlist p {
   font-size: 10px;
 }
 
-form#shop_elsewhere {
+form#zipcode_choice {
   margin-top: 20px;
 }
 
@@ -195,32 +195,29 @@ ul.dropdown-menu.dropdown-menu-right {
 }
 
 .personal-welcome {
-  margin-top: 90px;
-  height: 100px;
+  margin-top: 35vh;
   text-align: center;
 }
 
-#zipcode-input {
-  margin-bottom: 20px;
+.personal-welcome p {margin: 0px auto 5px auto}
+
+form.zipcode_choice {margin-bottom: 5px}
+
+#index-identification {
+  margin: 30px auto;
 }
 
-.zip_input {
-  margin: 0px 10px;
-  width: 56px;
+#index-identification p {
+  display: inline-block;
+  margin: 0px;
 }
 
-#index-identification p {display: inline-block;}
-
-a#login.btn.btn-info.btn-lg {
-  width: 100px;
-  margin-right: 38px;
-}
-a#register.btn.btn-info.btn-lg {width: 100px;}
+a#login.btn.btn-info.btn-md {margin-right: 30px}
 
 /* if hire_me */
 .hire_me {
-  width: 350px;
-  margin: 50px auto -50px auto;
+  width: 300px;
+  margin: 30vh auto -25vh auto;
   font-size: 12px;
 }
 
@@ -229,6 +226,7 @@ a#register.btn.btn-info.btn-lg {width: 100px;}
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
   border-style: none;
+  font-size: 3vw;
 }
 
 .hire_me .panel.panel-default {
@@ -256,16 +254,6 @@ a#register.btn.btn-info.btn-lg {width: 100px;}
 
 .hire_me a { text-decoration: none }
 
-#manual {
-  margin: 30px 20px 20px 20px;
-  text-align: center;
-  font-size: 12px;
-  font-style: italic;
-}
-
-#manual p {
-  margin: 0px;
-}
 /*****************************************************************************/
 /* start.html */
 
@@ -545,6 +533,20 @@ form.qty_selection {margin-top: 5px}
 /* buyagain.html: see instock.html above */
 
 /*****************************************************************************/
+/* search.html ; see instock.html */
+
+#search_result {margin: 10px}
+
+.search_product {
+  width: 135px;
+  height: 162px;
+  display: inline-block;
+  margin: 5px;
+}
+
+.search_product form {text-align: center;}
+
+/*****************************************************************************/
 /* login.html */
 
 .login_block {
@@ -585,7 +587,10 @@ form#login_form.form-horizontal {width: 100%;}
   border-style: none;
 }
 
-.login_block td.input_field input {border-style: none}
+.login_block td.input_field input {
+  border-style: none;
+  padding-left: 5px;
+}
 
 /* in the header */
 .register-link {
@@ -755,7 +760,7 @@ table.user_table tr:first-child > td.update-field {padding: 5px;}
   margin: 3vh auto;
 }
 
-.single-cart.checkout {margin: 0px;}
+.single-cart.checkout {margin: 25px auto 0px auto;}
 
 .single-cart.checkout .panel.panel-default {
   border-top-left-radius: 0px;

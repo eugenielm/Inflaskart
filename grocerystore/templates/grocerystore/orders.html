@@ -31,16 +31,19 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
           <ul class="nav navbar-nav">
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores in {{zipcode}}<span class="caret"></span></a>
-                {% if available_stores %}
-                  <ul class="dropdown-menu">
-                    {% for store in available_stores %}
-                      <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
-                    {% endfor %}
-                  </ul>
-                {% endif %}
-            </li>
+            {% if available_stores %}
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Shop in {{zipcode}}<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  {% for store in available_stores %}
+                    <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
+                  {% endfor %}
+                </ul>
+              </li>
+              <li><a href="{% url 'grocerystore:index' %}">Shop elsewhere</a></li>
+            {% else %}
+              <li><a href="{% url 'grocerystore:index' %}">Choose an area to shop in</a></li>
+            {% endif %}
             <li><a href="{% url 'grocerystore:cart' zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
           </ul>
 
@@ -115,8 +118,9 @@
                   </select>
                   <input class="btn btn-info btn-xs update_qty" type="submit" value="add in cart" />
                 </form>
-                {{ item.product_qty }} <a href="{% url 'grocerystore:detail' zipcode store_id item.product_pk %}">
-                {{ item.product_name }}</a> (${{ item.unit_price }} / {{ item.product_unit }}): <b>${{ item.total_item_price }}</b>
+                <a href="{% url 'grocerystore:detail' zipcode store_id item.product_pk %}">
+                {% if item.product_pic %}<img src="{{item.product_pic.url}}" alt="{{ item.product_name }}" style="width:4vh"/>{% endif %}
+                {{ item.product_qty }} x {{ item.product_name }}</a> (${{ item.unit_price }} / {{ item.product_unit }}): <b>${{ item.total_item_price }}</b>
               </li>
               {% endfor %}
             </ul>
@@ -124,7 +128,7 @@
               <div class="add_everything">
                 <form action="" method="post">
                   {% csrf_token %}
-                  <input class="btn btn-success btn-sm" name="everything {{ order.pk }}" type="submit" value="Add everything in cart" />
+                  <input class="btn btn-success btn-sm" name="everything {{ order.pk }}" type="submit" value="Place the same order in cart" />
                 </form>
                 <p id="order_total">Order total was <b>${{ order.data.order_total }}</b></p>
                 <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}"><i>{{ store }}</i></a></p>
