@@ -230,6 +230,9 @@ class Order(models.Model):
     The order number will be set to the pk + some specific start value (e.g.: 1000)"""
     data = JSONField() # all the important details about the order
 
+    class Meta:
+        ordering = ['-pk']
+
 
 class ProductPurchase(models.Model):
     """All bought items are stored as ProductPurchase instances - for data
