@@ -12,18 +12,19 @@ body {
 /*****************************************************************************/
 .container {
   padding: 0px;
-  margin: 0px 0px 30px 0px;
+  /*margin: 0px 0px 30px 0px;*/
+  margin: 0px;
   width: 100%;
 }
 
 /*****************************************************************************/
 /* default links display */
-a {
+a, a:visited, a:link {
   text-decoration: none;
   color: black;
 }
 
-a:hover {
+a:hover, a:active {
   text-decoration: none;
   color: grey;
 }
@@ -42,7 +43,12 @@ div.page-header h2, div.page-header h4, div.page-header h5, div.page-header h6 {
 div.page-header h4 {font-size: 16px}
 div.page-header h6 {font-size: 12px}
 
-div.page-header > a {overflow:auto;}
+div.page-header > a {
+  overflow:auto;
+  font-size: 1.8vh;
+}
+
+div.page-header > a.btn.btn-success.btn-xs {color: white;}
 /*****************************************************************************/
 /* navigation bar */
 
@@ -176,7 +182,7 @@ form#zipcode_choice {
   margin-top: 20px;
 }
 
-div.dropdown.dropdown_index {
+div.dropdown.index_dropdown {
   z-index:100;
   position:absolute;
   top:10px;
@@ -201,6 +207,8 @@ ul.dropdown-menu.dropdown-menu-right {
 
 .personal-welcome p {margin: 0px auto 5px auto}
 
+.personal-welcome a.btn.btn-success.btn-md {color: white;}
+
 form.zipcode_choice {margin-bottom: 5px}
 
 #index-identification {
@@ -213,6 +221,8 @@ form.zipcode_choice {margin-bottom: 5px}
 }
 
 a#login.btn.btn-info.btn-md {margin-right: 30px}
+
+a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 
 /* if hire_me */
 .hire_me {
@@ -298,12 +308,14 @@ p.store_name {
 /* detail.html */
 
 #product-details-section {
-  margin: 10px;
+  margin: 0px 10px 10px 10px;
   padding: 10px 20px;
   background-color: white;
   border-style: none;
   border-radius: 5px;
 }
+
+#product-details-section .product-pic img {height: 15vh}
 
 div.product_details p {
   margin-top: 5px;
@@ -311,13 +323,18 @@ div.product_details p {
 }
 
 div.product_details a {font-style: oblique;}
-div.qty_selection {margin: 10px 0px 0px 0px}
+div.qty_selection {
+  margin: 10px 0px 0px 0px;
+  font-size: 1.8vh;
+}
 
-.other_availabilities {margin: 10px 10px -30px 10px}
+.other_availabilities {margin: 20px 10px 10px 10px}
 .other_availabilities a {font-style: italic;}
 .other_availabilities li {list-style: none;}
 
 div.other_availabilities {font-size: 1.8vh}
+
+.btn.btn-info.btn-xs {font-size: 1.8vh}
 
 /*****************************************************************************/
 /* store.html */
@@ -421,7 +438,14 @@ div#buy_again:hover, div#old_order:hover {
   float: right;
 }
 
+form.qty_update {
+  position: relative;
+  bottom: -0.8vh;
+}
+
 .single-cart .checkout-empty {display: inline-block}
+
+.single-cart .checkout-empty a {color: white}
 
 .single-cart .checkout-empty form {display: inline;}
 
@@ -448,10 +472,10 @@ div#buy_again:hover, div#old_order:hover {
 
 .panel-footer {padding: 10px}
 
-.single-cart .list-group-item img {height: 25px}
+.single-cart .list-group-item img {height: 5vh}
 
 .single-cart .btn.btn-info.btn-xs.update_qty {
-  font-size: 10px;
+  font-size: 1.8vh;
 }
 
 #cart-total {
@@ -486,26 +510,26 @@ p#keep_shopping {
 #all_products {margin: 10px}
 
 .available_product {
-  width: 135px;
-  height: 162px;
   display: inline-block;
-  margin: 5px;
+  margin: 1vh;
 }
 
-form.qty_selection {font-size: small;}
+form.qty_selection {
+  font-size: 1.8vh;
+  margin-left:0px;
+  margin-top:5px;
+}
 
 .product_button {
   border-style: solid;
   border-width: thin;
   border-radius: 3px;
   background-color: white;
-  width: 135px;
-  height: 135px;
+  width: 20vh;
+  height: 20vh;
   box-shadow: 1px 1px 20px 0;
-  font-size: 12px;
   padding: 5px;
-  margin-bottom: 5px;
-  overflow: scroll;
+  margin-bottom: 1vh;
   /* needed to center vertically the div inside ie. .product_button_content */
   display: table-cell;
   vertical-align: middle;
@@ -513,20 +537,23 @@ form.qty_selection {font-size: small;}
 
 .product_button img {
   display: block;
-  height: 60px;
+  height: 10vh;
   margin: 0px auto 5px auto;
   text-align: center;
 }
 
+div.product_button_content {
+  height: 18vh;
+  width: 18vh;
+  overflow: scroll;
+}
+
 div.product_button_content p {
   margin: 0px;
-  /*font-size: 2vw;*/
-  font-size: x-small;
+  font-size: 1.8vh;
 }
 
 .available_product form {text-align: center;}
-form.qty_selection {margin-top: 5px}
-
 
 /*****************************************************************************/
 
@@ -538,8 +565,6 @@ form.qty_selection {margin-top: 5px}
 #search_result {margin: 10px}
 
 .search_product {
-  width: 135px;
-  height: 162px;
   display: inline-block;
   margin: 5px;
 }
@@ -560,8 +585,9 @@ form.qty_selection {margin-top: 5px}
 
 form#login_form.form-horizontal {width: 100%;}
 
-.btn.btn-info.btn-xs.submit {
+form#login_form.form-horizontal .btn.btn-info.btn-xs.submit {
   float:right;
+  font-size: small;
 }
 
 .login_block td {
@@ -615,7 +641,7 @@ form#login_form.form-horizontal {width: 100%;}
   width: 320px;
   height: 390px;
   padding-right: 10px;
-  margin: 0px auto;
+  margin: 0px auto 5vh auto;
   position: relative;
   top: 3vh; left: 0; bottom: 0; right: 0;
 }
@@ -645,7 +671,11 @@ form#login_form.form-horizontal {width: 100%;}
 }
 
 
-form#registration_form .btn.btn-info.btn-xs.submit {margin-top: 5px;}
+form#registration_form .btn.btn-info.btn-xs.submit {
+  margin-top: 5px;
+  float:right;
+  font-size: small;
+}
 
 /* need to adjust the select box for state choice */
 .register-block select#id_state {
@@ -675,12 +705,15 @@ form#registration_form .btn.btn-info.btn-xs.submit {margin-top: 5px;}
 .user_profile {
   width: 315px;
   height: 413px;
-  margin: 5vw auto 10vw auto;
+  /*margin: 5vw auto 10vw auto;*/
+  margin: 1vh auto 0px auto;
   position: relative;
   top: 0; left: 0; bottom: 0; right: 0;
 }
 
 form.edit_profile {float: right;}
+
+form.edit_profile > input.btn.btn-info.btn-xs {font-size: small}
 
 .user_profile td {
   display: inline-block;
@@ -718,7 +751,8 @@ form.edit_profile {float: right;}
 .user_profile.update {
   width: 315px;
   height: 413px;
-  margin: 5vw auto 10vw auto;
+  /*margin: 5vw auto 10vw auto;*/
+  margin: 1vh auto 0px auto;
   position: relative;
   top: 0; left: 0; bottom: 0; right: 0;
 }
@@ -751,6 +785,8 @@ td.update-field input {
 
 table.user_table tr:first-child > td.update-field {padding: 5px;}
 
+form#profile_form > input.btn.btn-info.btn-xs.submit {font-size: small}
+
 /*****************************************************************************/
 /* checkout.html */
 
@@ -760,7 +796,7 @@ table.user_table tr:first-child > td.update-field {padding: 5px;}
   margin: 3vh auto;
 }
 
-.single-cart.checkout {margin: 25px auto 0px auto;}
+.single-cart.checkout {margin: 2vh auto 0px auto;}
 
 .single-cart.checkout .panel.panel-default {
   border-top-left-radius: 0px;

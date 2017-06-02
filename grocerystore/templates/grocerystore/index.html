@@ -27,7 +27,7 @@
       <p>*** Enjoy shopping your groceries online! ***</p>
     </div>
     {% if username %}
-    <div class="dropdown dropdown_index">
+    <div class="dropdown index_dropdown">
         <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
@@ -36,7 +36,7 @@
         </ul>
     </div>
     {% else %}
-      <div class="dropdown dropdown_index">
+      <div class="dropdown index_dropdown">
           <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
           <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'grocerystore:cart' zipcode %}">Your cart</a></li>
@@ -69,9 +69,8 @@
             </div>
             <div id="collapse1" class="panel-collapse collapse" aria-expanded="false">
               <div class="panel-footer">
-                <p style="font-weight:bold">Looking for a backend/fullstack developer in SF?</p>
-                <p style="font-weight:bold;display:inline-block">Hire me!</p>
-                <p id="resume"><span style="text-decoration:underline"><a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf" class="btn btn-info btn-xs" role="button">Download resume</a></span></p>
+                <p><b>Looking for a backend/fullstack developer in SF? Hire me!</b></p>
+                <p id="resume"><a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf" class="btn btn-info btn-xs" role="button" style="text-decoration:underline">Download resume</a></p>
               </div>
             </div>
           </div>
@@ -89,7 +88,7 @@
               {% endfor %}
             </select>
           </form>
-          <p style="font-size:small;font-style:italic">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> of the city may be helpful (source: cccarto.com)</p>
+          <p style="font-size:1.8vh;font-style:italic">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> of the city may be helpful (source: cccarto.com)</p>
         </div>
 
       {% else %}
@@ -102,7 +101,7 @@
               {% endfor %}
             </select>
           </form>
-          <p style="font-size:small;font-style:italic">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> may be helpful (source: cccarto.com)</p>
+          <p style="font-size:1.8vh;font-style:italic">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> may be helpful (source: cccarto.com)</p>
 
           <div id="index-identification">
             <p><a id="login" href="{% url 'grocerystore:login' %}" class="btn btn-info btn-md" role="button">login</a></p>

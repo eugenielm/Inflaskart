@@ -79,7 +79,7 @@
 
 
     <div class="page-header">
-      <h4>{{ product.product_name }} </h4> <p style="display:inline-block;font-size:12px">@ <a href="{% url 'grocerystore:store' zipcode store_id %}"> {{ store }}</a></p>
+      <h4>{{ product.product_name }} </h4> <p style="display:inline-block;font-size:1.8vh">@ <a href="{% url 'grocerystore:store' zipcode store_id %}"> {{ store }}</a></p>
     </div>
 
 
@@ -98,7 +98,7 @@
       <div id="product-details-section">
         <div class="product-pic">
           {% if product.product_pic %}
-            <img src="{{ product_pic.url }}" alt="" style="height: 80px"/>
+            <img src="{{ product_pic.url }}" alt=""/>
           {% endif %}
         </div>
 
@@ -120,7 +120,7 @@
         </div>
 
         <div class="qty_selection">
-          <form action="" method="post" style="margin-left:0px; margin-top:5px">
+          <form action="" method="post">
             {% csrf_token %}
             <select id="{{product.pk}}" name="{{product.pk}}">
               {% for quantity in quantity_set %}
