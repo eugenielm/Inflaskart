@@ -673,7 +673,7 @@ form#login_form.form-horizontal .btn.btn-info.btn-xs.submit {
 
 form#registration_form .btn.btn-info.btn-xs.submit {
   margin-top: 5px;
-  margin-bottom: 70px;
+  margin-bottom: 40px;
   float:right;
   font-size: small;
 }
