@@ -492,6 +492,7 @@ class StartView(View):
             messages.error(self.request, "There is no store available in the %s area, please try another zip code" % zipcode)
             return redirect('grocerystore:index')
 
+
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if len(available_stores) > 0:
             context['available_stores'] = available_stores

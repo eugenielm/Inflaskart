@@ -40,11 +40,9 @@
                     {% for store in available_stores %}
                       <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
                     {% endfor %}
+                    <li><a href="{% url 'grocerystore:index' %}"><i>> shop elsewhere</i></a></li>
                   </ul>
                 </li>
-                <li><a href="{% url 'grocerystore:index' %}">Shop elsewhere</a></li>
-              {% else %}
-                <li><a href="{% url 'grocerystore:index' %}">Choose an area to shop in</a></li>
               {% endif %}
               <li><a href="{% url 'grocerystore:cart' zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
             </ul>
@@ -81,7 +79,7 @@
 
 
     <div class="page-header">
-      <h4>{{ product.product_name }}</h4>
+      <h4>{{ product.product_name }} </h4> <p style="display:inline-block;font-size:12px">@ <a href="{% url 'grocerystore:store' zipcode store_id %}"> {{ store }}</a></p>
     </div>
 
 
@@ -105,7 +103,6 @@
         </div>
 
         <div class="product_details">
-          <p><b>In stock @</b> <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></p>
           <p><b>Price:</b> ${{ product_availability.product_price }} / {{ product_availability.product_unit }}</p>
           <p><b>Category:</b> {{ product.product_category }}</p>
           {% if product_dietaries %}

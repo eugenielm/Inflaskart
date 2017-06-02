@@ -34,16 +34,14 @@
           <ul class="nav navbar-nav">
             {% if available_stores %}
               <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Shop in {{zipcode}}<span class="caret"></span></a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Shop in {{zipcode.zipcode}}<span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   {% for store in available_stores %}
-                    <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
+                    <li><a href="{% url 'grocerystore:store' zipcode.zipcode store.pk %}">{{ store }}</a></li>
                   {% endfor %}
+                  <li><a href="{% url 'grocerystore:index' %}"><i>> shop elsewhere</i></a></li>
                 </ul>
               </li>
-              <li><a href="{% url 'grocerystore:index' %}">Shop elsewhere</a></li>
-            {% else %}
-              <li><a href="{% url 'grocerystore:index' %}">Choose an area to shop in</a></li>
             {% endif %}
             <li><a href="{% url 'grocerystore:cart' zipcode.zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
           </ul>
