@@ -12,15 +12,7 @@ https://devcenter.heroku.com/articles/django-app-configuration
 
 import os
 import dj_database_url
-
-
-# See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-
-# updated for deployment on Heroku
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'inflaskart.herokuapp.com']
+import socket
 
 
 INSTALLED_APPS = [
@@ -122,6 +114,27 @@ TIME_ZONE = 'America/Los_Angeles'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+# See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
+# SECURITY WARNING: don't run with debug turned on in production!
+
+
+MY_COMPUTER = ""
+try: # work if the app is running locally
+    with open(os.path.join(PROJECT_ROOT, 'local_computer_name.txt')) as f:
+        MY_COMPUTER = f.read().strip()
+except: pass
+
+if socket.gethostname() == "%s" % MY_COMPUTER:
+    # the app is running locally (development mode)
+    DEBUG = True
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1",]
+else:
+    # the app is deployed on Heroku (production mode)
+    DEBUG = False
+    ALLOWED_HOSTS = ['inflaskart.herokuapp.com',]
+
 try:
     with open(os.path.join(PROJECT_ROOT, 'secret_key.txt')) as f:
         SECRET_KEY = f.read().strip()
