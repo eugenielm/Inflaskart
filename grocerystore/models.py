@@ -83,6 +83,9 @@ class Zipcode(models.Model):
     def __str__(self):
         return str(self.zip_city) + ", " + str(self.zip_state.state_postal_code) + " " + str(self.zipcode)
 
+    class Meta:
+        ordering = ['zip_city', 'zipcode']
+
 
 @python_2_unicode_compatible
 class Store(models.Model):
