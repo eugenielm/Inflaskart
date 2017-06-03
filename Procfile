@@ -1,1 +1,1 @@
-web: gunicorn inflaskart.wsgi --log-file -
+web: gunicorn inflaskart.wsgi --log-config logging.conf
