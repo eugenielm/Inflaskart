@@ -16,11 +16,12 @@ import dj_database_url
 
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 # updated for deployment on Heroku
-ALLOWED_HOSTS = ['inflaskart.herokuapp.com', '127.0.0.1', 'localhost']
+# ALLOWED_HOSTS = ['inflaskart.herokuapp.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 INSTALLED_APPS = [
