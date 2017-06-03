@@ -14,9 +14,6 @@ import os
 import dj_database_url
 import socket
 
-# for debugging purposes when debug=False in production mode
-ADMINS = (('Lelek', 'cowboy.de.tchernobyl@gmail.com'),)
-
 
 INSTALLED_APPS = [
     'grocerystore.apps.GrocerystoreConfig',
