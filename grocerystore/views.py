@@ -1178,6 +1178,13 @@ class CartView(View):
                 except:
                     continue
 
+            for i in store_pks: # if the user wants to checkout in a given store
+                try:
+                    if self.request.POST['checkout '+str(i)]:
+                        return redirect('grocerystore:checkout', zipcode=zipcode, store_id=i)
+                except:
+                    continue
+
             for elt in user_cart: # if the user wants to update an item quantity
                 product_to_update = elt.incart_availability
                 try:
