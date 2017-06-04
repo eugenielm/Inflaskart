@@ -34,7 +34,7 @@ This module contains 15 views:
 - IndexView
 - StartView
 - StoreView
-- InstockView
+- Instock
 - BuyAgainView
 - SearchView
 - ProductDetailView
@@ -42,12 +42,9 @@ This module contains 15 views:
 - CheckoutView
 - OrdersHistory
 
-This module contains the function search_item, which is used in  the StoreView
-and SearchView classes.
+This module contains the function search_item, which is used in the search tool
+(in the navigation menu bar once the user has chosen a store to shop in).
 """
-
-
-CONTACT = "cowboy.de.tchernobyl@gmail.com"
 
 
 def search_item(searched_item, store_id):
@@ -65,8 +62,7 @@ def search_item(searched_item, store_id):
 
 
 class UserRegisterView(View):
-    """Allows the user to create an account with the following fields:
-    username, password, first and last names, email address"""
+    """Allow the user to create an account."""
     form_class1 = UserForm
     form_class2 = AddressForm
     template_name = 'grocerystore/registration.html'
@@ -210,7 +206,7 @@ class UserRegisterView(View):
 
 
 class UserLoginView(View):
-    """Allows the user to login if they're already registered."""
+    """Allow the user to login if they're already registered."""
     form_class = LoginForm
     template_name = 'grocerystore/login.html'
 
@@ -243,7 +239,7 @@ class UserLoginView(View):
 
         if not user.is_active: # an inactive user can't log in
             messages.error(self.request, "Your account is inactive. Please "\
-                                         "send an email to %s to activate it." % CONTACT)
+                                         "send us an email to activate it.")
             return redirect('grocerystore:index')
 
         user = authenticate(username=username, password=password)
@@ -306,6 +302,7 @@ def log_out(request):
 
 
 class ProfileView(LoginRequiredMixin, View):
+    """Where an authenticated user can see their profile information."""
     template_name = 'grocerystore/profile.html'
     login_url = 'grocerystore:login'
     redirect_field_name = 'redirect_to'
@@ -325,7 +322,7 @@ class ProfileView(LoginRequiredMixin, View):
 
 
 class ProfileUpdateView(LoginRequiredMixin, View):
-    """Allow an authenticated user to see and edit their profile - except their
+    """Allow an authenticated user to edit their profile info - except their
     username and password."""
     template_name = 'grocerystore/profile_update.html'
     login_url = 'grocerystore:login'
@@ -443,9 +440,9 @@ class ProfileUpdateView(LoginRequiredMixin, View):
 
 class IndexView(View):
     """This is the Inflaskart index page, where the user chooses an area to shop in.
-    Displays a drop down menu with all available ZIP codes, and either a login
-    and register buttons, or if the user is authenticated a shortcut button to
-    shop in the area where they live."""
+    Display a drop down menu with all available ZIP codes (located in SF), and
+    either a login and register buttons, or -if the user is authenticated- a
+    shortcut button to shop in the area where they live."""
     template_name = 'grocerystore/index.html'
 
     def get(self, request):
@@ -474,8 +471,7 @@ class IndexView(View):
 
 
 class StartView(View):
-    """Where the user selects a store, depending on the zip code they've selected
-    (anonymous user) or the zip code area they live in (authenticated user)."""
+    """Where the user selects a store, depending on the zip code they've selected."""
     template_name = 'grocerystore/start.html'
     context_object_name = "available_stores"
 
@@ -491,7 +487,6 @@ class StartView(View):
         except: # if there's no store that delivers the requested zipcode
             messages.error(self.request, "There is no store available in the %s area, please try another zip code" % zipcode)
             return redirect('grocerystore:index')
-
 
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if len(available_stores) > 0:
@@ -509,8 +504,9 @@ class StartView(View):
 
 class StoreView(View):
     """This is the store index page.
-    Displays a search tool to look for available products and a dropdown menu
-    where the user can choose a category of products."""
+    Display the categories and sub-categories if/for available products, and -
+    for authenticated users-, a link to re-place previous orders in this store
+    and a shortcut to see/add products already bought in this store."""
     template_name = 'grocerystore/store.html'
 
     def get(self, request, zipcode, store_id):
@@ -584,7 +580,7 @@ class StoreView(View):
 
 
 class Instock(View):
-    """This page lists all the available products in a given sub-category chosen
+    """This page displays all the available products in a given sub-category chosen
     by the user."""
     template_name = 'grocerystore/instock.html'
 
@@ -706,7 +702,8 @@ class Instock(View):
 
 
 class BuyAgainView(LoginRequiredMixin, View):
-    """This page lists all the available products in a given store that the ."""
+    """This page lists all the available products in a given store that the user
+    (who must be authenticated) has bought at least once in this store."""
     template_name = 'grocerystore/buyagain.html'
     login_url = 'grocerystore:login'
     redirect_field_name = 'redirect_to'
@@ -826,8 +823,9 @@ class BuyAgainView(LoginRequiredMixin, View):
 
 
 class SearchView(View):
-    """Displays a list of available products (in a given store) after the user
-    uses the search tool of the store page"""
+    """Display a list of available products (in a given store) after the user
+    uses the search tool in the navigation menu bar.
+    This view uses the search_item function."""
     template_name = 'grocerystore/search.html'
 
     def get(self, request, zipcode, store_id, searched_item):
@@ -938,6 +936,8 @@ class SearchView(View):
 
 
 class ProductDetailView(View):
+    """Display all the details about a given item, including other availabilities
+    in other stores."""
     template_name = 'grocerystore/detail.html'
 
     def get(self, request, zipcode, store_id, product_id):
@@ -1050,9 +1050,9 @@ class ProductDetailView(View):
 
 
 class CartView(View):
-    """Display what's in the user's cart, ie. everything they've shopped in
-    different stores (if the user is authenticated, display only the items in
-    stores delivering the user's address)."""
+    """Display the user's cart(s), ie. everything they've shopped in different
+    stores and different zip code areas (if the user is authenticated, this
+    includes their carts in stores that may not deliver their home address)."""
     template_name = 'grocerystore/cart.html'
 
     def get(self, request, zipcode):
@@ -1239,6 +1239,10 @@ class CartView(View):
 
 
 class CheckoutView(LoginRequiredMixin, View):
+    """Last page where the user can check their cart before placing their order;
+    the user enters their credit card info and chooses a delivery time (if delivery
+    is available - otherwise they're given the location where they can pick up
+    their order and when)."""
     form_class = PaymentForm
     template_name = 'grocerystore/checkout.html'
     login_url = 'grocerystore:login'
@@ -1498,6 +1502,8 @@ class CheckoutView(LoginRequiredMixin, View):
 
 
 class OrdersHistory(LoginRequiredMixin, View):
+    """List all the previous orders that the (authenticated) user has placed in
+    this store, and allow them to replace an entire order."""
     template_name = 'grocerystore/orders.html'
     login_url = 'grocerystore:login'
     redirect_field_name = 'redirect_to'
