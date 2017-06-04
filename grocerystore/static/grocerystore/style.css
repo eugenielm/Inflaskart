@@ -275,7 +275,7 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 }
 
 .store_choice img {
-  width: 120px;
+  width: 20vh;
   height: auto;
   /* horizontally center the store logos inside their div */
   display: block;
@@ -284,12 +284,13 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 
 p.store_name {
   text-align: left;
-  font-size: small;
+  font-size: 2vh;
+  margin: 0px 5px 5px 5px;
 }
 
 .image {
-  width: 130px;
-  height: 100px;
+  width: 22vh;
+  height: 18vh;
   background-color: white;
   border-radius: 5px;
   opacity: 1;
