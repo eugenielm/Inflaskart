@@ -107,30 +107,34 @@
         </a>
         {% endif %}
 
-        <div class="panel-group category" id="accordion">
-        {% for key, values in all_categories.items %}
-          <div class="panel panel-default">
-            <div class="link_div">
-              <div class="panel-heading">
-                <h4 class="panel-title">
-                  <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
-                </h4>
+        {% if all_categories %}
+          <div class="panel-group category" id="accordion">
+          {% for key, values in all_categories.items %}
+            <div class="panel panel-default">
+              <div class="link_div">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
+                  </h4>
+                </div>
+              </div>
+              <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
+                <ul class="list-group">
+                  {% for item in values %}
+                    <a href="{% url 'grocerystore:instock' zipcode store_id key.pk item.pk %}">
+                      <li class="list-group-item">
+                        {{ item.sub_category_name }}
+                      </li>
+                    </a>
+                {% endfor %}
+                </ul>
               </div>
             </div>
-            <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
-              <ul class="list-group">
-                {% for item in values %}
-                  <a href="{% url 'grocerystore:instock' zipcode store_id key.pk item.pk %}">
-                    <li class="list-group-item">
-                      {{ item.sub_category_name }}
-                    </li>
-                  </a>
-              {% endfor %}
-              </ul>
-            </div>
+          {% endfor %}
           </div>
-        {% endfor %}
-        </div>
+        {% else %}
+          <p>Sorry, there's nothing in stock at {{ store }} at the moment. Please come back later!</p>
+        {% endif %}
       </div>
 
 
