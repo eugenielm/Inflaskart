@@ -89,14 +89,16 @@
                 <h4 class="panel-title">
                   <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">{{ key }}
                     {% if not values|slice:"-1"|last %}
+                      {% if username %}
                       <span class="glyphicon glyphicon-exclamation-sign"></span>
+                      {% endif %}
                     {% endif %}
                   </a>
                 </h4>
               </div>
               <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
                 <ul class="list-group">
-                  {% for item in values|slice:":-2" %}
+                {% for item in values|slice:":-2" %}
                   <li class="list-group-item">
                     <form class="qty_update" action="" method="post">
                       {% csrf_token %}
@@ -106,7 +108,11 @@
                         {% endfor %}
                       </select>
                     </form>
-                    <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
+                    {% if values|slice:"-1"|last %} <!-- ie. if the user is shopping in an area where this given store delivers -->
+                      <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
+                    {% else %}
+                      <a href="{% url 'grocerystore:detail' item.7 key.pk item.5 %}">
+                    {% endif %}
                       <img src="{{item.0.product_pic.url}}" title="{{item.0}}" alt="{{item.0}}" />
                       {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <b>${{ item.3 }}</b>
                   </li>
@@ -124,11 +130,17 @@
                     </form>
                   </div>
                   <p id="cart-total">Cart total: ${{ values|last }}</p>
-                  <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}"><i>{{ key }}</i></a>
-                  {% if not values|slice:"-1"|last %}
+                  {% if not values|slice:"-1"|last %} <!-- if the store doesn't deliver the area the user is shopping in -->
+                    <!-- use the store zipcode to keep shopping in the same store (see below) -->
+                    <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}"><i>{{ key }}</i></a>
                     {% if user_zipcode %}
                       <span id="no_delivery">No delivery in {{ user_zipcode }}</span>
                     {% else %}
+                      <span id="no_delivery">Delivery may not be available depending on your address</span>
+                    {% endif %}
+                  {% else %} <!-- if the store delivers the zipcode the user is shopping in, use this zipcode to keep shopping in the same store -->
+                    <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}"><i>{{ key }}</i></a>
+                    {% if not user_zipcode %}
                       <span id="no_delivery">Delivery may not be available depending on your address</span>
                     {% endif %}
                   {% endif %}

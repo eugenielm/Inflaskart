@@ -35,13 +35,6 @@
             <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
         </ul>
     </div>
-    {% else %}
-      <div class="dropdown index_dropdown">
-          <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
-          <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="{% url 'grocerystore:cart' zipcode %}">Your cart</a></li>
-          </ul>
-      </div>
     {% endif %}
   </div>
 </nav> <!-- end of nav bar -->

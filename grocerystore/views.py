@@ -452,7 +452,6 @@ class IndexView(View):
                                   94114, 94115, 94116, 94117, 94118, 94121, 94122,
                                   94123, 94124, 94127, 94129, 94131, 94132, 94133,
                                   94134, 94158]
-        context['zipcode'] = "00000"
 
         storage = get_messages(self.request)
         for elt in storage:
@@ -479,6 +478,14 @@ class StartView(View):
         # if the user types an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
             messages.error(self.request, "You are looking for an invalid zipcode.")
+            return redirect('grocerystore:index')
+
+        try: # check if there's at least one store that delivers the chosen zipcode
+            # Zipcode objects are instanciated when a store wants to add it to its deliveray area
+            zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
+        except: # if there aren't any stores that deliver the chosen zipcode area
+            messages.error(self.request, "There's no store available in the area "\
+                                         "you've chosen.")
             return redirect('grocerystore:index')
 
         context = {}
@@ -519,15 +526,16 @@ class StoreView(View):
             messages.error(self.request, "The store you're looking for doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
-        try:
+        try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
                 messages.error(self.request, "The store you're looking for doesn't "\
                                              "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
-        except:
-            messages.error(self.request, "There is no store available in the %s area." % zipcode)
-            return redirect('grocerystore:index')
+        except: # if there aren't any stores that deliver the chosen zipcode area
+            messages.error(self.request, "There's no store available in the area "\
+                                         "you've chosen.")
+            return redirect('grocerystore:start', zipcode=zipcode)
 
         all_categories = {}
         # = {'category1': [subcat1, ..., subcatN], 'category2': [subcat1, ..., subcatN], etc.}
@@ -596,15 +604,15 @@ class Instock(View):
             messages.error(self.request, "Sorry, the requested store doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
-        try:
+        try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
                 messages.error(self.request, "The store you're looking for doesn't "\
-                               "deliver in the area you've chosen.")
+                                             "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
-        except:
-            messages.error(self.request, "The store you're looking for doesn't "\
-                           "deliver in the area you've chosen.")
+        except: # check if there're stores available in the chosen zipcode
+            messages.error(self.request, "There's no store available in the area "\
+                                         "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the category_id does exist
@@ -614,11 +622,12 @@ class Instock(View):
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
         try: # check if the subcategory_id does exist
             subcategory = ProductSubCategory.objects.get(pk=subcategory_id)
+            if subcategory.parent != category:
+                messages.error(self.request, "Sorry, the requested sub-category doesn't exist)")
+                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
         except:
             messages.error(self.request, "Sorry, the requested sub-category doesn't exist.")
-            return redirect('grocerystore:subcategories', zipcode=zipcode,
-                                                          store_id=store_id,
-                                                          category_id=category_id)
+            return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         context = {}
         context['zipcode'] = zipcode
@@ -676,6 +685,8 @@ class Instock(View):
                            .get(incart_availability=availability)
                     item.incart_quantity = quantity_to_add
                     item.save()
+                    messages.info(self.request, "%s quantity successfully updated."\
+                                                % availability.product)
                 # create an ItemInCart instance if the item isn't in the
                 # database, and save it in the database
                 except:
@@ -683,8 +694,8 @@ class Instock(View):
                                               incart_availability=availability,
                                               incart_quantity=quantity_to_add)
 
-                messages.info(self.request, "%s successfully added in your cart."\
-                                 % availability.product)
+                    messages.info(self.request, "%s successfully added in your cart."\
+                                                % availability.product)
                 return redirect('grocerystore:instock', zipcode=zipcode,
                                                         store_id=store_id,
                                                         category_id=category_id,
@@ -694,7 +705,7 @@ class Instock(View):
                 res = {'name': str(availability.pk), 'qty': quantity_to_add}
                 self.request.session[str(availability.pk)] = res # pk of the Availability instance
                 messages.info(self.request, "%s successfully added in your cart."\
-                                 % availability.product)
+                                            % availability.product)
                 return redirect('grocerystore:instock', zipcode=zipcode,
                                                         store_id=store_id,
                                                         category_id=category_id,
@@ -719,15 +730,16 @@ class BuyAgainView(LoginRequiredMixin, View):
         except:
             messages.error(self.request, "Sorry, the requested store doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
-        try:
+
+        try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
                 messages.error(self.request, "The store you're looking for doesn't "\
                                              "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
-        except:
-            messages.error(self.request, "The store you're looking for doesn't "\
-                                         "deliver in the area you've chosen.")
+        except: # if there aren't any stores that deliver the chosen zipcode area
+            messages.error(self.request, "There's no store available in the area "\
+                                         "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         user = self.request.user
@@ -805,10 +817,8 @@ class BuyAgainView(LoginRequiredMixin, View):
                        .get(incart_availability=availability)
                 item.incart_quantity = quantity_to_add
                 item.save()
-                messages.info(self.request, "%s's quantity has been updated to %s" \
-                              % (availability.product, quantity_to_add))
-                return redirect('grocerystore:buyagain', zipcode=zipcode,
-                                                         store_id=store_id)
+                messages.info(self.request, "%s quantity successfully updated" % availability.product)
+
             # create an ItemInCart instance if the item isn't in the
             # cart, and save it in the database
             except:
@@ -818,8 +828,9 @@ class BuyAgainView(LoginRequiredMixin, View):
 
                 messages.info(self.request, "%s successfully added in your cart."\
                                  % availability.product)
-                return redirect('grocerystore:buyagain', zipcode=zipcode,
-                                                        store_id=store_id)
+
+            return redirect('grocerystore:buyagain', zipcode=zipcode,
+                                                     store_id=store_id)
 
 
 class SearchView(View):
@@ -840,13 +851,15 @@ class SearchView(View):
             messages.error(self.request, "Sorry, the requested store doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
-        try:
-            if Zipcode.objects.get(zipcode=int(zipcode)) not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't deliver in the area you've chosen.")
+        try: # check if the chosen store delivers the chosen zipcode
+            zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
+            if zipcode_obj not in store.delivery_area.all():
+                messages.error(self.request, "The store you're looking for doesn't "\
+                                             "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
-            else: pass
-        except:
-            messages.error(self.request, "The store you're looking for doesn't deliver in the area you've chosen.")
+        except: # if there aren't any stores that deliver the chosen zipcode area
+            messages.error(self.request, "There's no store available in the area "\
+                                         "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         store = Store.objects.get(pk=store_id)
@@ -914,20 +927,22 @@ class SearchView(View):
                            .get(incart_availability=availability)
                     item.incart_quantity = quantity_to_add
                     item.save()
+                    messages.info(self.request, "%s quantity was successfully updated."\
+                                                % availability.product)
                 # create an ItemInCart instance if the item isn't in the
                 # database, and save it in the database
                 except:
                     ItemInCart.objects.create(incart_user=self.request.user,
                                               incart_availability=availability,
                                               incart_quantity=quantity_to_add)
-                messages.info(self.request, "'%s' successfully added to your cart" % availability)
+                    messages.info(self.request, "'%s successfully added to your cart" % availability.product)
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         else: # if the user is anonymous
             for availability in search_result:
                 try:
                     quantity_to_add = int(self.request.POST.get(str(availability.pk)))
-                    messages.info(self.request, "%s successfully added in your cart." % availability)
+                    messages.info(self.request, "%s successfully added in your cart." % availability.product)
                 except TypeError:
                     continue
                 res = {'name': str(availability.pk), 'qty': quantity_to_add}
@@ -937,7 +952,7 @@ class SearchView(View):
 
 class ProductDetailView(View):
     """Display all the details about a given item, including other availabilities
-    in other stores."""
+    in other stores in the same zip code area."""
     template_name = 'grocerystore/detail.html'
 
     def get(self, request, zipcode, store_id, product_id):
@@ -952,28 +967,28 @@ class ProductDetailView(View):
             messages.error(self.request, "Sorry, the requested store doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
-        try:
-            if Zipcode.objects.get(zipcode=int(zipcode)) not in store.delivery_area.all():
+        try: # check if the chosen store delivers the chosen zipcode
+            zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
+            if zipcode_obj not in store.delivery_area.all():
                 messages.error(self.request, "The store you're looking for doesn't "\
-                               "deliver in the area you've chosen.")
+                                             "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
-            else: pass
-        except:
-            messages.error(self.request, "The store you're looking for doesn't "\
-                           "deliver in the area you've chosen.")
+        except: # if there aren't any stores that deliver the chosen zipcode area
+            messages.error(self.request, "There's no store available in the area "\
+                                         "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the product_id does exist
             product = Product.objects.get(pk=product_id)
         except:
             messages.error(self.request, "Sorry, the requested product doesn't exist.")
-            return redirect('grocerystore:start', zipcode=zipcode)
+            return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         try: # check if the product is available in the chosen store
             product_availability = Availability.objects.filter(product=product).get(store=store)
         except:
-            messages.error(self.request, "Sorry, the requested URL doesn't exist.")
-            return redirect('grocerystore:start', zipcode=zipcode)
+            messages.error(self.request, "Sorry, the requested product isn't available in the store you've chosen.")
+            return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         other_availabilities = Availability.objects.filter(product=product)\
                                .filter(store__delivery_area__zipcode=zipcode)\
@@ -1085,7 +1100,8 @@ class CartView(View):
                 item_unit = item_availability.product_unit
                 item_price = "%.2f" % (float(item_qty) * float(item_availability.product_price))
                 elt = [item_product, item_qty, item_unit, item_price,
-                       item_availability.pk, item_product.pk, item_availability.product_price]
+                       item_availability.pk, item_product.pk, item_availability.product_price,
+                       item_availability.store.store_zipcode]
                 item_store = item_availability.store
 
                 try:
@@ -1129,7 +1145,8 @@ class CartView(View):
                 * float(item_availability.product_price))
                 elt = [item_product, self.request.session[item]["qty"],
                        item_availability.product_unit, item_price,
-                       item_availability_pk, item_product.pk, item_availability.product_price]
+                       item_availability_pk, item_product.pk, item_availability.product_price,
+                       item_availability.store.store_zipcode]
 
                 try:
                     all_carts[item_store].append(elt)
@@ -1181,7 +1198,7 @@ class CartView(View):
             for i in store_pks: # if the user wants to checkout in a given store
                 try:
                     if self.request.POST['checkout '+str(i)]:
-                        return redirect('grocerystore:checkout', zipcode=zipcode, store_id=i)
+                        return redirect('grocerystore:checkout', zipcode=Store.objects.get(pk=i).store_zipcode, store_id=i)
                 except:
                     continue
 
@@ -1221,7 +1238,7 @@ class CartView(View):
             for i in store_pks: # if the user wants to checkout in a given store
                 try:
                     if self.request.POST['checkout '+str(i)]:
-                        return redirect('grocerystore:checkout', zipcode=zipcode, store_id=i)
+                        return redirect('grocerystore:checkout', zipcode=Store.objects.get(pk=i).store_zipcode, store_id=i)
                 except:
                     continue
 
@@ -1509,6 +1526,28 @@ class OrdersHistory(LoginRequiredMixin, View):
     redirect_field_name = 'redirect_to'
 
     def get(self, request, zipcode, store_id):
+        # if the user types an invalid zipcode directly in the browser
+        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
+            messages.error(self.request, "You are looking for an invalid zipcode.")
+            return redirect('grocerystore:index')
+
+        try: # check if the store_id does exist
+            store = Store.objects.get(pk=store_id)
+        except:
+            messages.error(self.request, "Sorry, the requested store doesn't exist.")
+            return redirect('grocerystore:start', zipcode=zipcode)
+
+        try: # check if the chosen store delivers the chosen zipcode
+            zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
+            if zipcode_obj not in store.delivery_area.all():
+                messages.error(self.request, "The store you're looking for doesn't "\
+                                             "deliver in the area you've chosen.")
+                return redirect('grocerystore:start', zipcode=zipcode)
+        except: # if there aren't any stores that deliver the chosen zipcode area
+            messages.error(self.request, "There's no store available in the area "\
+                                         "you've chosen.")
+            return redirect('grocerystore:start', zipcode=zipcode)
+
         user = self.request.user
         context = {
             'user': user,
