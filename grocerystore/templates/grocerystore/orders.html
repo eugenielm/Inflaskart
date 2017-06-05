@@ -109,12 +109,11 @@
               <li class="list-group-item">
                 <form class="qty_update" action="" method="post">
                   {% csrf_token %}
-                  <select name="{{item.availability_pk}}">
+                  <select name="{{item.availability_pk}}" onchange='this.form.submit()'>
                     {% for quantity in quantity_set %}
                       <option value="{{quantity}}" {% if quantity == item.product_qty %} selected="selected" {% endif %}>{{ quantity }}</option>
                     {% endfor %}
                   </select>
-                  <input class="btn btn-info btn-xs update_qty" type="submit" value="add in cart" />
                 </form>
                 <a href="{% url 'grocerystore:detail' zipcode store_id item.product_pk %}">
                 {% if item.product_pic %}<img src="{{item.product_pic.url}}" alt="{{ item.product_name }}" />{% endif %}

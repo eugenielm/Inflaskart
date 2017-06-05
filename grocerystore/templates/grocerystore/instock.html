@@ -108,12 +108,11 @@
               </div></a>
             <form class="qty_selection" action="" method="post">
               {% csrf_token %}
-              <select name="{{availability.pk}}">
+              <select name="{{availability.pk}}" onchange='this.form.submit()'>
                 {% for quantity in quantity_set %}
                   <option value="{{quantity}}">{{ quantity }}</option>
                 {% endfor %}
               </select>
-              <input class="btn btn-info btn-xs" type="submit" value="Add">
             </form>
           </div>
           {% endfor %}
