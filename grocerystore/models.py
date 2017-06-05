@@ -192,25 +192,33 @@ class Availability(models.Model):
 
     def __str__(self):
         price = "$" + str(self.product_price) + " / " + str(self.product_unit)
-
-        if len(self.product.product_dietary.all()) == 0:
+        dietaries_nb = len(self.product.product_dietary.all())
+        if dietaries_nb == 0:
             if not self.product.product_brand_or_variety:
-                return str(self.product.product_name) + " - " + price
+                return str(self.store) + ", " + str(self.product.product_category) \
+                       + " - " + str(self.product.product_name) + " - " + price
             else:
-                return str(self.product.product_name) + " (" + str(self.product.product_brand_or_variety) +\
-                       " - " + price + ")"
+                return str(self.store) + ", " + str(self.product.product_category) \
+                       + " - " + str(self.product.product_name) + " (" \
+                       + str(self.product.product_brand_or_variety) + ") " + price
         else:
             dietaries = ""
-            for dietary in self.product.product_dietary.all():
-                dietaries += (str(dietary.name) + " ")
+            for dietary in self.product.product_dietary.all()[:dietaries_nb-1]:
+                dietaries += (str(dietary.name) + " - ")
+            dietaries += str(self.product.product_dietary.all()[dietaries_nb-1].name)
             if not self.product.product_brand_or_variety:
-                return self.product.product_name + " ( " + dietaries + " - " + price + " )"
+                return str(self.store) + ", " + str(self.product.product_category) \
+                       + " - " + str(self.product.product_name) + " (" + dietaries + ") " + price
             else:
-                return str(self.product.product_name) + " ( " + str(self.product.product_brand_or_variety) +\
-                       ", " + dietaries + " - " + price + ")"
+                return str(self.store) + ", " + str(self.product.product_category) \
+                       + " - " + str(self.product.product_name) + " (" \
+                       + str(self.product.product_brand_or_variety) + ", " + dietaries + ") " + price
 
     class Meta:
-        ordering = ['product__product_name']
+        ordering = ['store__store_name', 'store__store_location',
+                    'product__product_category__parent__top_category',
+                    'product__product_category__sub_category_name',
+                    'product__product_name']
         verbose_name_plural = "availabilities"
 
 
