@@ -201,7 +201,7 @@ ul.dropdown-menu.dropdown-menu-right {
 }
 
 .personal-welcome {
-  margin-top: 35vh;
+  margin-top: 30vh;
   text-align: center;
 }
 
@@ -524,27 +524,27 @@ form.qty_selection {
   border-width: thin;
   border-radius: 3px;
   background-color: white;
-  width: 20vh;
-  height: 20vh;
+  width: 23vh;
+  height: 23vh;
   box-shadow: 1px 1px 20px 0;
   padding: 5px;
   margin-bottom: 1vh;
-  /* needed to center vertically the div inside ie. .product_button_content */
-  display: table-cell;
-  vertical-align: middle;
+  overflow: scroll;
 }
 
 .product_button img {
   display: block;
-  height: 10vh;
+  height: 9vh;
   margin: 0px auto 5px auto;
   text-align: center;
 }
 
 div.product_button_content {
-  height: 18vh;
-  width: 18vh;
-  overflow: scroll;
+  height: 21vh;
+  width: 21vh;
+  /* needed to center vertically the div inside ie. .product_button_content */
+  display: table-cell;
+  vertical-align: middle;
 }
 
 div.product_button_content p {
