@@ -636,7 +636,7 @@ class Instock(View):
         context['store_id'] = store_id
         context['store'] = store
         context['category_id'] = category_id
-        context['quantity_set'] = range(21)
+        context['quantity_set'] = range(1, 21)
 
         available_products = Availability.objects.filter(store__pk=int(store_id))\
                              .filter(product__product_category__pk=int(subcategory_id))
@@ -756,7 +756,7 @@ class BuyAgainView(LoginRequiredMixin, View):
         context['zipcode'] = zipcode
         context['store_id'] = store_id
         context['store'] = store
-        context['quantity_set'] = range(21)
+        context['quantity_set'] = range(1, 21)
 
         available_here = []
         try:
@@ -882,7 +882,7 @@ class SearchView(View):
                 product_id = availability.product.pk
                 available_products.append([availability, product_price, product_unit, product_id])
             context = {'available_products': available_products,
-                      'quantity_set': range(21),
+                      'quantity_set': range(1, 21),
                       'zipcode': zipcode,
                       'store_id': store_id,
                       'store': store,
@@ -1026,7 +1026,7 @@ class ProductDetailView(View):
         context['product_description'] = product.product_description
         context['product_pic'] = product.product_pic
         context['user_id_required'] = product.user_id_required
-        context['quantity_set'] = range(21)
+        context['quantity_set'] = range(1, 21)
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if len(available_stores) > 0:
             context['available_stores'] = available_stores
@@ -1582,7 +1582,7 @@ class OrdersHistory(LoginRequiredMixin, View):
             'store_id': store_id,
             'store': Store.objects.get(pk=store_id),
             'zipcode': zipcode,
-            'quantity_set': range(21),
+            'quantity_set': range(1, 21),
         }
 
         user_orders = Order.objects.filter(data__user__user_pk=user.pk)\

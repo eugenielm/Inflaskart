@@ -48,6 +48,9 @@ div.page-header > a {
   font-size: 1.8vh;
 }
 
+div.page-header>h6>a {color: #807b7b}
+div.page-header>h6>a:hover {color: black}
+
 div.page-header > a.btn.btn-success.btn-xs {color: white;}
 /*****************************************************************************/
 /* navigation bar */
@@ -122,11 +125,19 @@ p#footer_contact {
 
 /*****************************************************************************/
 /* messages in session, error messages for invalid user input in forms*/
-div.messages, div.errorlist {
+
+div.messages li {
+  z-index: -1;
   display: block;
   position: fixed;
-  top: 52px;
-  right: 10px;
+  bottom: 50px;
+  left: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 10px;
+  font-weight: bold;
+  color: red;
+  text-align: left;
 }
 
 .messages > ul {
@@ -138,21 +149,14 @@ div.messages, div.errorlist {
   opacity: 0.7;
 }
 
-.messages li {
-  z-index: -1;
-  font-size: 8px;
-  font-weight: bold;
-  color: red;
-  text-align: right;
-}
+div.messages li.info {color: #0b30c5;}
 
-.messages li.info {
+div.errorlist {
   display: block;
   position: fixed;
-  bottom: 50px;
-  left: 10px;
-  margin-right: 10px;
-  color: green;
+  top: 52px;
+  right: 10px;
+  font-size: 9px;
 }
 
 div.errorlist p {
@@ -160,6 +164,7 @@ div.errorlist p {
   font-size: 10px;
   font-style: italic;
   color: red;
+  font-weight: bold;
 }
 
 /*****************************************************************************/
@@ -338,6 +343,7 @@ div.qty_selection {
   font-size: 1.8vh;
 }
 
+.btn.btn-info.btn-xs {font-size: 1.8vh}
 .other_availabilities {margin: 20px 10px 10px 10px}
 .other_availabilities a {font-style: italic;}
 .other_availabilities li {list-style: none;}
@@ -499,8 +505,17 @@ p.empty_cart {margin: 10px 10px 0px 10px}
 .empty_cart a:hover {text-decoration: none;}
 
 p#keep_shopping {
-  margin:0px;
-  font-size: 10px;
+  margin:5px 0px 0px 0px;
+  font-size: 12px;
+}
+
+p#keep_shopping a {
+  color: #635a5a;
+  text-decoration: underline;
+}
+
+p#keep_shopping a:hover {
+  color: black;
 }
 
 #no_delivery {
