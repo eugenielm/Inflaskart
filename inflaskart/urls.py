@@ -20,7 +20,9 @@ from django.conf import settings
 
 
 urlpatterns = [
-    url(r'^grocerystore/', include('grocerystore.urls')),
+    url(r'^', include('grocerystore.urls')),
+    # if there were more than the grocerystore app in the inflaskart project, I could use the following:
+    # url(r'^grocerystore/', include('grocerystore.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^', include('favicon.urls')),
 ]
