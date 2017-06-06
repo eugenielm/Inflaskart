@@ -1153,7 +1153,8 @@ class CartView(View):
                     context['quantity_set'] = range(21)
 
             else:
-                try: # the zip code area where the user is shopping may not be an area where delivery is available
+                try: # the zip code area where the user is shopping (which may not
+                     # be an area where delivery is available)
                     context['area'] = Zipcode.objects.get(zipcode=int(zipcode))
                 except: pass
 
@@ -1184,7 +1185,7 @@ class CartView(View):
             if all_carts:
                 for store, cart in all_carts.items():
                     cart_total = 0
-                    # True is for a store that delivers the user's address
+                    # True is for a store that delivers the current zipcode area
                     if store.delivery_area.all().filter(zipcode=zipcode):
                         cart.append(True)
                     else: cart.append(False)
