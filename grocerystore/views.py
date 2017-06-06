@@ -449,7 +449,7 @@ class IndexView(View):
         context = {}
         zipcode_set = ["-- Choose a ZIP code area to shop in --"]
         with open(os.path.join(APP_ROOT, 'zipcodes_list.txt')) as f:
-            available_zipcodes = f.read().split(",")
+            available_zipcodes = f.read().strip().split(",")
         for zipcode in available_zipcodes:
             zipcode_set.append(zipcode)
         context['zipcode_set'] = zipcode_set
