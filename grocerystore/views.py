@@ -46,6 +46,8 @@ This module contains the function search_item, which is used in the search tool
 (in the navigation menu bar once the user has chosen a store to shop in).
 """
 
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 
 def search_item(searched_item, store_id):
     """Returns a list of Availability instances whose 'product__product_name'
@@ -447,11 +449,12 @@ class IndexView(View):
 
     def get(self, request):
         context = {}
-        context['zipcode_set'] = ["-- Choose a ZIP code area to shop in --", 94102, 94103, 94104,
-                                  94105, 94107, 94108, 94109, 94110, 94111, 94112,
-                                  94114, 94115, 94116, 94117, 94118, 94121, 94122,
-                                  94123, 94124, 94127, 94129, 94131, 94132, 94133,
-                                  94134, 94158]
+        zipcode_set = ["-- Choose a ZIP code area to shop in --"]
+        with open(os.path.join(APP_ROOT, 'zipcodes_list.txt')) as f:
+            available_zipcodes = f.read().split(",")
+        for zipcode in available_zipcodes:
+            zipcode_set.append(zipcode)
+        context['zipcode_set'] = zipcode_set
 
         storage = get_messages(self.request)
         for elt in storage:
