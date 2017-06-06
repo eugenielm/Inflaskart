@@ -2,7 +2,7 @@ Inflaskart
 ==========
 
 'Inflaskart' is a demo of a clone of Instacart implemented using Django,
-ie. it is an online grocery shopping application.
+ie. it is an online grocery shopping web application.
 
 The display is implemented using HTML5/CSS3 and Bootstrap.
 A postgreSQL database is used to store the model instances.
@@ -32,9 +32,10 @@ Repository content
     - tests.py
     - urls.py
     - views.py
+    - zipcodes_list.txt = a list of the available zip codes areas to shop in
     - a migrations folder (containing only __init__.py)
     - a templates folder
-    - a static folder (containing a style sheet and the logo)
+    - a static folder (containing a style sheet, the logo, and the resume to download)
 
 + requirements.txt
 
@@ -46,45 +47,51 @@ In order to be able to set up Inflaskart (locally), you need to:
 1. Clone this repository
 
 2. Open the terminal and navigate to this repository. You can install the required
-modules/applications using the following command:
+modules/applications using the following command (you need to have pip installed):
     ```sh
     pip install -r requirements.txt
     ```
 NB: it's best practice to do this step in a virtual environment
 
-3. Create your database tables based on the application models (NB: the
-application is called 'grocerystore')
-In order to do that, navigate to this repository and create your database migrations:
+3. Have PostgreSQL installed and running locally. You need to have an existing
+database called 'grocerystore_db' (if you want to use a different database name,
+you need to set DATABASE['NAME'] to the name you want in settings.py)
+
+4. Create your database tables based on the application models (NB: here the
+application mane is 'grocerystore')
+In order to do that, in the terminal navigate to the cloned repository and
+create your database migrations:
     ```sh
-    python manage.py makemigrations grocerystore
+    python manage.py makemigrations application_name
     ```
 Then run the following command to apply the migrations to the database:
     ```sh
     python manage.py migrate
     ```
 
-4. In the terminal, navigate to the inflaskart project directory, and run its
+5. Still in the terminal and in the cloned repository, you can run the project
 server by typing in the following command:
     ```sh
     python manage.py runserver
     ```
 By default, the server will run locally on port 8000.
-Now you can access the index page of your web app in your browser with the URL:
+Now you can access the index page of your web app (app called 'grocerystore') in
+your browser with the following URL:
 'localhost:8000/grocerystore/‘
 
-5. In order to be able to create products and stores instances to play with this
-application, you need to create an admin profile:
+6. In order to be able to create products and stores instances to play with this
+application, you need to create an admin/superuser profile:
     ```sh
     python manage.py createsuperuser
     ```
 Then you will be prompted for your email address and password.
 More info here: https://docs.djangoproject.com/en/1.10/intro/tutorial02/#introducing-the-django-admin
 
-6. You can access the admin page in your browser by typing in the following URL:
+7. You can access the admin page in your browser by typing in the following URL:
 'localhost:8000/admin/‘
 The more stores, products and availabilities you create, the better!
 
-7. Then access the Inflaskart index page in your browser on
+8. Then access the Inflaskart index page in your browser on
 'localhost:8000/grocerystore/‘, and have fun!
 
 
