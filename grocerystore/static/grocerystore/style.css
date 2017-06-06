@@ -127,7 +127,6 @@ p#footer_contact {
 /* messages in session, error messages for invalid user input in forms*/
 
 div.messages li {
-  z-index: -1;
   display: block;
   position: fixed;
   bottom: 50px;
@@ -145,11 +144,10 @@ div.messages li {
   list-style-type: none;
   border-style: none;
   background-color: transparent;
-  float: right;
   opacity: 0.7;
 }
 
-div.errorlist, div.messages li.error, div.messages li.success {
+div.errorlist, div.messages li.warning, div.messages li.success {
   display: block;
   position: fixed;
   top: 55px;
@@ -160,6 +158,8 @@ div.errorlist, div.messages li.error, div.messages li.success {
   color: red;
   font-weight: bold;
   text-align: right;
+  height: 10px;
+  overflow: visible;
 }
 
 div.errorlist p {

@@ -78,7 +78,7 @@ class UserRegisterView(View):
         if 'login' in self.request.POST:
             try:
                 redirect_to = self.request.GET['redirect_to']
-                # use of HttpResponseRedirect to avoid DisallowedRedirect error
+                # use of HttpResponseRedirect to avoid DisallowedRedirect warning
                 return HttpResponseRedirect(reverse('grocerystore:login') + '?redirect_to=' + str(redirect_to))
             except:
                 return redirect('grocerystore:login')
@@ -177,7 +177,7 @@ class UserRegisterView(View):
                     pass
 
                 if not_available:
-                    messages.error(self.request, "Before registering, you shopped "\
+                    messages.warning(self.request, "Before registering, you shopped "\
                     "items in a store that doesn't deliver your current address.")
 
                 login(self.request, user)
@@ -231,7 +231,7 @@ class UserLoginView(View):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            messages.error(self.request, "Something went wrong. Please check your"\
+            messages.warning(self.request, "Something went wrong. Please check your"\
                                          " username and password.")
             try:
                 redirect_to = self.request.GET['redirect_to']
@@ -240,7 +240,7 @@ class UserLoginView(View):
                 return redirect('grocerystore:login')
 
         if not user.is_active: # an inactive user can't log in
-            messages.error(self.request, "Your account is inactive. Please "\
+            messages.warning(self.request, "Your account is inactive. Please "\
                                          "send us an email to activate it.")
             return redirect('grocerystore:index')
 
@@ -287,7 +287,7 @@ class UserLoginView(View):
                 return redirect('grocerystore:start', zipcode=zipcode)
 
         else: # the user couldn't be authenticated because the credentials are invalid
-            messages.error(self.request, "Something went wrong. Please  check "\
+            messages.warning(self.request, "Something went wrong. Please  check "\
                                          "your username and password.")
             try:
                 redirect_to = self.request.GET['redirect_to']
@@ -434,7 +434,7 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         inflauser_address.zip_code = new_address.cleaned_data['zip_code']
         inflauser_address.state = new_address.cleaned_data['state']
         inflauser_address.save()
-        messages.info(self.request, "Your profile has been successfully updated.")
+        messages.warning(self.request, "Your profile has been successfully updated.")
         return redirect('grocerystore:profile')
 
 
@@ -478,14 +478,14 @@ class StartView(View):
     def get(self, request, zipcode):
         # if the user types an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.")
+            messages.warning(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
 
         try: # check if there's at least one store that delivers the chosen zipcode
             # Zipcode objects are instanciated when a store wants to add it to its deliveray area
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
         except: # if there aren't any stores that deliver the chosen zipcode area
-            messages.error(self.request, "There's no store available in the area "\
+            messages.warning(self.request, "There's no store available in the area "\
                                          "you've chosen.")
             return redirect('grocerystore:index')
 
@@ -493,7 +493,7 @@ class StartView(View):
         try:
             context['zipcode'] = Zipcode.objects.get(zipcode=zipcode)
         except: # if there's no store that delivers the requested zipcode
-            messages.error(self.request, "There is no store available in the %s area, please try another zip code" % zipcode)
+            messages.warning(self.request, "There is no store available in the %s area, please try another zip code" % zipcode)
             return redirect('grocerystore:index')
 
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
@@ -519,22 +519,22 @@ class StoreView(View):
 
     def get(self, request, zipcode, store_id):
         if len(zipcode) < 4 or len(zipcode) > 5 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.")
+            messages.warning(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
         try:
             store = Store.objects.get(pk=store_id)
         except: # if the user try to access a non-existent store page
-            messages.error(self.request, "The store you're looking for doesn't exist.")
+            messages.warning(self.request, "The store you're looking for doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
+                messages.warning(self.request, "The store you're looking for doesn't "\
                                              "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
         except: # if there aren't any stores that deliver the chosen zipcode area
-            messages.error(self.request, "There's no store available in the area "\
+            messages.warning(self.request, "There's no store available in the area "\
                                          "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
@@ -572,11 +572,11 @@ class StoreView(View):
         if searched_item.replace(" ", "").replace("-", "").isalpha():
             search_result = search_item(searched_item, store_id)
             if len(search_result) > 30:
-                messages.error(self.request, "too many items match your research... "\
+                messages.warning(self.request, "too many items match your research... "\
                                "Please be more specific.")
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
             if len(search_result) == 0:
-                messages.error(self.request, "unfortunately no available item matches "\
+                messages.warning(self.request, "unfortunately no available item matches "\
                                "your research at %s..." % Store.objects.get(pk=store_id))
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
             searched_item = urllib.quote(searched_item.encode('utf8'))
@@ -584,7 +584,7 @@ class StoreView(View):
                                                    store_id=store_id,
                                                    searched_item=searched_item)
         else:
-            messages.error(self.request, "You must enter only alphabetical characters")
+            messages.warning(self.request, "You must enter only alphabetical characters")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
 
@@ -596,38 +596,38 @@ class Instock(View):
     def get(self, request, zipcode, store_id, category_id, subcategory_id):
         # if the user types an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.")
+            messages.warning(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
 
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.")
+            messages.warning(self.request, "Sorry, the requested store doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
+                messages.warning(self.request, "The store you're looking for doesn't "\
                                              "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
         except: # check if there're stores available in the chosen zipcode
-            messages.error(self.request, "There's no store available in the area "\
+            messages.warning(self.request, "There's no store available in the area "\
                                          "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the category_id does exist
             category = ProductCategory.objects.get(pk=category_id)
         except:
-            messages.error(self.request, "Sorry, the requested category doesn't exist.")
+            messages.warning(self.request, "Sorry, the requested category doesn't exist.")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
         try: # check if the subcategory_id does exist
             subcategory = ProductSubCategory.objects.get(pk=subcategory_id)
             if subcategory.parent != category:
-                messages.error(self.request, "Sorry, the requested sub-category doesn't exist)")
+                messages.warning(self.request, "Sorry, the requested sub-category doesn't exist)")
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested sub-category doesn't exist.")
+            messages.warning(self.request, "Sorry, the requested sub-category doesn't exist.")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         context = {}
@@ -654,11 +654,11 @@ class Instock(View):
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 search_result = search_item(searched_item, store_id)
                 if len(search_result) > 30:
-                    messages.error(self.request, "too many items match your research... "\
+                    messages.warning(self.request, "too many items match your research... "\
                                    "Please be more specific.")
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 if len(search_result) == 0:
-                    messages.error(self.request, "unfortunately no available item matches "\
+                    messages.warning(self.request, "unfortunately no available item matches "\
                                    "your research at %s..." % Store.objects.get(pk=store_id))
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 searched_item = urllib.quote(searched_item.encode('utf8'))
@@ -666,7 +666,7 @@ class Instock(View):
                                                        store_id=store_id,
                                                        searched_item=searched_item)
             else:
-                messages.error(self.request, "You must enter only alphabetical characters")
+                messages.warning(self.request, "You must enter only alphabetical characters")
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         except: pass
@@ -731,23 +731,23 @@ class BuyAgainView(LoginRequiredMixin, View):
     def get(self, request, zipcode, store_id):
         # if the user types an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.")
+            messages.warning(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
 
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.")
+            messages.warning(self.request, "Sorry, the requested store doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
+                messages.warning(self.request, "The store you're looking for doesn't "\
                                              "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
         except: # if there aren't any stores that deliver the chosen zipcode area
-            messages.error(self.request, "There's no store available in the area "\
+            messages.warning(self.request, "There's no store available in the area "\
                                          "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
@@ -787,11 +787,11 @@ class BuyAgainView(LoginRequiredMixin, View):
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 search_result = search_item(searched_item, store_id)
                 if len(search_result) > 30:
-                    messages.error(self.request, "too many items match your research... "\
+                    messages.warning(self.request, "too many items match your research... "\
                                    "Please be more specific.")
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 if len(search_result) == 0:
-                    messages.error(self.request, "unfortunately no available item matches "\
+                    messages.warning(self.request, "unfortunately no available item matches "\
                                    "your research at %s..." % Store.objects.get(pk=store_id))
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 searched_item = urllib.quote(searched_item.encode('utf8'))
@@ -799,7 +799,7 @@ class BuyAgainView(LoginRequiredMixin, View):
                                                        store_id=store_id,
                                                        searched_item=searched_item)
             else:
-                messages.error(self.request, "You must enter only alphabetical characters")
+                messages.warning(self.request, "You must enter only alphabetical characters")
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         except: pass # if the user doesn't use the search tool
@@ -851,23 +851,23 @@ class SearchView(View):
     def get(self, request, zipcode, store_id, searched_item):
         # if the user types an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.")
+            messages.warning(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
 
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.")
+            messages.warning(self.request, "Sorry, the requested store doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
+                messages.warning(self.request, "The store you're looking for doesn't "\
                                              "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
         except: # if there aren't any stores that deliver the chosen zipcode area
-            messages.error(self.request, "There's no store available in the area "\
+            messages.warning(self.request, "There's no store available in the area "\
                                          "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
@@ -894,7 +894,7 @@ class SearchView(View):
             return render(self.request, self.template_name, context=context)
 
         else: # in case the search result is empty but still the user types the searched_item in the url
-            messages.error(self.request, "unfortunately no available item matches your research at %s" % store)
+            messages.warning(self.request, "unfortunately no available item matches your research at %s" % store)
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
     def post(self, request, zipcode, store_id, searched_item):
@@ -905,11 +905,11 @@ class SearchView(View):
             if new_searched_item.replace(" ", "").replace("-", "").isalpha():
                 search_result = search_item(new_searched_item, store_id)
                 if len(search_result) > 30:
-                    messages.error(self.request, "too many items match your research... "\
+                    messages.warning(self.request, "too many items match your research... "\
                                    "Please be more specific.")
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 if len(search_result) == 0:
-                    messages.error(self.request, "unfortunately no available item matches "\
+                    messages.warning(self.request, "unfortunately no available item matches "\
                                    "your research at %s..." % Store.objects.get(pk=store_id))
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 new_searched_item = urllib.quote(new_searched_item.encode('utf8'))
@@ -917,7 +917,7 @@ class SearchView(View):
                                                        store_id=store_id,
                                                        searched_item=new_searched_item)
             else:
-                messages.error(self.request, "You must enter only alphabetical characters")
+                messages.warning(self.request, "You must enter only alphabetical characters")
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
         except: pass
 
@@ -977,36 +977,36 @@ class ProductDetailView(View):
     def get(self, request, zipcode, store_id, product_id):
         # if the user types an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.")
+            messages.warning(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
 
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.")
+            messages.warning(self.request, "Sorry, the requested store doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
+                messages.warning(self.request, "The store you're looking for doesn't "\
                                              "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
         except: # if there aren't any stores that deliver the chosen zipcode area
-            messages.error(self.request, "There's no store available in the area "\
+            messages.warning(self.request, "There's no store available in the area "\
                                          "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the product_id does exist
             product = Product.objects.get(pk=product_id)
         except:
-            messages.error(self.request, "Sorry, the requested product doesn't exist.")
+            messages.warning(self.request, "Sorry, the requested product doesn't exist.")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         try: # check if the product is available in the chosen store
             product_availability = Availability.objects.filter(product=product).get(store=store)
         except:
-            messages.error(self.request, "Sorry, the requested product isn't available in the store you've chosen.")
+            messages.warning(self.request, "Sorry, the requested product isn't available in the store you've chosen.")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         other_availabilities = Availability.objects.filter(product=product)\
@@ -1043,11 +1043,11 @@ class ProductDetailView(View):
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 search_result = search_item(searched_item, store_id)
                 if len(search_result) > 30:
-                    messages.error(self.request, "too many items match your research... "\
+                    messages.warning(self.request, "too many items match your research... "\
                                    "Please be more specific.")
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 if len(search_result) == 0:
-                    messages.error(self.request, "unfortunately no available item matches "\
+                    messages.warning(self.request, "unfortunately no available item matches "\
                                    "your research at %s..." % Store.objects.get(pk=store_id))
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 searched_item = urllib.quote(searched_item.encode('utf8'))
@@ -1055,7 +1055,7 @@ class ProductDetailView(View):
                                                        store_id=store_id,
                                                        searched_item=searched_item)
             else:
-                messages.error(self.request, "You must enter only alphabetical characters")
+                messages.warning(self.request, "You must enter only alphabetical characters")
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         store = Store.objects.get(pk=store_id)
@@ -1109,7 +1109,7 @@ class CartView(View):
 
         # if the user types an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.")
+            messages.warning(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
 
         if self.request.user.is_authenticated:
@@ -1297,19 +1297,19 @@ class CheckoutView(LoginRequiredMixin, View):
     def get(self, request, zipcode, store_id):
         # if the user enters an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.")
+            messages.warning(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
 
         try:
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the store you want to check "\
+            messages.warning(self.request, "Sorry, the store you want to check "\
                                          "out from doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
         if not user_cart: # if the user's cart is totally empty
-            messages.error(self.request, "You need to put items in your cart to checkout!")
+            messages.warning(self.request, "You need to put items in your cart to checkout!")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         context = {'zipcode': zipcode,
@@ -1343,7 +1343,7 @@ class CheckoutView(LoginRequiredMixin, View):
                 in_cart.append(elt)
 
         if float(cart_total) == 0.00:
-            messages.error(self.request, "You must put items in your cart to be able "\
+            messages.warning(self.request, "You must put items in your cart to be able "\
                                          "to place an order!")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
@@ -1414,11 +1414,11 @@ class CheckoutView(LoginRequiredMixin, View):
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 search_result = search_item(searched_item, store_id)
                 if len(search_result) > 30:
-                    messages.error(self.request, "too many items match your research... "\
+                    messages.warning(self.request, "too many items match your research... "\
                                    "Please be more specific.")
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 if len(search_result) == 0:
-                    messages.error(self.request, "unfortunately no available item matches "\
+                    messages.warning(self.request, "unfortunately no available item matches "\
                                    "your research at %s..." % Store.objects.get(pk=store_id))
                     return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
                 searched_item = urllib.quote(searched_item.encode('utf8'))
@@ -1426,7 +1426,7 @@ class CheckoutView(LoginRequiredMixin, View):
                                                        store_id=store_id,
                                                        searched_item=searched_item)
             else:
-                messages.error(self.request, "You must enter only alphabetical characters")
+                messages.warning(self.request, "You must enter only alphabetical characters")
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         except: pass
@@ -1438,7 +1438,7 @@ class CheckoutView(LoginRequiredMixin, View):
                 try:
                     delivery_time = self.request.POST['delivery_time']
                 except:
-                    messages.error(self.request, "Please select a delivery time.")
+                    messages.warning(self.request, "Please select a delivery time.")
                     return redirect('grocerystore:checkout', zipcode=zipcode, store_id=store_id)
             else:
                 delivery_time = "pick up"
@@ -1543,7 +1543,7 @@ class CheckoutView(LoginRequiredMixin, View):
             messages.success(self.request, "Congratulations for your virtual purchase!")
             return redirect('grocerystore:index')
 
-        messages.error(self.request, "Please be sure to enter valid credit cart information.")
+        messages.warning(self.request, "Please be sure to enter valid credit cart information.")
         return redirect('grocerystore:checkout', zipcode=zipcode, store_id=store_id)
 
 
@@ -1557,23 +1557,23 @@ class OrdersHistory(LoginRequiredMixin, View):
     def get(self, request, zipcode, store_id):
         # if the user types an invalid zipcode directly in the browser
         if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.")
+            messages.warning(self.request, "You are looking for an invalid zipcode.")
             return redirect('grocerystore:index')
 
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.")
+            messages.warning(self.request, "Sorry, the requested store doesn't exist.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
+                messages.warning(self.request, "The store you're looking for doesn't "\
                                              "deliver in the area you've chosen.")
                 return redirect('grocerystore:start', zipcode=zipcode)
         except: # if there aren't any stores that deliver the chosen zipcode area
-            messages.error(self.request, "There's no store available in the area "\
+            messages.warning(self.request, "There's no store available in the area "\
                                          "you've chosen.")
             return redirect('grocerystore:start', zipcode=zipcode)
 
@@ -1613,7 +1613,7 @@ class OrdersHistory(LoginRequiredMixin, View):
                     try:
                         availability = Availability.objects.get(pk=elt['availability_pk'])
                     except Availability.DoesNotExist:
-                        messages.error(self.request, "Sorry, %s isn't available anymore at %s" % (elt['product_name'], order.data['store']['store_name']))
+                        messages.warning(self.request, "Sorry, %s isn't available anymore at %s" % (elt['product_name'], order.data['store']['store_name']))
                         continue
                     try:
                         item = ItemInCart.objects.filter(incart_user=user)\
@@ -1632,7 +1632,7 @@ class OrdersHistory(LoginRequiredMixin, View):
                     try:
                         availability = Availability.objects.get(pk=elt['availability_pk'])
                     except Availability.DoesNotExist:
-                        messages.error(self.request, "%s isn't available anymore" % elt['product_name'])
+                        messages.warning(self.request, "%s isn't available anymore" % elt['product_name'])
                         continue
                     try:
                         quantity_to_add = int(self.request.POST.get(str(elt['availability_pk'])))
