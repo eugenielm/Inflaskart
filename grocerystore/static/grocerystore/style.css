@@ -146,6 +146,15 @@ div.messages, div.errorlist {
   text-align: right;
 }
 
+.messages li.info {
+  display: block;
+  position: fixed;
+  bottom: 50px;
+  left: 10px;
+  margin-right: 10px;
+  color: green;
+}
+
 div.errorlist p {
   display: inline;
   font-size: 10px;

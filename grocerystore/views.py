@@ -355,7 +355,6 @@ class ProfileUpdateView(LoginRequiredMixin, View):
 
         if (re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", new_email)) is not None:
             if not new_email == user.email:
-                messages.info(self.request, "Your email has been updated.")
                 user.email = new_email
                 user.save()
         else:
@@ -378,7 +377,6 @@ class ProfileUpdateView(LoginRequiredMixin, View):
 
                 user.first_name = capitalized_first_name
                 user.save()
-                messages.info(self.request, "Your first name has been updated.")
         else:
             # keep the invalid first name the user has just entered - without saving it in the db
             user.first_name = new_first_name
@@ -398,7 +396,6 @@ class ProfileUpdateView(LoginRequiredMixin, View):
                     capitalized_last_name += new_last_name.split()[-1].capitalize()
                 user.last_name = capitalized_last_name
                 user.save()
-                messages.info(self.request, "Your last name has been updated.")
         else:
             # keep the invalid last name the user has just entered - without saving it in the db
             user.last_name = new_last_name
@@ -437,6 +434,7 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         inflauser_address.zip_code = new_address.cleaned_data['zip_code']
         inflauser_address.state = new_address.cleaned_data['state']
         inflauser_address.save()
+        messages.info(self.request, "Your profile has been successfully updated.")
         return redirect('grocerystore:profile')
 
 
@@ -688,7 +686,7 @@ class Instock(View):
                            .get(incart_availability=availability)
                     item.incart_quantity = quantity_to_add
                     item.save()
-                    messages.info(self.request, "%s quantity successfully updated."\
+                    messages.info(self.request, "'%s' quantity successfully updated."\
                                                 % availability.product)
                 # create an ItemInCart instance if the item isn't in the
                 # database, and save it in the database
@@ -697,8 +695,9 @@ class Instock(View):
                                               incart_availability=availability,
                                               incart_quantity=quantity_to_add)
 
-                    messages.info(self.request, "%s successfully added in your cart."\
+                    messages.info(self.request, "'%s' successfully added in your cart."\
                                                 % availability.product)
+
                 return redirect('grocerystore:instock', zipcode=zipcode,
                                                         store_id=store_id,
                                                         category_id=category_id,
@@ -706,9 +705,16 @@ class Instock(View):
 
             else: # if the user isn't authenticated
                 res = {'name': str(availability.pk), 'qty': quantity_to_add}
-                self.request.session[str(availability.pk)] = res # pk of the Availability instance
-                messages.info(self.request, "%s successfully added in your cart."\
-                                            % availability.product)
+                try: # check if the item is already in the user's cart
+                    self.request.session[str(availability.pk)]
+                    self.request.session[str(availability.pk)] = res
+                    messages.info(self.request, "'%s' quantity successfully updated."\
+                                                % availability.product)
+                except:
+                    self.request.session[str(availability.pk)] = res
+                    messages.info(self.request, "'%s' successfully added in your cart."\
+                                                % availability.product)
+
                 return redirect('grocerystore:instock', zipcode=zipcode,
                                                         store_id=store_id,
                                                         category_id=category_id,
@@ -820,7 +826,7 @@ class BuyAgainView(LoginRequiredMixin, View):
                        .get(incart_availability=availability)
                 item.incart_quantity = quantity_to_add
                 item.save()
-                messages.info(self.request, "%s quantity successfully updated" % availability.product)
+                messages.info(self.request, "'%s' quantity successfully updated" % availability.product)
 
             # create an ItemInCart instance if the item isn't in the
             # cart, and save it in the database
@@ -829,7 +835,7 @@ class BuyAgainView(LoginRequiredMixin, View):
                                           incart_availability=availability,
                                           incart_quantity=quantity_to_add)
 
-                messages.info(self.request, "%s successfully added in your cart."\
+                messages.info(self.request, "'%s' successfully added in your cart."\
                                  % availability.product)
 
             return redirect('grocerystore:buyagain', zipcode=zipcode,
@@ -930,7 +936,7 @@ class SearchView(View):
                            .get(incart_availability=availability)
                     item.incart_quantity = quantity_to_add
                     item.save()
-                    messages.info(self.request, "%s quantity was successfully updated."\
+                    messages.info(self.request, "'%s' quantity successfully updated."\
                                                 % availability.product)
                 # create an ItemInCart instance if the item isn't in the
                 # database, and save it in the database
@@ -938,19 +944,29 @@ class SearchView(View):
                     ItemInCart.objects.create(incart_user=self.request.user,
                                               incart_availability=availability,
                                               incart_quantity=quantity_to_add)
-                    messages.info(self.request, "'%s successfully added to your cart" % availability.product)
+                    messages.info(self.request, "'%s' successfully added in your cart" % availability.product)
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         else: # if the user is anonymous
             for availability in search_result:
                 try:
                     quantity_to_add = int(self.request.POST.get(str(availability.pk)))
-                    messages.info(self.request, "%s successfully added in your cart." % availability.product)
                 except TypeError:
                     continue
+
+                # once the quantity_to_add has been catched
                 res = {'name': str(availability.pk), 'qty': quantity_to_add}
-                self.request.session[str(availability.pk)] = res # pk of the Availability instance
-            return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                try: # check if the item is already in the user's cart
+                    self.request.session[str(availability.pk)]
+                    self.request.session[str(availability.pk)] = res
+                    messages.info(self.request, "'%s' quantity successfully updated."\
+                                                % availability.product)
+                except:
+                    self.request.session[str(availability.pk)] = res
+                    messages.info(self.request, "'%s' successfully added in your cart."\
+                                                % availability.product)
+
+                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
 
 class ProductDetailView(View):
@@ -1058,12 +1074,21 @@ class ProductDetailView(View):
                 ItemInCart.objects.create(incart_user=self.request.user,
                                           incart_availability=availability,
                                           incart_quantity=quantity_to_add)
-            messages.info(self.request, "'%s' successfully added to your cart" % product)
+            messages.info(self.request, "'%s' successfully added in your cart" % product)
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+
         else: # if the user is anonymous
             res = {'name': str(availability.pk), 'qty': quantity_to_add}
-            self.request.session[str(availability.pk)] = res # pk of the Availability instance
-            messages.info(self.request, "'%s' successfully added to your cart" % product)
+            try: # check if the item is already in the user's cart
+                self.request.session[str(availability.pk)]
+                self.request.session[str(availability.pk)] = res
+                messages.info(self.request, "'%s' quantity successfully updated."\
+                                            % availability.product)
+            except:
+                self.request.session[str(availability.pk)] = res
+                messages.info(self.request, "'%s' successfully added in your cart."\
+                                            % availability.product)
+
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
 
@@ -1317,8 +1342,8 @@ class CheckoutView(LoginRequiredMixin, View):
                 in_cart.append(elt)
 
         if float(cart_total) == 0.00:
-            messages.info(self.request, "You must put items in your cart to be able "\
-                                        "to place an order!")
+            messages.error(self.request, "You must put items in your cart to be able "\
+                                         "to place an order!")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         # calculating service fee before adding sales taxes
@@ -1514,7 +1539,7 @@ class CheckoutView(LoginRequiredMixin, View):
             order.data['order_nb'] = int(10000 + order.pk)
             order.data['order_total'] = "%.2f" % order_total
             order.save()
-            messages.success(self.request, "Congratulations for your virtual purchase!")
+            messages.info(self.request, "Congratulations for your virtual purchase!")
             return redirect('grocerystore:index')
 
         messages.error(self.request, "Please be sure to enter valid credit cart information.")
@@ -1617,11 +1642,11 @@ class OrdersHistory(LoginRequiredMixin, View):
                                .get(incart_availability=availability)
                         item.incart_quantity = quantity_to_add
                         item.save()
-                        messages.info(self.request, "%s quantity updated to %s" % (item.incart_availability.product, quantity_to_add))
+                        messages.info(self.request, "'%s' quantity successfully updated" % item.incart_availability.product)
                         return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
                     except:
                         ItemInCart.objects.create(incart_user=user,
                                                   incart_availability=availability,
                                                   incart_quantity=quantity_to_add)
-                        messages.info(self.request, "%s %s added in your cart" % (quantity_to_add, item.incart_availability.product))
+                        messages.info(self.request, "'%s' successfully added in your cart" % item.incart_availability.product)
                         return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
