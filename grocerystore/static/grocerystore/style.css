@@ -136,7 +136,7 @@ div.messages li {
   margin-right: 10px;
   font-size: 10px;
   font-weight: bold;
-  color: red;
+  color: #0b30c5;
   text-align: left;
 }
 
@@ -149,22 +149,21 @@ div.messages li {
   opacity: 0.7;
 }
 
-div.messages li.info {color: #0b30c5;}
-
-div.errorlist {
+div.errorlist, div.messages li.error, div.messages li.success {
   display: block;
   position: fixed;
-  top: 52px;
+  top: 55px;
   right: 10px;
-  font-size: 9px;
-}
-
-div.errorlist p {
-  display: inline;
+  margin-right: 0px;
   font-size: 10px;
   font-style: italic;
   color: red;
   font-weight: bold;
+  text-align: right;
+}
+
+div.errorlist p {
+  display: inline;
 }
 
 /*****************************************************************************/
