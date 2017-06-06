@@ -4,7 +4,8 @@ from . import views
 
 app_name = 'grocerystore'
 urlpatterns = [
-    # grocerystore/
+    # to prevent errors for people who got the old link
+    url(r'^grocerystore/$', views.IndexView.as_view(), name='index'),
     url(r'^$', views.IndexView.as_view(), name='index'),
     url(r'^register/$', views.UserRegisterView.as_view(), name='register'),
     url(r'^login/$', views.UserLoginView.as_view(), name='login'),
