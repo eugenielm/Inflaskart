@@ -1539,7 +1539,7 @@ class CheckoutView(LoginRequiredMixin, View):
             order.data['order_nb'] = int(10000 + order.pk)
             order.data['order_total'] = "%.2f" % order_total
             order.save()
-            messages.info(self.request, "Congratulations for your virtual purchase!")
+            messages.success(self.request, "Congratulations for your virtual purchase!")
             return redirect('grocerystore:index')
 
         messages.error(self.request, "Please be sure to enter valid credit cart information.")
