@@ -139,6 +139,8 @@ div.messages li {
   text-align: left;
 }
 
+ div.messages li.warning {color: red}
+
 .messages > ul {
   margin-top: 5px;
   list-style-type: none;
@@ -147,7 +149,7 @@ div.messages li {
   opacity: 0.7;
 }
 
-div.errorlist, div.messages li.warning, div.messages li.success {
+div.errorlist, div.messages li.success {
   display: block;
   position: fixed;
   top: 55px;
