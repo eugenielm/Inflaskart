@@ -70,14 +70,15 @@
 
 
     <div class="container"> <!-- beginning of main content -->
+
       {% if messages %}
-      <div class="messages">
-        <ul>
-          {% for message in messages %}
-            <div class="message"><li class="{{ message.tags }}">{{ message }}</li></div>
-          {% endfor %}
-        </ul>
-      </div>
+        {% for message in messages %}
+          {% if message.tags == 'error' %}
+            <div class="alert alert-danger" role="alert">{{ message }}</div>
+          {% else %}
+            <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
+          {% endif %}
+        {% endfor %}
       {% endif %}
 
 

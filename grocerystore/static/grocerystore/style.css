@@ -126,30 +126,7 @@ p#footer_contact {
 /*****************************************************************************/
 /* messages in session, error messages for invalid user input in forms*/
 
-div.messages li {
-  display: block;
-  position: fixed;
-  bottom: 50px;
-  left: 10px;
-  margin-left: 10px;
-  margin-right: 10px;
-  font-size: 10px;
-  font-weight: bold;
-  color: #0b30c5;
-  text-align: left;
-}
-
- div.messages li.warning {color: red}
-
-.messages > ul {
-  margin-top: 5px;
-  list-style-type: none;
-  border-style: none;
-  background-color: transparent;
-  opacity: 0.7;
-}
-
-div.errorlist, div.messages li.success {
+div.errorlist {
   display: block;
   position: fixed;
   top: 55px;
@@ -166,6 +143,12 @@ div.errorlist, div.messages li.success {
 
 div.errorlist p {
   display: inline;
+}
+
+.alert {
+  font-size: 1.8vh;
+  padding: 0px 10px;
+  margin: 10px 0px;
 }
 
 /*****************************************************************************/
@@ -242,7 +225,7 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 /* if hire_me */
 .hire_me {
   width: 300px;
-  margin: 30vh auto -25vh auto;
+  margin: 25vh auto -25vh auto;
   font-size: 12px;
 }
 

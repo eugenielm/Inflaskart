@@ -81,15 +81,6 @@
 
 
     <div class="container checkout"> <!-- beginning of main content -->
-      {% if messages %}
-      <div class="messages">
-        <ul>
-          {% for message in messages %}
-            <div class="message"><li class="{{ message.tags }}">{{ message }}</li></div>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
 
       {% if pickup %}
       <p id="pickup">Please note that this store doesn't deliver your current address.
@@ -98,6 +89,7 @@
         <p>{{ store.store_address }}</p>
         <p>{{ store.store_city }}, {{ store.store_state.state_postal_code }} {{ store.store_zipcode }}</p>
       {% endif %}
+
       <div class="single-cart checkout">
         <div class="panel-group checkout">
           <div class="panel panel-default">
@@ -148,6 +140,16 @@
                 {% endfor %}
               </select>
             </div>
+          {% endif %}
+
+          {% if messages %}
+            {% for message in messages %}
+              {% if message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">{{ message }}</div>
+              {% else %}
+                <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
+              {% endif %}
+            {% endfor %}
           {% endif %}
 
           <p>This is a demo website so feel free to use the fake credit card credentials below!</p>
