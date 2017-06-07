@@ -116,12 +116,12 @@
                 {% endif %}
 
                 {% if delivery_fee %}
-                  <li class="list-group-item">Delivery fee for an order under $20<span style="line-height:normal"><b>$3.00</b></span></li>
+                  <li class="list-group-item">Delivery fee for an order under $30<span style="line-height:normal"><b>$5.00</b></span></li>
                 {% endif %}
               </ul>
               <div class="panel-footer">
                 <p id="cart-total">Cart total: ${{ cart_total }}</p>
-                <p style="margin:0px">Change <a href="{% url 'grocerystore:cart' zipcode %}" style="text-decoration:underline">your cart</a></p>
+                <p id="change_cart"><a href="{% url 'grocerystore:cart' zipcode %}">Change your cart</a></p>
               </div>
             </div>
           </div>

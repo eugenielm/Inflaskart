@@ -108,7 +108,7 @@
 
             <form class="qty_selection" action="" method="post">
               {% csrf_token %}
-              <select id="{{product.0.pk}}" name="{{product.0.pk}}" onchange='this.form.submit()'>
+              <select id="{{product.0.pk}}" name="{{product.0.pk}}">
                 {% for quantity in quantity_set %}
                   <option value="{{quantity}}"> {{ quantity }}</option>
                 {% endfor %}

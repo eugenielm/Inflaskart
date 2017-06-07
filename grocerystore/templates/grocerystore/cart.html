@@ -89,7 +89,7 @@
               <div class="panel-heading">
                 <h4 class="panel-title">
                   <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">{{ key }}
-                    {% if not values|slice:"-1"|last %}
+                    {% if values|slice:"-1"|last == 'pickup' %}
                       {% if username %}
                       <span class="glyphicon glyphicon-exclamation-sign"></span>
                       {% endif %}
@@ -99,7 +99,7 @@
               </div>
               <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
                 <ul class="list-group">
-                {% for item in values|slice:":-2" %}
+                {% for item in values|slice:":-3" %}
                   <li class="list-group-item">
                     <form class="qty_update" action="" method="post">
                       {% csrf_token %}
@@ -134,26 +134,33 @@
 
                     {% if user_zipcode %} <!-- if the user is authenticated -->
 
-                      {% if not values|slice:"-1"|last %} <!-- if the store doesn't deliver the the user'address' -->
-                        <!-- use the store zipcode to keep shopping in the same store (see below) -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}"><b>{{ key }}</b></a>
-                        <span id="no_delivery">No delivery in {{ user_zipcode }}</span>
-                      {% else %} <!-- if the store delivers the zipcode the user's address, use this zipcode to keep shopping in the same store -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' user_zipcode key.pk %}"><b>{{ key }}</b></a>
+                      {% if values|slice:"-1"|last == 'delivery' %} <!-- if the store delivers the the user'address' -->
+                        {% if values|slice:"-2"|last == 'delivery_fee' %} <!-- if the total is under $30 there's a delivery fee -->
+                          <p id="delivery_fee">A $5 delivery fee will be applied for any total under $30</p>
+                        {% endif %}
+                        <p id="keep_shopping"><a href="{% url 'grocerystore:store' user_zipcode key.pk %}">Keep shopping at {{ key }}</a></p>
+                      {% else %} <!-- if the store doesn't deliver the zipcode the user's address, use this zipcode to keep shopping in the same store -->
+                        <p id="no_delivery">No delivery in {{ user_zipcode }}</p>
+                        <!-- use the store zipcode to keep shopping in the same store on the next line -->
+                        <p id="keep_shopping"><a href="{% url 'grocerystore:store' values|first|last key.pk %}">Keep shopping at {{ key }}</a></p>
                       {% endif %}
 
                     {% else %} <!-- if the user is anonymous -->
 
+                      {% if values|slice:"-2"|last == 'delivery_fee' %} <!-- if the cart total is under $30 -->
+                        <p id="delivery_fee">If delivery is available for your address, a $5 delivery fee will be applied for any total under $30</p>
+                      {% else %}
+                        <p id="no_delivery">Delivery may not be available depending on your address</p>
+                      {% endif %}
+
                       {% if not values|slice:"-1"|last %} <!-- if the store doesn't deliver the area the user is shopping in -->
                         <!-- use the store zipcode to keep shopping in the same store (see below) -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}"><b>{{ key }}</b></a>
+                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{ key }}</a></p>
                       {% else %} <!-- if the store delivers the zipcode the user is shopping in, use this zipcode to keep shopping in the same store -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}"><b>{{ key }}</b></a>
+                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}">{{ key }}</a></p>
                       {% endif %}
-                        <span id="no_delivery">Delivery may not be available depending on your address</span>
 
                     {% endif %}
-                  </p>
                 </div>
               </div>
             </div>

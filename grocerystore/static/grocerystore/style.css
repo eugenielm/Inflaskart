@@ -456,6 +456,8 @@ form.qty_update {
 
 .single-cart .checkout-empty form {display: inline;}
 
+.single-cart .checkout-empty input.btn.btn-xs {font-size: 1.8vh}
+
 .single-cart .panel-heading .accordion-toggle:after {
     /* symbol for "opening" panels */
     font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
@@ -498,22 +500,27 @@ p.empty_cart {margin: 10px 10px 0px 10px}
 .empty_cart a:hover {text-decoration: none;}
 
 p#keep_shopping {
-  margin:5px 0px 0px 0px;
-  font-size: 12px;
+  margin: 10px 0px 5px 0px;
+  font-size: 1.8vh;
+  line-height: 2vh;
 }
 
-p#keep_shopping a {
-  color: #635a5a;
-  text-decoration: underline;
+
+p#keep_shopping>a {
+  border: solid thin #d8d6d6;
+  border-radius: 3px;
+  background-color: #e0f5fd;
+  padding:2px 5px;
 }
 
-p#keep_shopping a:hover {
+p#keep_shopping>a:hover {
+  background-color: #aee4f9;
   color: black;
 }
 
-#no_delivery {
+p#no_delivery, p#delivery_fee {
   color: red;
-  font-size: 10px;
+  font-size: 8px;
   font-weight: bold;
   font-style: oblique;
 }
@@ -911,6 +918,20 @@ p#pickup {color: red;}
   color: red;
   font-size: 12px;
   font-style: italic;
+}
+
+p#change_cart {margin: 0px}
+
+p#change_cart>a {
+  border: solid thin #d8d6d6;
+  border-radius: 3px;
+  background-color: #e0f5fd;
+  padding:2px 5px;
+}
+
+p#change_cart>a:hover {
+  background-color: #aee4f9;
+  color: black;
 }
 
 /*****************************************************************************/

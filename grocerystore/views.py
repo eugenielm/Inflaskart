@@ -1129,13 +1129,20 @@ class CartView(View):
             if all_carts:
                 for store, cart in all_carts.items(): # cart is a list of elts (elts are lists too)
                     cart_total = 0
+                    for elt in cart:
+                        cart_total += float(elt[3]) # elt[3]=item_price
+
+                    if cart_total < 30:
+                        cart.append('delivery_fee')
+                    else:
+                        cart.append('no_delivery_fee')
+
                     # True is for a store that delivers the user's address
                     if store.delivery_area.all().filter(zipcode=user_zipcode):
-                        cart.append(True)
-                    else: cart.append(False)
+                        cart.append('delivery')
+                    else:
+                        cart.append('pickup')
 
-                    for elt in cart[:-1]:
-                        cart_total += float(elt[3]) # elt[3]=item_price
                     cart.append("%.2f" % cart_total)
 
                 context['all_carts'] = all_carts
@@ -1174,13 +1181,21 @@ class CartView(View):
             if all_carts:
                 for store, cart in all_carts.items():
                     cart_total = 0
+
+                    for elt in cart:
+                        cart_total += float(elt[3])
+
+                    if cart_total < 30:
+                        cart.append('delivery_fee')
+                    else:
+                        cart.append('no_delivery_fee')
+
                     # True is for a store that delivers the current zipcode area
                     if store.delivery_area.all().filter(zipcode=zipcode):
-                        cart.append(True)
-                    else: cart.append(False)
+                        cart.append('delivery')
+                    else:
+                        cart.append('pickup')
 
-                    for elt in cart[:-1]:
-                        cart_total += float(elt[3])
                     cart.append("%.2f" % cart_total)
 
                 context['all_carts'] = all_carts
@@ -1351,8 +1366,8 @@ class CheckoutView(LoginRequiredMixin, View):
         try: # check wether the customer can be delivered or not, and if they heve
              # to pay a delivery fee or not
             user_zipcode = Zipcode.objects.get(zipcode=self.request.user.inflauser.inflauser_address.zip_code)
-            if cart_total < 20 and user_zipcode in store.delivery_area.all():
-                cart_total += 3.00
+            if cart_total < 30 and user_zipcode in store.delivery_area.all():
+                cart_total += 5.00
                 context['delivery_fee'] = True
             elif user_zipcode not in store.delivery_area.all():
                 # if the user's address can't be delivered by the store they're checking out at
