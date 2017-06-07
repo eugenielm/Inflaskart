@@ -104,7 +104,11 @@
                   <li class="list-group-item">
                     <div class="item_in_cart">
                       <a href="{% url 'grocerystore:detail' zipcode store_id item.0.pk %}">
-                        {% if item.0.product_pic %}<img src="{{item.0.product_pic.url}}" alt="{{ item.0.product_name }}" />{% endif %}
+                        {% if item.0.product_pic %}
+                          <img src="{{item.0.product_pic.url}}" alt="{{item.0.product_name}}" />
+                        {% else %}
+                          <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
+                        {% endif %}
                         {{ item.0 }}</a>: {{ item.1 }} x ${{item.2}}/{{ item.3 }}
                     </div>
                     <span><b>${{ item.4 }}</b></span>

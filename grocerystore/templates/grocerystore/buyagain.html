@@ -100,7 +100,9 @@
                 <div class="product_button">
                   <div class="product_button_content"> <!-- div needed to center vertically -->
                     {% if availability.product.product_pic %}
-                      <img src="{{ availability.product.product_pic.url }}" alt="{{ availability.product.product_name }}">
+                      <img src="{{ availability.product.product_pic.url }}" alt="{{availability.product.product_name}}">
+                    {% else %}
+                      <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{availability.product.product_name}}"/>
                     {% endif %}
                     <p>{{ availability.product }}</p>
                     <p><b>${{ availability.product_price }} / {{ availability.product_unit }}</b></p>

@@ -117,7 +117,11 @@
                   <input class="btn btn-info btn-xs update_qty" type="submit" value="add" />
                 </form>
                 <a href="{% url 'grocerystore:detail' zipcode store_id item.product_pk %}">
-                {% if item.product_pic %}<img src="{{item.product_pic.url}}" alt="{{ item.product_name }}" />{% endif %}
+                {% if item.product_pic %}
+                  <img src="{{item.product_pic.url}}" alt="{{item.product_name}}" />
+                {% else %}
+                  <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.product_name}}"/>
+                {% endif %}
                 {{ item.product_qty }} x {{ item.product_name }}</a> (${{ item.unit_price }} / {{ item.product_unit }}): <b>${{ item.total_item_price }}</b>
               </li>
               {% endfor %}

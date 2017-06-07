@@ -98,7 +98,9 @@
       <div id="product-details-section">
         <div class="product-pic">
           {% if product.product_pic %}
-            <img src="{{ product_pic.url }}" alt=""/>
+            <img src="{{ product_pic.url }}" alt="{{product.product_name}}"/>
+          {% else %}
+            <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{product.product_name}}"/>
           {% endif %}
         </div>
 
