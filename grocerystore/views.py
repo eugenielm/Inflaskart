@@ -1138,8 +1138,8 @@ class CartView(View):
                         cart_total += float(elt[3]) # elt[3]=item_price
                     cart.append("%.2f" % cart_total)
 
-                    context['all_carts'] = all_carts
-                    context['quantity_set'] = range(21)
+                context['all_carts'] = all_carts
+                context['quantity_set'] = range(21)
 
             else:
                 try: # the zip code area where the user is shopping (which may not
@@ -1390,7 +1390,7 @@ class CheckoutView(LoginRequiredMixin, View):
         elif now.hour >= 11:
             delivery_time_set = ["today %s, noon-2pm" % today, "today %s, 2pm-4pm" % today, "today %s, 4pm-6pm" % today, "today %s, 6pm-8pm" % today]
         else:
-            delivery_time_set = ["today %s, 11am-1pm" % today, "today %s, 1pm-3pm" % today, "today %s, 3pm-5pm" % today % today, "today %s, 5pm-7pm" % today]
+            delivery_time_set = ["today %s, 11am-1pm" % today, "today %s, 1pm-3pm" % today, "today %s, 3pm-5pm" % today, "today %s, 5pm-7pm" % today]
 
         context['delivery_time_set'] = delivery_time_set
 
