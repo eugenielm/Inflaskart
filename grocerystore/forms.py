@@ -117,13 +117,14 @@ class CreditCardField(forms.IntegerField):
 
 
 class PaymentForm(forms.Form):
-    number = CreditCardField(label="Card Number")
-    first_name = forms.CharField(label="Card Holder First Name", max_length=30)
-    last_name = forms.CharField(label="Card Holder Last Name", max_length=30)
+    number = CreditCardField(label="Card Number", initial="4444555566667777")
+    first_name = forms.CharField(label="Card Holder First Name", max_length=30, initial='Awesome')
+    last_name = forms.CharField(label="Card Holder Last Name", max_length=30, initial='Customer')
     expire_month = forms.ChoiceField(choices=[(x, x) for x in range(1, 13)])
-    expire_year = forms.ChoiceField(choices=[(x, x) for x in range(date.today().year, date.today().year + 15)])
+    expire_year = forms.ChoiceField(choices=[(x, x) for x in range(date.today().year, date.today().year + 15)], initial=2019)
     cvv_number = forms.IntegerField(label="CVV Number", max_value= 9999,
-                                    widget=forms.TextInput(attrs={'size': '4'}))
+                                    widget=forms.TextInput(attrs={'size': '4'}),
+                                    initial="111")
 
     def __init__(self, *args, **kwargs):
         self.payment_data = kwargs.pop('payment_data', None)
