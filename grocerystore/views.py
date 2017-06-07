@@ -1384,7 +1384,7 @@ class CheckoutView(LoginRequiredMixin, View):
         if now.hour >= 19 and now.hour < 24:
             delivery_time_set = ["tomorrow %s, 11am-1pm" % tomorrow, "tomorrow %s, 1pm-3pm" % tomorrow, "tomorrow %s, 3pm-5pm" % tomorrow, "tomorrow %s, 5pm-8pm" % tomorrow]
         elif now.hour >= 18:
-            delivery_time_set = ["today %s, 7pm-9pm", "tomorrow %s, 11am-1pm" % tomorrow, "tomorrow %s, 1pm-3pm" % tomorrow, "tomorrow %s, 3pm-5pm" % tomorrow]
+            delivery_time_set = ["today %s, 7pm-9pm" % today, "tomorrow %s, 11am-1pm" % tomorrow, "tomorrow %s, 1pm-3pm" % tomorrow, "tomorrow %s, 3pm-5pm" % tomorrow]
         elif now.hour >= 17:
             delivery_time_set = ["today %s, 6pm-8pm" % today, "tomorrow %s, 11am-1pm" % tomorrow, "tomorrow %s, 1pm-3pm" % tomorrow, "tomorrow %s, 3pm-5pm" % tomorrow]
         elif now.hour >= 16:
