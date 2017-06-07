@@ -85,21 +85,16 @@ class UserRegisterView(View):
 
         form1 = self.form_class1(self.request.POST)
         form2 = self.form_class2(self.request.POST)
-        try: # check if the username typed in is available
+
+        try: # if the username typed in is unavailable
             user = User.objects.get(username=self.request.POST['username'])
             context = {'user_form': form1, 'address_form': form2}
-            errors = []
-            for er in form1.errors:
-                if er == "username" and user.username == self.request.POST['username']:
-                    context['unavailable_username'] = self.request.POST['username']
-                if er == "street_address1":
-                    er = "address"
-                errors.append(er)
-            context['errors'] = errors
+            context['unavailable_username'] = self.request.POST['username']
             return render(self.request, self.template_name, context=context)
+
         except: pass
 
-        if form1.is_valid() and form2.is_valid():
+        if form1.is_valid() and form2.is_valid(): # if the username is available and all the information is valid
             inflauser_address = form2.save(commit=False)
 
             city = ""
@@ -183,15 +178,6 @@ class UserRegisterView(View):
                 login(self.request, user)
                 messages.info(self.request, "You're now registered and logged in, %s" % user.username)
                 try:
-                    redirect_to = self.request.GET['redirect_to']
-                    # remove the first and last items which are empty strings
-                    redirect_parts = redirect_to.split('/')[1:-1]
-                    # proper redirection if the user is trying to checkout in a store
-                    # that doesn't deliver his/her area
-                    if redirect_parts[-1] == 'checkout':
-                        if Store.objects.get(pk=int(redirect_parts[-2]))\
-                        not in Store.objects.filter(delivery_area__zipcode=redirect_parts[1]):
-                            return redirect('grocerystore:start', zipcode=inflauser.inflauser_address.zip_code)
                     return redirect(self.request.GET['redirect_to'])
                 except:
                     zipcode = inflauser.inflauser_address.zip_code
@@ -199,12 +185,23 @@ class UserRegisterView(View):
 
         errors = []
         for er in form1.errors:
+            if er == "first_name":
+                er = "first name"
+            if er == "last_name":
+                er = "last name"
             errors.append(er)
+
         for er in form2.errors:
+            if er == "street_address1":
+                er = "address"
+            if er == "street_address2":
+                er = "address (line2)"
             errors.append(er)
-        return render(self.request, self.template_name, {'user_form': form1,
-                                                         'address_form': form2,
-                                                         'errors': errors})
+
+        context = {'user_form': form1, 'address_form': form2}
+        context['errors'] = errors
+
+        return render(self.request, self.template_name, context=context)
 
 
 class UserLoginView(View):
@@ -235,7 +232,7 @@ class UserLoginView(View):
                                          " username and password.")
             try:
                 redirect_to = self.request.GET['redirect_to']
-                return redirect('grocerystore:login' + '?redirect_to=' + str(redirect_to))
+                return HttpResponseRedirect(reverse('grocerystore:login') + '?redirect_to=' + str(redirect_to))
             except:
                 return redirect('grocerystore:login')
 
@@ -273,25 +270,17 @@ class UserLoginView(View):
             login(self.request, user)
             inflauser = Inflauser.objects.get(infla_user=user)
             try:
-                redirect_to = self.request.GET['redirect_to']
-                redirect_parts = redirect_to.split('/')[1:-1]
-                # proper redirection if the user is trying to checkout in a store
-                # that doesn't deliver their area
-                if redirect_parts[-1] == 'checkout':
-                    if Store.objects.get(pk=int(redirect_parts[-2]))\
-                    not in Store.objects.filter(delivery_area__zipcode=redirect_parts[1]):
-                        return redirect('grocerystore:start', zipcode=inflauser.inflauser_address.zip_code)
                 return redirect(self.request.GET['redirect_to'])
             except:
                 zipcode = inflauser.inflauser_address.zip_code
                 return redirect('grocerystore:start', zipcode=zipcode)
 
-        else: # the user couldn't be authenticated because the credentials are invalid
+        else: # the user couldn't be authenticated because the password is invalid
             messages.warning(self.request, "Something went wrong. Please  check "\
-                                         "your username and password.")
+                                           "your username and password.")
             try:
                 redirect_to = self.request.GET['redirect_to']
-                return redirect('grocerystore:login' + '?redirect_to=' + str(redirect_to))
+                return HttpResponseRedirect(reverse('grocerystore:login') + '?redirect_to=' + str(redirect_to))
             except:
                 return redirect('grocerystore:login')
 
@@ -1357,6 +1346,8 @@ class CheckoutView(LoginRequiredMixin, View):
             cart_total += sales_tax
             context['sales_tax'] = "%.2f" % sales_tax
 
+        now = datetime.now()
+
         try: # check wether the customer can be delivered or not, and if they heve
              # to pay a delivery fee or not
             user_zipcode = Zipcode.objects.get(zipcode=self.request.user.inflauser.inflauser_address.zip_code)
@@ -1378,7 +1369,6 @@ class CheckoutView(LoginRequiredMixin, View):
         context['cart_total'] = "%.2f" % cart_total
         context['in_cart'] = in_cart
 
-        now = datetime.now()
         today = str(now.month) + "/" + str(now.day)
         tomorrow = str((now.today() + timedelta(days=1)).month) + "/" + str((now.today() + timedelta(days=1)).day)
         if now.hour >= 19 and now.hour < 24:

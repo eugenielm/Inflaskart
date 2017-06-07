@@ -59,9 +59,18 @@ class AddressForm(forms.ModelForm):
                                             'required': "Please fill in this field."})
 
     street_address1 = forms.RegexField(label="Address", min_length=4, max_length=50,
-                                       regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>]{5,}$',
+                                       regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>]{4,}$',
                                        error_messages={'invalid': 'Invalid address.',
                                                        'required': "Please fill in this field."})
+
+    street_address2 = forms.RegexField(label="Address (line 2)", max_length=50, required=False,
+                                       regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>]?$',
+                                       error_messages={'invalid': 'Invalid address (line 2).'})
+
+    apt_nb = forms.RegexField(label="Apt/Unit", max_length=15, required=False,
+                              regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>]?$',
+                              error_messages={'invalid': 'Invalid apt/unit.'})
+
 
     class Meta:
         model = Address

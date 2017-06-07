@@ -53,16 +53,16 @@
         </div>
       {% endif %}
 
-      {% if errors %}
         <div class="errorlist">
-          {% for er in errors %}
-            <p>Please enter a valid {{ er }}</p>
-          {% endfor %}
           {% if unavailable_username %}
-            <p>(the username '{{ unavailable_username }}' is already used)</p>
+            <p>the username '{{ unavailable_username }}' is already used</p>
+          {% endif %}
+          {% if errors %}
+            {% for er in errors %}
+              <p>Please enter a valid {{ er }}</p>
+            {% endfor %}
           {% endif %}
         </div>
-      {% endif %}
 
       <div class="register-block">
         <form id="registration_form" role="form" action="" method="post">
