@@ -48,8 +48,17 @@ div.page-header > a {
   font-size: 1.8vh;
 }
 
-div.page-header>h6>a {color: #807b7b}
-div.page-header>h6>a:hover {color: black}
+div.page-header>h6>a {
+  border: thin;
+  border-style: solid;
+  border-radius: 3px;
+  background-color: white;
+  padding: 1px 3px;
+}
+div.page-header>h6>a:hover {
+  background-color: rgba(238, 238, 238, 1);
+  color: black;
+}
 
 div.page-header > a.btn.btn-success.btn-xs {color: white;}
 /*****************************************************************************/
