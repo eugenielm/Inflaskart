@@ -1625,7 +1625,7 @@ class OrdersHistory(LoginRequiredMixin, View):
                                                   incart_availability=availability,
                                                   incart_quantity=int(elt['product_qty']))
 
-                return redirect('grocerystore:cart', zipcode=zipcode)
+                return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
 
             except:
                 for elt in order.data['items']:
