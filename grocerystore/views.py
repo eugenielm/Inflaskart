@@ -1602,6 +1602,29 @@ class OrdersHistory(LoginRequiredMixin, View):
         return render(self.request, self.template_name, context=context)
 
     def post(self, request, zipcode, store_id):
+
+        try: # in case the user uses the search tool in the navigation menu
+            searched_item = self.request.POST.get('search')
+            if searched_item.replace(" ", "").replace("-", "").isalpha():
+                search_result = search_item(searched_item, store_id)
+                if len(search_result) > 30:
+                    messages.warning(self.request, "too many items match your research... "\
+                                   "Please be more specific.")
+                    return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                if len(search_result) == 0:
+                    messages.warning(self.request, "unfortunately no available item matches "\
+                                   "your research at %s..." % Store.objects.get(pk=store_id))
+                    return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                searched_item = urllib.quote(searched_item.encode('utf8'))
+                return redirect('grocerystore:search', zipcode=zipcode,
+                                                       store_id=store_id,
+                                                       searched_item=searched_item)
+            else:
+                messages.warning(self.request, "You must enter only alphabetical characters")
+                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+
+        except: pass
+
         user = self.request.user
         user_orders = Order.objects.filter(data__user__user_pk=user.pk)\
                       .filter(data__store__store_pk=store_id)
