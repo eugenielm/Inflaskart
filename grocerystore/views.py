@@ -654,7 +654,7 @@ class Instock(View):
                 try:
                     item = ItemInCart.objects.filter(incart_user=self.request.user)\
                            .get(incart_availability=availability)
-                    item.incart_quantity = quantity_to_add
+                    item.incart_quantity += quantity_to_add
                     item.save()
                     messages.success(self.request, "'%s' quantity successfully updated."\
                                                 % availability.product, fail_silently=True)
@@ -675,14 +675,12 @@ class Instock(View):
                                                         subcategory_id=subcategory_id)
 
             else: # if the user isn't authenticated
-                res = {'name': str(availability.pk), 'qty': quantity_to_add}
                 try: # check if the item is already in the user's cart
-                    self.request.session[str(availability.pk)]
-                    self.request.session[str(availability.pk)] = res
+                    self.request.session[str(availability.pk)]['qty'] += quantity_to_add
                     messages.success(self.request, "'%s' quantity successfully updated."\
                                                 % availability.product, fail_silently=True)
                 except:
-                    self.request.session[str(availability.pk)] = res
+                    self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': quantity_to_add}
                     messages.success(self.request, "'%s' successfully added in your cart."\
                                                 % availability.product, fail_silently=True)
 
@@ -786,7 +784,7 @@ class BuyAgainView(LoginRequiredMixin, View):
             try:
                 item = ItemInCart.objects.filter(incart_user=user)\
                        .get(incart_availability=availability)
-                item.incart_quantity = quantity_to_add
+                item.incart_quantity += quantity_to_add
                 item.save()
                 messages.success(self.request, "'%s' quantity successfully updated" \
                                  % availability.product, fail_silently=True)
@@ -959,14 +957,12 @@ class SearchView(View):
                     continue
 
                 # once the quantity_to_add has been catched
-                res = {'name': str(availability.pk), 'qty': quantity_to_add}
                 try: # check if the item is already in the user's cart
-                    self.request.session[str(availability.pk)]
-                    self.request.session[str(availability.pk)] = res
+                    self.request.session[str(availability.pk)]['qty'] += quantity_to_add
                     messages.success(self.request, "'%s' quantity successfully updated."\
                                      % availability.product, fail_silently=True)
                 except:
-                    self.request.session[str(availability.pk)] = res
+                    self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': quantity_to_add}
                     messages.success(self.request, "'%s' successfully added in your cart."\
                                      % availability.product, fail_silently=True)
 
@@ -1066,7 +1062,7 @@ class ProductDetailView(View):
             try:
                 item = ItemInCart.objects.filter(incart_user=self.request.user)\
                        .get(incart_availability=availability)
-                item.incart_quantity = quantity_to_add
+                item.incart_quantity += quantity_to_add
                 item.save()
                 messages.success(self.request, "'%s' quantity successfully updated" \
                                  % product, fail_silently=True)
@@ -1090,14 +1086,12 @@ class ProductDetailView(View):
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         else: # if the user is anonymous
-            res = {'name': str(availability.pk), 'qty': quantity_to_add}
             try: # check if the item is already in the user's cart
-                self.request.session[str(availability.pk)]
-                self.request.session[str(availability.pk)] = res
+                self.request.session[str(availability.pk)]['qty'] += quantity_to_add
                 messages.success(self.request, "'%s' quantity successfully updated."\
                                                 % product, fail_silently=True)
             except:
-                self.request.session[str(availability.pk)] = res
+                self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': quantity_to_add}
                 messages.success(self.request, "'%s' successfully added in your cart."\
                                                 % product, fail_silently=True)
             try:
@@ -1684,7 +1678,7 @@ class OrdersHistory(LoginRequiredMixin, View):
                     try:
                         item = ItemInCart.objects.filter(incart_user=user)\
                                .get(incart_availability=availability)
-                        item.incart_quantity = quantity_to_add
+                        item.incart_quantity += quantity_to_add
                         item.save()
                         messages.success(self.request, "'%s' quantity successfully updated" \
                         % item.incart_availability.product, fail_silently=True)
