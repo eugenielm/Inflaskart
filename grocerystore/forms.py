@@ -25,9 +25,9 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'password', 'email', 'first_name', 'last_name']
-        help_texts = {
-            'username': None,
-        }
+        # help_texts = {
+        #     'username': None,
+        # }
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -54,21 +54,21 @@ class AddressForm(forms.ModelForm):
                                'required': "Please fill in this field."})
 
     city = forms.RegexField(min_length=2, max_length=50,
-                            regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>0123456789]{2,}$',
+                            regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>0123456789]{2,50}$',
                             error_messages={'invalid': 'Invalid city.',
                                             'required': "Please fill in this field."})
 
     street_address1 = forms.RegexField(label="Address", min_length=4, max_length=50,
-                                       regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>]{4,}$',
+                                       regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>]{4,50}$',
                                        error_messages={'invalid': 'Invalid address.',
                                                        'required': "Please fill in this field."})
 
     street_address2 = forms.RegexField(label="Address (line 2)", max_length=50, required=False,
-                                       regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>]?$',
+                                       regex=r'^[^@\"%$€*_!?;/=+&{}\[\]<>]*$',
                                        error_messages={'invalid': 'Invalid address (line 2).'})
 
     apt_nb = forms.RegexField(label="Apt/Unit", max_length=15, required=False,
-                              regex=r'^[^#@\"%$€*_!?;/=+&{}()\[\]<>]?$',
+                              regex=r'^[^@\"%$€*_!?;/=+&{}\[\]<>]*$',
                               error_messages={'invalid': 'Invalid apt/unit.'})
 
 

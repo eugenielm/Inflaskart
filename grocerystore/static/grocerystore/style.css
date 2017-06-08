@@ -133,26 +133,7 @@ p#footer_contact {
 .footer a:hover {color: white}
 
 /*****************************************************************************/
-/* messages in session, error messages for invalid user input in forms*/
-
-div.errorlist {
-  display: block;
-  position: fixed;
-  top: 55px;
-  right: 10px;
-  margin-right: 0px;
-  font-size: 10px;
-  font-style: italic;
-  color: red;
-  font-weight: bold;
-  text-align: right;
-  height: 10px;
-  overflow: visible;
-}
-
-div.errorlist p {
-  display: inline;
-}
+/* messages in session after user input (in forms or when changing the cart)*/
 
 .alert {
   font-size: 1.8vh;
@@ -733,16 +714,16 @@ form#registration_form .btn.btn-info.btn-xs.submit {
 /* profile.html */
 
 .user_profile {
-  width: 315px;
+  width: 95%;
   height: 413px;
-  /*margin: 5vw auto 10vw auto;*/
   margin: 1vh auto 0px auto;
   position: relative;
   top: 0; left: 0; bottom: 0; right: 0;
 }
 
-form.edit_profile {float: right;}
+div.user_profile table, div.user_profile>table>tbody {width: 100%;}
 
+form.edit_profile {float: right;}
 form.edit_profile > input.btn.btn-info.btn-xs {font-size: small}
 
 .user_profile td {
@@ -752,18 +733,19 @@ form.edit_profile > input.btn.btn-info.btn-xs {font-size: small}
 }
 
 .user_profile td.field_label {
-  width: 120px;
+  width: 40%;
   padding-right: 0px;
   font-size: small;
   font-weight: bold;
   text-align: right;
-  margin-right: 5px;
+  margin-right: 2%;
 }
 
 .user_profile td.saved-field {
   border-style: none;
   padding: 5px;
-  width: 190px;
+  width: 58%;
+  max-width: 300px;
   height: 25px;
   border-radius: 4px;
   overflow: scroll;

@@ -183,23 +183,21 @@ class UserRegisterView(View):
                     zipcode = inflauser.inflauser_address.zip_code
                     return redirect('grocerystore:start', zipcode=zipcode)
 
-        errors = []
         for er in form1.errors:
             if er == "first_name":
                 er = "first name"
             if er == "last_name":
                 er = "last name"
-            errors.append(er)
+            messages.error(self.request, "Invalid %s" % er)
 
         for er in form2.errors:
             if er == "street_address1":
                 er = "address"
             if er == "street_address2":
                 er = "address (line2)"
-            errors.append(er)
+            messages.error(self.request, "Invalid %s" % er)
 
         context = {'user_form': form1, 'address_form': form2}
-        context['errors'] = errors
 
         return render(self.request, self.template_name, context=context)
 
@@ -340,7 +338,6 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         new_email = self.request.POST['email']
         new_first_name = self.request.POST['first_name']
         new_last_name = self.request.POST['last_name']
-        errors = []
 
         if (re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", new_email)) is not None:
             if not new_email == user.email:
@@ -348,7 +345,7 @@ class ProfileUpdateView(LoginRequiredMixin, View):
                 user.save()
         else:
             user.email = new_email
-            errors.append("email")
+            messages.error(self.request, "Please enter a valid email.", fail_silently=True)
 
         if new_first_name.replace(" ", "").replace("-","").isalpha() and len(new_first_name) < 20:
             if not new_first_name == user.first_name:
@@ -369,7 +366,7 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         else:
             # keep the invalid first name the user has just entered - without saving it in the db
             user.first_name = new_first_name
-            errors.append("first name")
+            messages.error(self.request, "Please enter a valid first name.", fail_silently=True)
 
         if new_last_name.replace(" ", "").replace("-","").isalpha() and len(new_last_name) < 20:
             if not new_last_name == user.last_name:
@@ -388,7 +385,7 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         else:
             # keep the invalid last name the user has just entered - without saving it in the db
             user.last_name = new_last_name
-            errors.append("last name")
+            messages.error(self.request, "Please enter a valid last name.", fail_silently=True)
 
         if not new_address.is_valid() \
            or not new_first_name.replace(" ", "").replace("-", "").isalpha() \
@@ -402,9 +399,10 @@ class ProfileUpdateView(LoginRequiredMixin, View):
             for er in new_address.errors:
                 if er == "street_address1":
                     er = "address"
-                errors.append(er)
+                if er == "street_address2":
+                    er = "address (line 2)"
+                messages.error(self.request, "Please enter a valid %s." % er, fail_silently=True)
 
-            context['errors'] = errors
             return render(self.request, self.template_name, context=context)
 
         # if the user entered only valid information

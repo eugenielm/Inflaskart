@@ -72,14 +72,6 @@
 
     <div class="container"> <!-- beginning of main content -->
 
-      {% if errors %}
-        <div class="errorlist">
-          {% for er in errors %}
-            <p>Invalid {{ er }}. </p>
-          {% endfor %}
-        </div>
-      {% endif %}
-
       {% if messages %}
         {% for message in messages %}
           {% if message.tags == 'error' %}

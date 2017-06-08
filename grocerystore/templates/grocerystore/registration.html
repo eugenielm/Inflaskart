@@ -43,26 +43,23 @@
 
     <div class="container"> <!-- beginning of main content -->
 
+      {% if unavailable_username %}
+        <div class="alert alert-danger" role="alert">the username '{{ unavailable_username }}' is already used, please choose another one.</div>
+      {% endif %}
+
       {% if messages %}
         {% for message in messages %}
           {% if message.tags == 'error' %}
-            <div class="alert alert-danger" role="alert">{{ message }}</div>
+            {% if 'username' in message.message %}
+              <div class="alert alert-danger" role="alert">{{ message }} (150 characters or fewer; letters, digits and @/./+/-/_ only)</div>
+            {% else %}
+              <div class="alert alert-danger" role="alert">{{ message }}</div>
+            {% endif %}
           {% else %}
             <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
           {% endif %}
         {% endfor %}
       {% endif %}
-
-        <div class="errorlist">
-          {% if unavailable_username %}
-            <p>the username '{{ unavailable_username }}' is already used</p>
-          {% endif %}
-          {% if errors %}
-            {% for er in errors %}
-              <p>Please enter a valid {{ er }}</p>
-            {% endfor %}
-          {% endif %}
-        </div>
 
       <div class="register-block">
         <form id="registration_form" role="form" action="" method="post">
