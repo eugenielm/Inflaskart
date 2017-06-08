@@ -114,10 +114,12 @@
                     {% else %}
                       <a href="{% url 'grocerystore:detail' item.7 key.pk item.5 %}">
                     {% endif %}
-                      {% if item.0.product_pic %}
-                        <img src="{{item.0.product_pic.url}}" title="{{item.0}}" alt="{{item.0}}" />
-                      {% endif %}
-                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <b>${{ item.3 }}</b>
+                    {% if item.0.product_pic %}
+                      <img src="{{item.0.product_pic.url}}" title="{{item.0}}" alt="{{item.0.product_name}}" />
+                    {% else %}
+                      <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
+                    {% endif %}
+                    {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <b>${{ item.3 }}</b>
                   </li>
                 {% endfor %}
                 </ul>

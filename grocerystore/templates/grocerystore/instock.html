@@ -86,6 +86,8 @@
         {% for message in messages %}
           {% if message.tags == 'error' %}
             <div class="alert alert-danger" role="alert">{{ message }}</div>
+          {% elif message.tags == 'info' %}
+            <div class="alert alert-info" role="alert">Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ message }}</a></div>
           {% else %}
             <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
           {% endif %}

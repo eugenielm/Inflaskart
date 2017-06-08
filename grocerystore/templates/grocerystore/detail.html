@@ -89,6 +89,12 @@
         {% for message in messages %}
           {% if message.tags == 'error' %}
             <div class="alert alert-danger" role="alert">{{ message }}</div>
+          {% elif message.tags == 'info' %}
+            {% if 'Keep shopping' in message.message %}
+              <div class="alert alert-{{message.tags}}" role="alert"><a href="{% url 'grocerystore:store' zipcode store.pk %}"><b>{{message}}</b></a></div>
+            {% else %}
+              <div class="alert alert-{{message.tags}}" role="alert"><a href="{% url 'grocerystore:store' zipcode go_back %}"><b>{{message}}</b></a></div>
+            {% endif %}
           {% else %}
             <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
           {% endif %}
@@ -98,7 +104,7 @@
       <div id="product-details-section">
         <div class="product-pic">
           {% if product.product_pic %}
-            <img src="{{ product_pic.url }}" alt="{{product.product_name}}"/>
+            <img src="{{ product.product_pic.url }}" alt="{{product.product_name}}"/>
           {% else %}
             <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{product.product_name}}"/>
           {% endif %}
@@ -134,18 +140,6 @@
           <input type="submit" class="btn btn-info btn-xs" value="Add">
         </form>
       </div>
-
-      <!-- {% if other_availabilities %}
-        <div class="other_availabilities">
-          <p><b>A similar '{{ product.product_name }}' is available in the store(s) below:</b></p>
-          <ul>
-          {% for availability in other_availabilities %}
-            <div class="row"><li><a href="{% url 'grocerystore:detail' zipcode availability.store.pk availability.product.pk %}">
-                @ {{availability.store}}</a>: ${{availability.product_price}} / {{availability.product_unit}}</li></div>
-          {% endfor %}
-          </ul>
-        </div>
-      {% endif %} -->
 
     </div> <!-- end of main content -->
 

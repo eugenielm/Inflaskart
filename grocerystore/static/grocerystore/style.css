@@ -156,8 +156,13 @@ div.errorlist p {
 
 .alert {
   font-size: 1.8vh;
-  padding: 0px 10px;
-  margin: 10px 0px;
+  padding: 2px;
+  margin: 2px;
+}
+
+.alert-warning {
+  background-color: #f7b0c6;
+  color: #7f6369;
 }
 
 /*****************************************************************************/
@@ -337,11 +342,11 @@ div.qty_selection {
 }
 
 .btn.btn-info.btn-xs {font-size: 1.8vh}
-.other_availabilities {margin: 20px 10px 10px 10px}
-.other_availabilities a {font-style: italic;}
-.other_availabilities li {list-style: none;}
 
-div.other_availabilities {font-size: 1.8vh}
+#other_availabilities {
+  margin: 0px;
+  font-size: 2vh;
+}
 
 /*****************************************************************************/
 /* store.html */

@@ -93,32 +93,61 @@
       {% endif %}
 
       <div id="search_result">
-        {% for product in available_products %}
-          <div class="search_product">
-            <a href="{% url 'grocerystore:detail' zipcode store_id product.3 %}">
-              <div class="product_button">
-                <div class="product_button_content"> <!-- div needed to center vertically -->
-                  {% if product.0.product.product_pic %}
-                    <p class="product-pic"><img src="{{ product.0.product.product_pic.url }}" alt="{{availability.product.product_name}}"/></p>
-                  {% else %}
-                    <p class="product-pic"><img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{availability.product.product_name}}"/></p>
-                  {% endif %}
-                  <p>{{ product.0.product }}</a></p>
-                  <p><b>${{ product.1 }} / {{ product.2 }}</b></p>
-                </div>
-              </div></a>
+        {% if available_products %}
+          {% for product in available_products %}
+            <div class="search_product">
+              <a href="{% url 'grocerystore:detail' zipcode store_id product.3 %}">
+                <div class="product_button">
+                  <div class="product_button_content"> <!-- div needed to center vertically -->
+                    {% if product.0.product.product_pic %}
+                      <p class="product-pic"><img src="{{ product.0.product.product_pic.url }}" alt="{{availability.product.product_name}}"/></p>
+                    {% else %}
+                      <p class="product-pic"><img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{availability.product.product_name}}"/></p>
+                    {% endif %}
+                    <p>{{ product.0.product }}</a></p>
+                    <p><b>${{ product.1 }} / {{ product.2 }}</b></p>
+                  </div>
+                </div></a>
 
-            <form class="qty_selection" action="" method="post">
-              {% csrf_token %}
-              <select id="{{product.0.pk}}" name="{{product.0.pk}}">
-                {% for quantity in quantity_set %}
-                  <option value="{{quantity}}"> {{ quantity }}</option>
-                {% endfor %}
-              </select>
-              <input type="submit" class="btn btn-info btn-xs" value="Add" />
-            </form>
-          </div>
-        {% endfor %}
+              <form class="qty_selection" action="" method="post">
+                {% csrf_token %}
+                <select id="{{product.0.pk}}" name="{{product.0.pk}}">
+                  {% for quantity in quantity_set %}
+                    <option value="{{quantity}}"> {{ quantity }}</option>
+                  {% endfor %}
+                </select>
+                <input type="submit" class="btn btn-info btn-xs" value="Add" />
+              </form>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        {% if other_availabilities %} <!-- if there's no availability in this store but there're in other stores in the same zipcode area  -->
+          <p id="other_availabilities">There's no match for '{{ searched_item }}' at {{store}}, but we found the following result(s) in (a) store(s) delivering the {{zipcode}} area:<p>
+
+          {% for product in other_availabilities %}
+            <div class="search_product">
+              <form action="" method="post">
+                {% csrf_token %}
+              <!-- <a href="{% url 'grocerystore:detail' zipcode product.5 product.3 %}"> -->
+                <button class="product_button" name="{{product.0.pk}}" onclick="this.form.submit();"> <!-- product.0 is an availability instance -->
+                  <div class="product_button_content"> <!-- div needed to center vertically -->
+                    {% if product.0.product.product_pic %}
+                      <p class="product-pic"><img src="{{ product.0.product.product_pic.url }}" alt="{{product.0.product.product_name}}"/></p>
+                    {% else %}
+                      <p class="product-pic"><img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{product.0.product.product_name}}"/></p>
+                    {% endif %}
+                    <p>{{ product.0.product }}</a></p>
+                    <p>In stock at {{ product.4 }}</p>
+                    <p><b>${{ product.1 }} / {{ product.2 }}</b></p>
+                  </div>
+                </button>
+              <!-- </a> -->
+              </form>
+            </div>
+          {% endfor %}
+        {% endif %}
+
       </div>
 
     </div> <!-- end of main content -->
