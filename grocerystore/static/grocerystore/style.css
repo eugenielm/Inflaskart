@@ -332,7 +332,7 @@ div.product_details p {
 
 div.product_details a {font-style: oblique;}
 div.qty_selection {
-  margin: 10px 0px 0px 0px;
+  margin: 10px;
   font-size: 1.8vh;
 }
 
@@ -537,6 +537,7 @@ p#no_delivery, p#delivery_fee {
   margin: 1vh;
 }
 
+/* the following is also in search.html and instock.html */
 form.qty_selection {
   font-size: 1.8vh;
   margin-left:0px;

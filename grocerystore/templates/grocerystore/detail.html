@@ -121,21 +121,21 @@
           {% endif %}
         </div>
 
-        <div class="qty_selection">
-          <form action="" method="post">
-            {% csrf_token %}
-            <select id="{{product.pk}}" name="{{product.pk}}">
-              {% for quantity in quantity_set %}
-                <option value="{{quantity}}"> {{ quantity }}</option>
-              {% endfor %}
-            </select>
-            <input type="submit" class="btn btn-info btn-xs" value="Add">
-          </form>
-        </div>
-
       </div>
 
-      {% if other_availabilities %}
+      <div class="qty_selection">
+        <form action="" method="post">
+          {% csrf_token %}
+          <select id="{{product.pk}}" name="{{product.pk}}">
+            {% for quantity in quantity_set %}
+              <option value="{{quantity}}"> {{ quantity }}</option>
+            {% endfor %}
+          </select>
+          <input type="submit" class="btn btn-info btn-xs" value="Add">
+        </form>
+      </div>
+
+      <!-- {% if other_availabilities %}
         <div class="other_availabilities">
           <p><b>A similar '{{ product.product_name }}' is available in the store(s) below:</b></p>
           <ul>
@@ -145,7 +145,7 @@
           {% endfor %}
           </ul>
         </div>
-      {% endif %}
+      {% endif %} -->
 
     </div> <!-- end of main content -->
 

@@ -998,12 +998,7 @@ class ProductDetailView(View):
             messages.error(self.request, "Sorry, the requested product isn't available in the store you've chosen.")
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
-        other_availabilities = Availability.objects.filter(product=product)\
-                               .filter(store__delivery_area__zipcode=zipcode)\
-                               .exclude(pk=product_availability.pk)
         context = {}
-        if len(other_availabilities) > 0:
-            context['other_availabilities'] = other_availabilities
         if len(product.product_dietary.all()) > 0:
             context['product_dietaries'] = product.product_dietary.all()
         context['zipcode'] = zipcode
