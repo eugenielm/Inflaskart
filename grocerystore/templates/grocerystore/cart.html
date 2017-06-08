@@ -157,7 +157,7 @@
                         <p id="no_delivery">Delivery may not be available depending on your address</p>
                       {% endif %}
 
-                      {% if not values|slice:"-1"|last %} <!-- if the store doesn't deliver the area the user is shopping in -->
+                      {% if values|slice:"-1"|last == 'pickup' %} <!-- if the store doesn't deliver the area the user is shopping in -->
                         <!-- use the store zipcode to keep shopping in the same store (see below) -->
                         <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{ key }}</a></p>
                       {% else %} <!-- if the store delivers the zipcode the user is shopping in, use this zipcode to keep shopping in the same store -->
