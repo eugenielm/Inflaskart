@@ -32,7 +32,7 @@ a:hover, a:active {
 /* page header */
 .page-header {
   padding: 0px;
-  margin: 70px 10px 0px 10px;
+  margin: 65px 10px 0px 10px;
 }
 
 div.page-header h2, div.page-header h4, div.page-header h5, div.page-header h6 {
@@ -585,48 +585,58 @@ div.product_button_content p {
 /* login.html */
 
 .login_block {
-  width: 235px;
-  height: 95px;
-  padding-right: 5px;
-  margin: 5vw auto;
-  position: relative;
-  top: 2vh;
+  width: 95%;
+  max-width: 300px;
+  margin: 20vh auto 0px auto;
 }
 
-form#login_form.form-horizontal {width: 100%;}
-
-form#login_form.form-horizontal .btn.btn-info.btn-xs.submit {
-  float:right;
-  font-size: small;
-}
+form#login_form, table#login_table {width: 100%;}
 
 .login_block td {
   display: inline-block;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   padding: 0px;
 }
 
 .login_block td.field_label {
-  width: 70px;
-  font-size: small;
-  padding-right: 0px;
+  width: 32%;
+  max-width: 100px;
   text-align: right;
-  margin-right: 10px;
+  margin-right: 2%;
+}
+
+/* Ajusting the size of the input area box */
+.login_block td.input_field {
+  border-style: none;
+  border-radius: 4px;
+  width: 64%;
+  max-width: 200px;
+  height: 24px;
 }
 
 /* Ajusting the size of the input area */
-.login_block td.input_field {
-  width: 150px;
-  height: 25px;
-  padding: 0px;
-  border-radius: 4px;
+.login_block td.input_field input {
+  width: 100%;
+  height: 100%;
+  padding: 0px 5px;
   border-style: none;
+  border-radius: 5px;
 }
 
-.login_block td.input_field input {
-  border-style: none;
-  padding-left: 5px;
+form#login_form .btn.btn-info.btn-xs.submit {
+  float:right;
+  margin: 0px 1.5% 0px 0px;
+  font-size: 12px;
+  padding: 1px 3px;
 }
+
+#demo_credential {
+  width: 235px;
+  margin: 40px auto;
+  font-size: 10px;
+}
+
+div#demo_credential p {margin: 0px}
 
 /* in the header */
 .register-link {
@@ -648,13 +658,12 @@ form#login_form.form-horizontal .btn.btn-info.btn-xs.submit {
 /* registration.html */
 
 .register-block {
-  width: 320px;
-  height: 390px;
-  padding-right: 10px;
-  margin: 0px auto 2vh auto;
-  position: relative;
-  top: 3vh; left: 0; bottom: 0; right: 0;
+  width: 95%;
+  max-width: 616px;
+  margin: 1vh auto 0px auto;
 }
+
+div.register-block table, div.register-block>table>tbody {width: 100%;}
 
 .register-block td {
   display: inline-block;
@@ -663,35 +672,44 @@ form#login_form.form-horizontal .btn.btn-info.btn-xs.submit {
 }
 
 .register-block td.field_label {
-  width: 120px;
-  padding-right: 0px;
-  font-size: small;
+  width: 42%;
+  max-width: 289px;
   text-align: right;
-  margin-right: 10px;
+  margin-right: 2%;
+}
+
+/* Ajusting the size of the input area box */
+.register-block td.input_field {
+  border-style: none;
+  padding: 1px 5px;
+  width: 54%;
+  max-width: 350px;
+  height: 24px;
 }
 
 /* Ajusting the size of the input area */
 .register-block td.input_field input {
+  width: 100%;
+  height: 100%;
+  padding: 0px 5px;
   border-style: none;
-  padding: 5px;
-  width: 180px;
-  height: 25px;
-  border-radius: 4px;
-  overflow: scroll;
+  border-radius: 5px;
 }
 
-
-form#registration_form .btn.btn-info.btn-xs.submit {
-  margin-top: 5px;
-  margin-bottom: 40px;
-  float:right;
-  font-size: small;
+form#registration_form .btn.submit {
+  float: right;
+  margin: 7px 1.5% 0px 0px;
+  padding: 1px 3px;
+  font-size: 12px;
 }
 
 /* need to adjust the select box for state choice */
 .register-block select#id_state {
-  width: 180px;
-  height: 25px;
+  width: 100%;
+  height: 100%;
+  border-style: none;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
 }
 
 /* in the header */
@@ -715,27 +733,19 @@ form#registration_form .btn.btn-info.btn-xs.submit {
 
 .user_profile {
   width: 95%;
-  height: 413px;
+  max-width: 616px;
   margin: 1vh auto 0px auto;
-  position: relative;
-  top: 0; left: 0; bottom: 0; right: 0;
 }
-
-div.user_profile table, div.user_profile>table>tbody {width: 100%;}
-
-form.edit_profile {float: right;}
-form.edit_profile > input.btn.btn-info.btn-xs {font-size: small}
 
 .user_profile td {
   display: inline-block;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   padding: 0px;
 }
 
 .user_profile td.field_label {
-  width: 40%;
-  padding-right: 0px;
-  font-size: small;
+  width: 42%;
+  max-width: 289px;
   font-weight: bold;
   text-align: right;
   margin-right: 2%;
@@ -743,63 +753,83 @@ form.edit_profile > input.btn.btn-info.btn-xs {font-size: small}
 
 .user_profile td.saved-field {
   border-style: none;
-  padding: 5px;
-  width: 58%;
-  max-width: 300px;
-  height: 25px;
-  border-radius: 4px;
-  overflow: scroll;
+  border-radius: 5px;
+  padding: 1px 5px;
+  width: 54%;
+  max-width: 350px;
+  height: 24px;
   background-color: #dadada;
-  /* vertical align the content of these fields */
-  line-height: 15px;
-  vertical-align: middle;
 }
 
+div.user_profile table, div.user_profile>table>tbody {width: 100%;}
+
+form.edit_profile input.btn.btn-info.btn-md {
+  float: right;
+  margin: 7px 1.5% 0px 0px;
+  padding: 1px 3px;
+  font-size: 12px;
+}
+
+/* the user isn't allowed to change their username */
 .user_profile tr:first-child > td.saved-field {background-color: rgba(238, 238, 238, 1)}
 
 /*****************************************************************************/
 /* profile_update.html */
 
 .user_profile.update {
-  width: 315px;
-  height: 413px;
-  /*margin: 5vw auto 10vw auto;*/
+  width: 95%;
+  max-width: 616px;
   margin: 1vh auto 0px auto;
-  position: relative;
-  top: 0; left: 0; bottom: 0; right: 0;
 }
 
 .user_profile.update td {
   display: inline-block;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   padding: 0px;
 }
 
+.user_profile.update td.field_label {
+  width: 42%;
+  max-width: 289px;
+  font-weight: bold;
+  text-align: right;
+  margin-right: 2%;
+}
+
 /* Ajusting the size of the input area */
-td.update-field input {
+.user_profile.update td.update-field {
   border-style: none;
-  padding: 5px;
-  width: 190px;
-  /*width: 33vh;*/
-  height: 25px;
-  border-radius: 4px;
-  overflow: scroll;
+  width: 54%;
+  max-width: 350px;
   background-color: #fff;
-  /* vertical align the content of these fields */
-  line-height: 15px;
-  vertical-align: middle;
+  height: 24px;
+}
+
+.user_profile.update td.update-field input {
+  width: 100%;
+  height: 100%;
+  padding: 0px 5px;
+  border-style: none;
 }
 
 #id_state {
-  width: 190px;
-  height: 25px;
+  width: 100%;
+  height: 100%;
+  border-style: none;
+  background-color: white;
 }
 
-table.user_table tr:first-child > td.update-field {padding: 5px;}
+table.user_table tr:first-child > td.update-field {
+  padding: 1px 5px;
+  height: 24px;
+  background-color: rgba(238, 238, 238, 1);
+}
 
-form#profile_form > input.btn.btn-info.btn-xs.submit {
-  font-size: small;
+form#profile_form > input.btn.btn-info.btn-md.submit {
   float: right;
+  margin: 7px 1.5% 0px 0px;
+  padding: 1px 3px;
+  font-size: 12px;
 }
 
 /*****************************************************************************/
