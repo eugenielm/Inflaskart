@@ -674,7 +674,8 @@ class Instock(View):
 
             else: # if the user isn't authenticated
                 try: # check if the item is already in the user's cart
-                    self.request.session[str(availability.pk)]['qty'] += quantity_to_add
+                    new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
+                    self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': new_qty}
                     messages.success(self.request, "'%s' quantity successfully updated."\
                                                 % availability.product, fail_silently=True)
                 except:
@@ -916,12 +917,13 @@ class SearchView(View):
                 except: continue
 
                 new_store = result.store
-                messages.warning(self.request, "You're now shopping at %s. " % new_store, fail_silently=True)
+                messages.warning(self.request, "You're now shopping at %s." % new_store, fail_silently=True)
                 return HttpResponseRedirect(reverse('grocerystore:detail', kwargs={
                                                     'zipcode': zipcode,
                                                     'store_id': new_store.pk,
                                                     'product_id': result.product.pk,}) \
-                                                    + '?go_back=' + str(store_id))
+                                                    + '?go_back=' + str(store_id)\
+                                                    + '&searched_item=' + str(urllib.quote(searched_item.encode('utf8'))))
 
         if self.request.user.is_authenticated:
             for availability in search_result:
@@ -956,7 +958,8 @@ class SearchView(View):
 
                 # once the quantity_to_add has been catched
                 try: # check if the item is already in the user's cart
-                    self.request.session[str(availability.pk)]['qty'] += quantity_to_add
+                    new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
+                    self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': new_qty}
                     messages.success(self.request, "'%s' quantity successfully updated."\
                                      % availability.product, fail_silently=True)
                 except:
@@ -1017,7 +1020,6 @@ class ProductDetailView(View):
             context['product_dietaries'] = product.product_dietary.all()
         context['zipcode'] = zipcode
         context['store_id'] = store_id
-        print "context['store_id']: ", context['store_id']
         context['store'] = store
         context['product'] = product
         context['product_availability'] = product_availability
@@ -1029,6 +1031,7 @@ class ProductDetailView(View):
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         try:
             context['go_back'] = int(self.request.GET['go_back']) # this is a store pk
+            context['searched_item'] = self.request.GET['searched_item']
         except: pass
 
         if len(available_stores) > 0:
@@ -1085,7 +1088,8 @@ class ProductDetailView(View):
 
         else: # if the user is anonymous
             try: # check if the item is already in the user's cart
-                self.request.session[str(availability.pk)]['qty'] += quantity_to_add
+                new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
+                self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': new_qty}
                 messages.success(self.request, "'%s' quantity successfully updated."\
                                                 % product, fail_silently=True)
             except:
