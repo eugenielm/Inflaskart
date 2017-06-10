@@ -838,6 +838,10 @@ class SearchView(View):
                   'store': store,
                   'searched_item': searched_item}
 
+        available_stores = Store.objects.filter(delivery_area__zipcode=int(zipcode))
+        if len(available_stores) > 0:
+            context['available_stores'] = available_stores
+
         searched_item = urllib.unquote(searched_item)
         search_result = search_item(searched_item, store_id)
 
@@ -856,9 +860,6 @@ class SearchView(View):
 
             context['available_products'] = available_products
 
-            available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
-            if len(available_stores) > 0:
-                context['available_stores'] = available_stores
             return render(self.request, self.template_name, context=context)
 
         else: # in case the search result is empty, search in other stores in the same zipcode area
@@ -1645,39 +1646,56 @@ class OrdersHistory(LoginRequiredMixin, View):
         for order in user_orders:
             try:
                 self.request.POST['everything '+str(order.pk)]
+                items_added = False
+                unavailable_items = []
                 for elt in order.data['items']:
                     try:
                         availability = Availability.objects.get(pk=elt['availability_pk'])
                     except Availability.DoesNotExist:
-                        messages.error(self.request, "Sorry, %s isn't available anymore at %s so we couldn't put it in you cart"\
-                                                     % (elt['product_name'], order.data['store']['store_name']), fail_silently=True)
+                        unavailable_items.append(elt['product_name'])
                         continue
                     try:
                         item = ItemInCart.objects.filter(incart_user=user)\
                                .get(incart_availability=availability)
-                        item.incart_quantity = int(elt['product_qty'])
+                        item.incart_quantity += int(elt['product_qty'])
                         item.save()
+                        items_added = True
                     except:
                         ItemInCart.objects.create(incart_user=user,
                                                   incart_availability=availability,
                                                   incart_quantity=int(elt['product_qty']))
+                        items_added = True
 
-                messages.success(self.request, "All the items of your previous order have been put in your cart.", fail_silently=True)
+                if items_added and not unavailable_items:
+                    messages.success(self.request, "All the items of your previous order have been put in your cart.", fail_silently=True)
+                elif items_added and unavailable_items:
+                    messages.success(self.request, "The available items of your previous order have been put in your cart.", fail_silently=True)
+                    unavailable = ""
+                    for elt in unavailable_items[:-1]:
+                        unavailable += (str(elt) + ", ")
+                    unavailable += str(unavailable_items[-1])
+                    messages.error(self.request, "The following item(s) aren't available anymore at %s: %s"\
+                                                 % (order.data['store']['store_name'], unavailable), fail_silently=True)
+                else:
+                    messages.error(self.request, "Sorry, the item(s) of your previous order aren't available anymore at %s" \
+                                   % order.data['store']['store_name'], fail_silently=True)
                 messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
                 return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
 
             except:
                 for elt in order.data['items']:
                     try:
-                        availability = Availability.objects.get(pk=elt['availability_pk'])
-                    except Availability.DoesNotExist:
-                        messages.error(self.request, "%s isn't available anymore" % elt['product_name'], fail_silently=True)
-                        continue
-                    try:
                         quantity_to_add = int(self.request.POST.get(str(elt['availability_pk'])))
                     except: continue
 
                     try:
+                        availability = Availability.objects.get(pk=elt['availability_pk'])
+                    except Availability.DoesNotExist:
+                        messages.error(self.request, "Sorry, %s isn't available anymore at %s" \
+                        % (elt['product_name'], order.data['store']['store_name']), fail_silently=True)
+                        return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
+
+                    try: # if the item is in stock in the store and if it's already in the user's cart
                         item = ItemInCart.objects.filter(incart_user=user)\
                                .get(incart_availability=availability)
                         item.incart_quantity += quantity_to_add
@@ -1691,7 +1709,7 @@ class OrdersHistory(LoginRequiredMixin, View):
                                                   incart_availability=availability,
                                                   incart_quantity=quantity_to_add)
                         messages.success(self.request, "'%s' successfully added in your cart" \
-                        % item.incart_availability.product, fail_silently=True)
+                                         % item.incart_availability.product, fail_silently=True)
                         messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
 
                     return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
