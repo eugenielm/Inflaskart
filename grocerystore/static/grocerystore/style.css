@@ -579,6 +579,7 @@ div.product_button_content {
   /* needed to center vertically the div inside ie. .product_button_content */
   display: table-cell;
   vertical-align: middle;
+  text-align: left;
 }
 
 div.product_button_content p {
@@ -601,8 +602,6 @@ div.product_button_content p {
   display: inline-block;
   margin: 5px;
 }
-
-.search_product form {text-align: center;}
 
 /*****************************************************************************/
 /* login.html */
