@@ -35,19 +35,19 @@
             <ul class="nav navbar-nav">
               {% if available_stores %}
                 <li class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">Shop in {{zipcode}}<span class="caret"></span></a>
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores in {{zipcode}} <span class="caret"></span></a>
                   <ul class="dropdown-menu">
                     {% for store in available_stores %}
                       <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
                     {% endfor %}
-                    <li><a href="{% url 'grocerystore:index' %}"><i>> shop elsewhere</i></a></li>
+                    <li><a href="{% url 'grocerystore:index' %}"><i>> stores elsewhere</i></a></li>
                   </ul>
                 </li>
               {% endif %}
               <li><a href="{% url 'grocerystore:cart' zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
             </ul>
 
-            <form class="nav navbar-nav navbar-form" role="search" action="" method="post">
+            <form class="nav navbar-nav navbar-form" role="{{store}}" action="" method="post">
               {% csrf_token %}
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Search {{store.store_name}}" name="search">
@@ -95,6 +95,10 @@
             {% else %}
               <div class="alert alert-{{message.tags}}" role="alert"><a href="{% url 'grocerystore:store' zipcode go_back %}"><b>{{message}}</b></a></div>
             {% endif %}
+          {% elif message.tags == 'warning' and go_back and searched_item %}
+            <div class="alert alert-warning" role="alert">
+              {{message}} Click <a href="{% url 'grocerystore:search' zipcode go_back searched_item %}"><b>here</b></a> to go back to your search.</b></a>
+            </div>
           {% else %}
             <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
           {% endif %}

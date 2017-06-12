@@ -108,23 +108,29 @@
           <div id="collapse{{ order.data.order_nb }}" class="panel-collapse collapse" aria-expanded="false">
             <ul class="list-group">
               {% for item in order.data.items %}
-              <li class="list-group-item">
-                <form class="qty_update" action="" method="post">
-                  {% csrf_token %}
-                  <select name="{{item.availability_pk}}">
-                    {% for quantity in quantity_set %}
-                      <option value="{{quantity}}" {% if quantity == item.product_qty %} selected="selected" {% endif %}>{{ quantity }}</option>
-                    {% endfor %}
-                  </select>
-                  <input class="btn btn-info btn-xs update_qty" type="submit" value="add" />
-                </form>
-                <a href="{% url 'grocerystore:detail' zipcode store_id item.product_pk %}">
-                {% if item.product_pic %}
-                  <img src="{{item.product_pic.url}}" alt="{{item.product_name}}" />
-                {% else %}
-                  <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.product_name}}"/>
-                {% endif %}
-                {{ item.product_qty }} x {{ item.product_name }}</a> (${{ item.unit_price }} / {{ item.product_unit }}): <b>${{ item.total_item_price }}</b>
+              <li class="list-group-item row vertical-align">
+                <div class="col-xs-2 col-sm-1">
+                  <a href="{% url 'grocerystore:detail' zipcode store_id item.product_pk %}">
+                  {% if item.product_pic %}
+                    <img src="{{item.product_pic.url}}" alt="{{item.product_name}}" />
+                  {% else %}
+                    <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.product_name}}"/>
+                  {% endif %}
+                </div>
+                <div class="col-xs-7 col-sm-9">
+                  {{ item.product_qty }} x {{ item.product_name }}</a> (${{ item.unit_price }}/{{ item.product_unit }}): <b>${{ item.total_item_price }}</b>
+                </div>
+                <div class="col-xs-3 col-sm-2">
+                  <form class="qty_update" action="" method="post">
+                    {% csrf_token %}
+                    <select name="{{item.availability_pk}}">
+                      {% for quantity in quantity_set %}
+                        <option value="{{quantity}}" {% if quantity == item.product_qty %} selected="selected" {% endif %}>{{ quantity }}</option>
+                      {% endfor %}
+                    </select>
+                    <input class="btn btn-info btn-xs update_qty" type="submit" value="add" />
+                  </form>
+                </div>
               </li>
               {% endfor %}
             </ul>

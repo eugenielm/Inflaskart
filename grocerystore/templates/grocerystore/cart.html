@@ -33,12 +33,12 @@
           <ul class="nav navbar-nav">
             {% if available_stores %}
               <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Shop in {{zipcode}}<span class="caret"></span></a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores in {{zipcode}} <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   {% for store in available_stores %}
                     <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
                   {% endfor %}
-                  <li><a href="{% url 'grocerystore:index' %}"><i>> shop elsewhere</i></a></li>
+                  <li><a href="{% url 'grocerystore:index' %}"><i>> stores elsewhere</i></a></li>
                 </ul>
               </li>
             {% endif %}
@@ -100,26 +100,32 @@
               <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
                 <ul class="list-group">
                 {% for item in values|slice:":-3" %}
-                  <li class="list-group-item">
-                    <form class="qty_update" action="" method="post">
-                      {% csrf_token %}
-                      <select name="{{item.4}}" onchange='this.form.submit()'>
-                        {% for quantity in quantity_set %}
-                          <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}>{{ quantity }}</option>
-                        {% endfor %}
-                      </select>
-                    </form>
-                    {% if values|slice:"-1"|last %} <!-- ie. if the user is shopping in an area where this given store delivers -->
-                      <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
-                    {% else %}
-                      <a href="{% url 'grocerystore:detail' item.7 key.pk item.5 %}">
-                    {% endif %}
-                    {% if item.0.product_pic %}
-                      <img src="{{item.0.product_pic.url}}" title="{{item.0}}" alt="{{item.0.product_name}}" />
-                    {% else %}
-                      <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
-                    {% endif %}
-                    {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <b>${{ item.3 }}</b>
+                  <li class="list-group-item row vertical-align">
+                    <div class="col-xs-2 col-sm-1">
+                      {% if values|slice:"-1"|last %} <!-- ie. if the user is shopping in an area where this given store delivers -->
+                        <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
+                      {% else %}
+                        <a href="{% url 'grocerystore:detail' item.7 key.pk item.5 %}">
+                      {% endif %}
+                      {% if item.0.product_pic %}
+                        <img src="{{item.0.product_pic.url}}" title="{{item.0}}" alt="{{item.0.product_name}}" />
+                      {% else %}
+                        <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
+                      {% endif %}
+                    </div>
+                    <div class="col-xs-8 col-sm-9">
+                      {{ item.0 }}</a> | {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <b>${{ item.3 }}</b>
+                    </div>
+                    <div class="col-xs-2 col-sm-2">
+                      <form class="qty_update" action="" method="post">
+                        {% csrf_token %}
+                        <select name="{{item.4}}" onchange='this.form.submit()'>
+                          {% for quantity in quantity_set %}
+                            <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}>{{ quantity }}</option>
+                          {% endfor %}
+                        </select>
+                      </form>
+                    </div>
                   </li>
                 {% endfor %}
                 </ul>
@@ -142,11 +148,11 @@
                         {% if values|slice:"-2"|last == 'delivery_fee' %} <!-- if the total is under $30 there's a delivery fee -->
                           <p id="delivery_fee">A $5 delivery fee will be applied for any total under $30</p>
                         {% endif %}
-                        <p id="keep_shopping"><a href="{% url 'grocerystore:store' user_zipcode key.pk %}">Keep shopping at {{ key }}</a></p>
+                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' user_zipcode key.pk %}">{{ key }}</a></p>
                       {% else %} <!-- if the store doesn't deliver the zipcode the user's address, use this zipcode to keep shopping in the same store -->
                         <p id="no_delivery">No delivery in {{ user_zipcode }}</p>
                         <!-- use the store zipcode to keep shopping in the same store on the next line -->
-                        <p id="keep_shopping"><a href="{% url 'grocerystore:store' values|first|last key.pk %}">Keep shopping at {{ key }}</a></p>
+                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{ key }}</a></p>
                       {% endif %}
 
                     {% else %} <!-- if the user is anonymous -->

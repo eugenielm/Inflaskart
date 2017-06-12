@@ -33,12 +33,12 @@
           <ul class="nav navbar-nav">
             {% if available_stores %}
               <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Shop in {{zipcode}}<span class="caret"></span></a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores in {{zipcode}} <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   {% for store in available_stores %}
                     <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
                   {% endfor %}
-                  <li><a href="{% url 'grocerystore:index' %}"><i>> shop elsewhere</i></a></li>
+                  <li><a href="{% url 'grocerystore:index' %}"><i>> stores elsewhere</i></a></li>
                 </ul>
               </li>
             {% endif %}
@@ -48,7 +48,7 @@
           <form class="nav navbar-nav navbar-form" role="search" action="" method="post">
             {% csrf_token %}
               <div class="input-group">
-                  <input type="text" class="form-control" placeholder="Search" name="search">
+                  <input type="text" class="form-control" placeholder="{{store}}" name="search">
                   <div class="input-group-btn">
                       <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
                   </div>
@@ -106,8 +106,7 @@
                   {% else %}
                     <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{availability.product.product_name}}"/>
                   {% endif %}
-                  <p>{{ availability.product }}</p>
-                  <p><b>${{ availability.product_price }} / {{ availability.product_unit }}</b></p>
+                  <p>{{ availability.product }} <b>${{ availability.product_price }} / {{ availability.product_unit }}</b></p>
                 </div>
               </div></a>
             <form class="qty_selection" action="" method="post">
