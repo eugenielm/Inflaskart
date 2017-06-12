@@ -193,7 +193,7 @@ ul.dropdown-menu.dropdown-menu-right {
 }
 
 .personal-welcome {
-  margin-top: 30vh;
+  margin-top: 25vh;
   text-align: center;
 }
 
@@ -218,9 +218,9 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 
 /* if hire_me */
 .hire_me {
-  width: 300px;
-  margin: 25vh auto -25vh auto;
-  font-size: 12px;
+  width: 100%;
+  max-width: 400px;
+  margin: 15vh auto -25vh auto;
 }
 
 .hire_me .panel-heading {
@@ -228,8 +228,13 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
   border-style: none;
-  font-size: 3vw;
 }
+
+.hire_me .panel-heading>h5 {
+  font-size: 2.5vh;
+  text-align: center;
+}
+
 
 .hire_me .panel.panel-default {
   border-style: none;
@@ -251,10 +256,8 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 
 .hire_me p#resume {
   display: inline-block;
-  margin: 0px 0px 0px 10px;
+  margin: 0px;
 }
-
-.hire_me a { text-decoration: none }
 
 /*****************************************************************************/
 /* start.html */
@@ -343,7 +346,7 @@ div#accordion.panel-group.category {
   max-width: 600px;
 }
 
-#store_categories .panel-heading>h4 {font-size: 2.5vh}
+#store_categories .panel-heading>h4 {font-size: 2vh}
 
 .category .panel.panel-default {
   display: block;
@@ -378,7 +381,7 @@ div.link_div:hover {
 .panel-group.category .list-group>a>li {
   background-color: #ffffff;
   color: black;
-  padding: 5px 10px;
+  padding: 10px;
 }
 .panel-group.category .list-group>a>li:hover {background-color: #f5f5f5;}
 
@@ -605,9 +608,9 @@ div.product_button_content p {
 /* login.html */
 
 .login_block {
-  width: 95%;
+  width: 94%;
   max-width: 300px;
-  margin: 20vh auto 0px auto;
+  margin: 15vh auto 0px auto;
 }
 
 form#login_form, table#login_table {width: 100%;}
@@ -866,6 +869,8 @@ form#profile_form > input.btn.btn-info.btn-md.submit {
 
 .panel-group.checkout .panel-heading {padding: 7px}
 
+.panel-group.checkout .panel-heading>h4 {font-size: 2vh}
+
 .single-cart.checkout .panel.panel-default {border-radius: 0px;}
 
 .panel-group.checkout {
@@ -990,10 +995,9 @@ p#pickup {color: red;}
   max-width: 600px;
 }
 
-.panel-group.orders .panel-heading>h4 {font-size: 2.5vh}
+.panel-group.orders .panel-heading>h4 {font-size: 2vh}
 
 .panel-group.orders li.list-group-item {
-  /*padding:10px;*/
   font-size: 1.8vh;
 }
 
@@ -1036,11 +1040,11 @@ p#pickup {color: red;}
 }
 
 .single-order .panel-heading .accordion-toggle:after {
-    /* symbol for "opening" panels */
-    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
-    content: "\e114";    /* taken from bootstrap.css */
-    float: right;
-    color: black;
+  /* symbol for "opening" panels */
+  font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+  content: "\e114";    /* taken from bootstrap.css */
+  float: right;
+  color: black;
 }
 
 .single-order .panel-heading .accordion-toggle.collapsed:after {
