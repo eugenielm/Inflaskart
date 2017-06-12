@@ -101,7 +101,7 @@
                 <ul class="list-group">
                 {% for item in values|slice:":-3" %}
                   <li class="list-group-item row vertical-align">
-                    <div class="col-xs-2 col-sm-1">
+                    <div class="col-xs-2 col-sm-1"> <!-- product picture -->
                       {% if values|slice:"-1"|last %} <!-- ie. if the user is shopping in an area where this given store delivers -->
                         <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
                       {% else %}
@@ -113,13 +113,16 @@
                         <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
                       {% endif %}
                     </div>
-                    <div class="col-xs-8 col-sm-9">
-                      {{ item.0 }}</a> | {{ item.1 }} x ${{item.6}}/{{ item.2 }}: <b>${{ item.3 }}</b>
+                    <div class="col-xs-7 col-sm-9"> <!-- product name -->
+                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}
                     </div>
-                    <div class="col-xs-2 col-sm-2">
+                    <div class="col-xs-1 col-sm-1"> <!-- product total price -->
+                      <b>${{ item.3 }}</b>
+                    </div>
+                    <div class="col-xs-2 col-sm-1"> <!-- quantity update button -->
                       <form class="qty_update" action="" method="post">
                         {% csrf_token %}
-                        <select name="{{item.4}}" onchange='this.form.submit()'>
+                        <select name="{{item.4}}" onchange='this.form.submit()' style="padding-left:10px">
                           {% for quantity in quantity_set %}
                             <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}>{{ quantity }}</option>
                           {% endfor %}
