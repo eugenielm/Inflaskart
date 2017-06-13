@@ -113,11 +113,8 @@
                         <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
                       {% endif %}
                     </div>
-                    <div class="col-xs-7 col-sm-9"> <!-- product name -->
-                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }}
-                    </div>
-                    <div class="col-xs-1 col-sm-1"> <!-- product total price -->
-                      <b>${{ item.3 }}</b>
+                    <div class="col-xs-8 col-sm-10"> <!-- product name -->
+                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }} - <b>${{ item.3 }}</b>
                     </div>
                     <div class="col-xs-2 col-sm-1"> <!-- quantity update button -->
                       <form class="qty_update" action="" method="post">
