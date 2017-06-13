@@ -1,4 +1,10 @@
-html {height: 100%; width: 100%}
+html {
+  height: 100%;
+  width: 100%;
+  background: url(background.jpg) no-repeat center center fixed;
+  background-size: cover;
+  opacity: 0.93;
+}
 
 body {
   background-color: rgba(238, 238, 238, 1);
@@ -451,8 +457,8 @@ li.list-group-item.row>div {
 }
 
 .single-cart .list-group-item img {
-  width: 5vh;
   max-width: 100%;
+  max-height: 5vh;
   height: auto;
 }
 

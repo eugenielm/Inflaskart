@@ -19,25 +19,24 @@
 
   <body>
 
-
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="index_top_bar"> <!-- beginning of nav bar -->
-  <div class="container-fluid">
-    <div id="welcome_navbar">
-      <h3>Welcome to Inflaskart</h3>
-      <p>*** Your favorite grocery stores delivered at your door ***</p>
-    </div>
-    {% if username %}
-    <div class="dropdown index_dropdown">
-        <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
-        <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
-            <li><a href="{% url 'grocerystore:cart' zipcode %}">Your cart</a></li>
-            <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
-        </ul>
-    </div>
-    {% endif %}
-  </div>
-</nav> <!-- end of nav bar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="index_top_bar"> <!-- beginning of nav bar -->
+      <div class="container-fluid">
+        <div id="welcome_navbar">
+          <h3>Welcome to Inflaskart</h3>
+          <p>*** Your favorite grocery stores delivered at your door ***</p>
+        </div>
+        {% if username %}
+        <div class="dropdown index_dropdown">
+            <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
+                <li><a href="{% url 'grocerystore:cart' zipcode %}">Your cart</a></li>
+                <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+            </ul>
+        </div>
+        {% endif %}
+      </div>
+    </nav> <!-- end of nav bar -->
 
 
     <div class="container" style="margin-bottom:-10px"> <!-- beginning of main content -->
