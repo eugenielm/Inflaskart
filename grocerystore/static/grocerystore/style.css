@@ -224,9 +224,9 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 
 /* if hire_me */
 .hire_me {
-  width: 100%;
+  width: 94%;
   max-width: 400px;
-  margin: 15vh auto -25vh auto;
+  margin: 15vh auto -20vh auto;
 }
 
 .hire_me .panel-heading {
@@ -899,7 +899,7 @@ form#payment_form {width: 100%}
 }
 
 #cc_submission input.btn.btn-success.btn-xs.submit {
-  margin-top: 50px;
+  margin-top: 20px;
   float: right;
   font-size: 1.8vh;
 }
