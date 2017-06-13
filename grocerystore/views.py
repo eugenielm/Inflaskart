@@ -1119,21 +1119,17 @@ class CartView(View):
         # each key the associated value is a list of all the items in the cart
         # (there's one cart per store), the last element of each list being
         # the cart total for each store
-        all_carts = {}
         context = {'zipcode': zipcode,}
+        available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+        if len(available_stores) > 0:
+            context['available_stores'] = available_stores
 
-        # if the user types an invalid zipcode directly in the browser
-        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.", fail_silently=True)
-            return redirect('grocerystore:index')
+        all_carts = {}
 
         if self.request.user.is_authenticated:
             user_zipcode = Inflauser.objects.get(infla_user=self.request.user).inflauser_address.zip_code
             context['username'] = self.request.user.username
             context['user_zipcode'] = user_zipcode
-            available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
-            if len(available_stores) > 0:
-                context['available_stores'] = available_stores
 
             user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
             for item in user_cart:
@@ -1152,40 +1148,7 @@ class CartView(View):
                 except KeyError:
                     all_carts[item_store] = [elt]
 
-            if all_carts:
-                for store, cart in all_carts.items(): # cart is a list of elts (elts are lists too)
-                    cart_total = 0
-                    for elt in cart:
-                        cart_total += float(elt[3]) # elt[3]=item_price
-
-                    if cart_total < 30:
-                        cart.append('delivery_fee')
-                    else:
-                        cart.append('no_delivery_fee')
-
-                    # True is for a store that delivers the user's address
-                    if store.delivery_area.all().filter(zipcode=user_zipcode):
-                        cart.append('delivery')
-                    else:
-                        cart.append('pickup')
-
-                    cart.append("%.2f" % cart_total)
-
-                context['all_carts'] = all_carts
-                context['quantity_set'] = range(21)
-
-            else:
-                try: # the zip code area where the user is shopping (which may not
-                     # be an area where delivery is available)
-                    context['area'] = Zipcode.objects.get(zipcode=int(zipcode))
-                except: pass
-
-            return render(self.request, self.template_name, context=context)
-
         else: # if the user is anonymous
-            available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
-            if len(available_stores) > 0:
-                context['available_stores'] = available_stores
 
             for item in self.request.session.keys():
                 item_availability_pk = int(self.request.session[item]['name'])
@@ -1204,35 +1167,41 @@ class CartView(View):
                 except KeyError:
                     all_carts[item_store] = [elt]
 
-            if all_carts:
-                for store, cart in all_carts.items():
-                    cart_total = 0
+        if all_carts:
+            for store, cart in all_carts.items():
+                cart_total = 0
 
-                    for elt in cart:
-                        cart_total += float(elt[3])
+                for elt in cart:
+                    cart_total += float(elt[3])
 
-                    if cart_total < 30:
-                        cart.append('delivery_fee')
-                    else:
-                        cart.append('no_delivery_fee')
+                if cart_total < 30:
+                    cart.append('delivery_fee')
+                else:
+                    cart.append('no_delivery_fee')
 
-                    # True is for a store that delivers the current zipcode area
-                    if store.delivery_area.all().filter(zipcode=zipcode):
-                        cart.append('delivery')
-                    else:
-                        cart.append('pickup')
+                # True is for a store that delivers the current zipcode area
+                if store.delivery_area.all().filter(zipcode=zipcode):
+                    cart.append('delivery')
+                else:
+                    cart.append('pickup')
 
-                    cart.append("%.2f" % cart_total)
+                cart.append("%.2f" % cart_total)
 
-                context['all_carts'] = all_carts
-                context['quantity_set'] = range(21)
+            context['all_carts'] = all_carts
+            context['quantity_set'] = range(21)
 
-            else: # if the anonymous user hasn't put anything in their cart
-                try:
-                    context['area'] = Zipcode.objects.get(zipcode=zipcode)
-                except: pass
+            try:
+                last_active_cart = Store.objects.get(pk=self.request.GET['open_cart'])
+                if last_active_cart in all_carts.keys(): # check if there's at least one item in this store cart
+                    context['open_cart'] = last_active_cart.pk
+            except: pass
 
-            return render(self.request, self.template_name, context=context)
+        else: # if the user hasn't put anything in their cart
+            try:
+                context['area'] = Zipcode.objects.get(zipcode=zipcode)
+            except: pass
+
+        return render(self.request, self.template_name, context=context)
 
     def post(self, request, zipcode):
         if self.request.user.is_authenticated:
@@ -1274,7 +1243,11 @@ class CartView(View):
                     elt.incart_quantity = qty_to_change
                     elt.save()
 
-            return redirect('grocerystore:cart', zipcode=zipcode)
+                return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
+                                                    'zipcode': zipcode,}) \
+                                                    + '?open_cart=' + str(product_to_update.store.pk))
+
+            # return redirect('grocerystore:cart', zipcode=zipcode)
 
         else: # if anonymous user
             store_pks = []
@@ -1311,7 +1284,12 @@ class CartView(View):
                     del self.request.session[item]
                 else:
                     self.request.session[item] = {"name": str(product_to_update.pk), "qty": qty_to_change}
-            return redirect('grocerystore:cart', zipcode=zipcode)
+
+                return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
+                                                    'zipcode': zipcode,}) \
+                                                    + '?open_cart=' + str(product_to_update.store.pk))
+
+            # return redirect('grocerystore:cart', zipcode=zipcode)
 
 
 class CheckoutView(LoginRequiredMixin, View):

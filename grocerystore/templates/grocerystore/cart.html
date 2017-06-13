@@ -88,7 +88,12 @@
             <div class="panel panel-default single-cart">
               <div class="panel-heading">
                 <h4 class="panel-title">
-                  <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">{{ key }}
+                  {% if open_cart and key.pk == open_cart %}
+                    <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">
+                  {% else %}
+                    <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">
+                  {% endif %}
+                    <span class="glyphicon glyphicon-shopping-cart"></span> {{ key }}
                     {% if values|slice:"-1"|last == 'pickup' %}
                       {% if username %}
                       <span class="glyphicon glyphicon-exclamation-sign"></span>
@@ -97,7 +102,11 @@
                   </a>
                 </h4>
               </div>
-              <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
+              {% if open_cart and key.pk == open_cart %}
+                <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
+              {% else %}
+                <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
+              {% endif %}
                 <ul class="list-group">
                 {% for item in values|slice:":-3" %}
                   <li class="list-group-item row vertical-align">
@@ -200,7 +209,7 @@
         |
         <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
         |
-        <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
+        <p id="footer_contact"><span class="glyphicon glyphicon-envelope"></span> eugenie.le.moulec@gmail.com</p>
       </div>
     </footer> <!-- end of footer -->
 
