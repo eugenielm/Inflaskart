@@ -306,9 +306,6 @@ class ProfileView(LoginRequiredMixin, View):
             context['available_stores'] = available_stores
         return render(self.request, self.template_name, context=context)
 
-    def post(self, request):
-        return redirect('grocerystore:profile_update')
-
 
 class ProfileUpdateView(LoginRequiredMixin, View):
     """Allow an authenticated user to edit their profile info - except their

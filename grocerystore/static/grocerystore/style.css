@@ -1,7 +1,8 @@
 html {
   height: 100%;
   width: 100%;
-  background: url(background.jpg) no-repeat center center fixed;
+  background: url(background.jpg) no-repeat center center;
+  background-attachment: fixed;
   background-size: cover;
   opacity: 0.93;
 }
@@ -791,11 +792,16 @@ form#registration_form .btn.submit {
 
 div.user_profile table, div.user_profile>table>tbody {width: 100%;}
 
-form.edit_profile input.btn.btn-info.btn-md {
-  float: right;
-  margin: 7px 1.5% 0px 0px;
-  padding: 1px 3px;
-  font-size: 12px;
+a#edit_pencil {
+  margin-left: 10px;
+  border: solid thin grey;
+  padding: 3px 5px;
+  background-color: rgba(238, 238, 238, 1);
+  border-radius: 3px;
+}
+
+a#edit_pencil:hover {
+  background-color: white;
 }
 
 /* the user isn't allowed to change their username */
