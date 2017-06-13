@@ -1577,6 +1577,7 @@ class OrdersHistory(LoginRequiredMixin, View):
             return redirect('grocerystore:start', zipcode=zipcode)
 
         user = self.request.user
+
         context = {
             'user': user,
             'store_id': store_id,
@@ -1584,6 +1585,10 @@ class OrdersHistory(LoginRequiredMixin, View):
             'zipcode': zipcode,
             'quantity_set': range(1, 21),
         }
+
+        available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
+        if available_stores:
+            context['available_stores'] = available_stores
 
         user_orders = Order.objects.filter(data__user__user_pk=user.pk)\
                       .filter(data__store__store_pk=store_id)
@@ -1594,9 +1599,10 @@ class OrdersHistory(LoginRequiredMixin, View):
                     product['product_pic'] = Product.objects.get(pk=int(product['product_pk'])).product_pic
             context['user_orders'] = user_orders
 
-        available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
-        if available_stores:
-            context['available_stores'] = available_stores
+            try:
+                last_active_order = Order.objects.get(pk=self.request.GET['open_order'])
+                context['last_active_order'] = last_active_order.pk
+            except: pass
 
         return render(self.request, self.template_name, context=context)
 
@@ -1668,9 +1674,13 @@ class OrdersHistory(LoginRequiredMixin, View):
                     except Availability.DoesNotExist:
                         messages.error(self.request, "Sorry, %s isn't available anymore at %s" \
                         % (elt['product_name'], order.data['store']['store_name']), fail_silently=True)
-                        return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
 
-                    try: # if the item is in stock in the store and if it's already in the user's cart
+                        return HttpResponseRedirect(reverse('grocerystore:orders', kwargs={
+                                                            'zipcode': zipcode,
+                                                            'store_id': store_id,}) \
+                                                            + '?open_order=' + str(order.pk))
+
+                    try: # if the item is in stock in the store and it's already in the user's cart
                         item = ItemInCart.objects.filter(incart_user=user)\
                                .get(incart_availability=availability)
                         item.incart_quantity += quantity_to_add
@@ -1679,7 +1689,7 @@ class OrdersHistory(LoginRequiredMixin, View):
                         % item.incart_availability.product, fail_silently=True)
                         messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
 
-                    except:
+                    except: # if the item is in stock in the store and it's NOT already in the user's cart
                         item = ItemInCart.objects.create(incart_user=user,
                                                          incart_availability=availability,
                                                          incart_quantity=quantity_to_add)
@@ -1687,4 +1697,7 @@ class OrdersHistory(LoginRequiredMixin, View):
                                          % item.incart_availability.product, fail_silently=True)
                         messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
 
-                    return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
+                    return HttpResponseRedirect(reverse('grocerystore:orders', kwargs={
+                                                        'zipcode': zipcode,
+                                                        'store_id': store_id,}) \
+                                                        + '?open_order=' + str(order.pk))
