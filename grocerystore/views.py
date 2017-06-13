@@ -1705,9 +1705,9 @@ class OrdersHistory(LoginRequiredMixin, View):
                         messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
 
                     except:
-                        ItemInCart.objects.create(incart_user=user,
-                                                  incart_availability=availability,
-                                                  incart_quantity=quantity_to_add)
+                        item = ItemInCart.objects.create(incart_user=user,
+                                                         incart_availability=availability,
+                                                         incart_quantity=quantity_to_add)
                         messages.success(self.request, "'%s' successfully added in your cart" \
                                          % item.incart_availability.product, fail_silently=True)
                         messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
