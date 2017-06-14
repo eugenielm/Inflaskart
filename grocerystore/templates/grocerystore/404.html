@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <title>Inflaskart | Error</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    {% load static from staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/errors_style.css' %}" />
+  </head>
+
+
+  <body>
+
+    <p style="font-size:15vh;color:#f755bb;margin:10vh auto 12vh;text-align:center;"><b>Ouch!</b></p>
+    <p style="font-size:5vh;color:#f755bb;text-align:center;">Sorry, the requested url doesn't exist... (aka error 404)</p>
+    <div style="font-size:2vh;color:grey;text-align:center;position:absolute;bottom:2vh;width:90%;">
+      > Go back to <a href="{% url 'grocerystore:index' %}" style="text-decoration:underline;color:grey">Inflaskart home page</a>
+    </div>
+
+  </body>
+</html>
