@@ -15,6 +15,10 @@ import dj_database_url
 import socket
 
 
+ADMIN = [('Eugenie', 'cowboy.de.tchernobyl@gmail.com'),]
+DEFAULT_FROM_EMAIL = 'eugenie.le.moulec@gmail.com'
+SERVER_EMAIL = 'eugenie.le.moulec@gmail.com'
+
 INSTALLED_APPS = [
     'grocerystore.apps.GrocerystoreConfig',
     'django.contrib.admin',
