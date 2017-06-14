@@ -6,7 +6,7 @@ import urllib
 import re
 from datetime import datetime, timedelta
 import time
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, render_to_response
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
@@ -25,7 +25,7 @@ from .forms import LoginForm, PaymentForm, UserForm, AddressForm
 
 
 """
-This module contains 15 views:
+This module contains 17 views:
 - UserRegisterView
 - UserLoginView
 - log_out()
@@ -41,6 +41,8 @@ This module contains 15 views:
 - CartView
 - CheckoutView
 - OrdersHistory
+- PageNotFound
+- ServerError
 
 This module contains the function search_item, which is used in the search tool
 (in the navigation menu bar once the user has chosen a store to shop in).
@@ -1663,3 +1665,16 @@ class OrdersHistory(LoginRequiredMixin, View):
                                                         'zipcode': zipcode,
                                                         'store_id': store_id,}) \
                                                         + '?open_order=' + str(order.pk))
+
+
+# HTTP Error 404
+def PageNotFound(request):
+    response = render_to_response('404.html', context_instance=RequestContext(request))
+    response.status_code = 404
+    return response
+
+# HTTP Error 404
+def ServerError(request):
+    response = render_to_response('500.html', context_instance=RequestContext(request))
+    response.status_code = 500
+    return response
