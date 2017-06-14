@@ -1670,12 +1670,8 @@ class OrdersHistory(LoginRequiredMixin, View):
 
 # HTTP Error 404
 def PageNotFound(request):
-    response = render_to_response('404.html', context_instance=RequestContext(request))
-    response.status_code = 404
-    return response
+    return render(request, '404.html', status=404)
 
 # HTTP Error 404
 def ServerError(request):
-    response = render_to_response('500.html', context_instance=RequestContext(request))
-    response.status_code = 500
-    return response
+    return render(request, '500.html', status=500)
