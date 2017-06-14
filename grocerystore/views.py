@@ -50,6 +50,7 @@ This module contains the function search_item, which is used in the search tool
 """
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+MAX_QTY = 20 # the maximum units of an item the user is allowed to put in their cart
 
 
 def search_item(searched_item, store_id):
@@ -347,7 +348,7 @@ class ProfileUpdateView(LoginRequiredMixin, View):
             user.email = new_email
             messages.error(self.request, "Please enter a valid email.", fail_silently=True)
 
-        if new_first_name.replace(" ", "").replace("-","").isalpha() and len(new_first_name) < 20:
+        if new_first_name.replace(" ", "").replace("-","").isalpha() and len(new_first_name) < 30:
             if not new_first_name == user.first_name:
                 # NB: str.capwords() raises a UnicodeEncodeError
                 capitalized_first_name = ""
@@ -368,7 +369,7 @@ class ProfileUpdateView(LoginRequiredMixin, View):
             user.first_name = new_first_name
             messages.error(self.request, "Please enter a valid first name.", fail_silently=True)
 
-        if new_last_name.replace(" ", "").replace("-","").isalpha() and len(new_last_name) < 20:
+        if new_last_name.replace(" ", "").replace("-","").isalpha() and len(new_last_name) < 30:
             if not new_last_name == user.last_name:
                 capitalized_last_name = ""
                 # a last name can contain either white spaces or hyphens (but not both)
@@ -601,7 +602,7 @@ class Instock(View):
         context['store_id'] = store_id
         context['store'] = store
         context['category_id'] = category_id
-        context['quantity_set'] = range(1, 21)
+        context['quantity_set'] = range(1, (MAX_QTY + 1))
 
         available_products = Availability.objects.filter(store__pk=int(store_id))\
                              .filter(product__product_category__pk=int(subcategory_id))
@@ -640,6 +641,9 @@ class Instock(View):
                     item = ItemInCart.objects.filter(incart_user=self.request.user)\
                            .get(incart_availability=availability)
                     item.incart_quantity += quantity_to_add
+                    # can't buy more than a certain quantity of an item
+                    if item.incart_quantity > MAX_QTY:
+                        item.incart_quantity = MAX_QTY
                     item.save()
                     messages.success(self.request, "'%s' quantity successfully updated."\
                                                 % availability.product, fail_silently=True)
@@ -662,6 +666,8 @@ class Instock(View):
             else: # if the user isn't authenticated
                 try: # check if the item is already in the user's cart
                     new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
+                    if new_qty > MAX_QTY: # can't buy more than a certain quantity of an item
+                        new_qty = MAX_QTY
                     self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': new_qty}
                     messages.success(self.request, "'%s' quantity successfully updated."\
                                                 % availability.product, fail_silently=True)
@@ -707,7 +713,7 @@ class BuyAgainView(LoginRequiredMixin, View):
         context['zipcode'] = zipcode
         context['store_id'] = store_id
         context['store'] = store
-        context['quantity_set'] = range(1, 21)
+        context['quantity_set'] = range(1, (MAX_QTY + 1))
 
         available_here = []
         try:
@@ -766,6 +772,9 @@ class BuyAgainView(LoginRequiredMixin, View):
                 item = ItemInCart.objects.filter(incart_user=user)\
                        .get(incart_availability=availability)
                 item.incart_quantity += quantity_to_add
+                # can't buy more than a certain quantity of an item
+                if item.incart_quantity > MAX_QTY:
+                    item.incart_quantity = MAX_QTY
                 item.save()
                 messages.success(self.request, "'%s' quantity successfully updated" \
                                  % availability.product, fail_silently=True)
@@ -809,7 +818,7 @@ class SearchView(View):
                                          "you've chosen.", fail_silently=True)
             return redirect('grocerystore:start', zipcode=zipcode)
 
-        context = {'quantity_set': range(1, 21),
+        context = {'quantity_set': range(1, (MAX_QTY + 1)),
                   'zipcode': zipcode,
                   'store_id': store_id,
                   'store': store,
@@ -913,7 +922,10 @@ class SearchView(View):
                 try:
                     item = ItemInCart.objects.filter(incart_user=self.request.user)\
                            .get(incart_availability=availability)
-                    item.incart_quantity = quantity_to_add
+                    item.incart_quantity += quantity_to_add
+                    # can't buy more than a certain quantity of an item
+                    if item.incart_quantity > MAX_QTY:
+                        item.incart_quantity = MAX_QTY
                     item.save()
                     messages.success(self.request, "'%s' quantity successfully updated."\
                                                 % availability.product, fail_silently=True)
@@ -937,6 +949,9 @@ class SearchView(View):
                 # once the quantity_to_add has been catched
                 try: # check if the item is already in the user's cart
                     new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
+                    # can't buy more than a certain quantity of an item
+                    if new_qty > MAX_QTY:
+                        new_qty = MAX_QTY
                     self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': new_qty}
                     messages.success(self.request, "'%s' quantity successfully updated."\
                                      % availability.product, fail_silently=True)
@@ -1000,7 +1015,7 @@ class ProductDetailView(View):
         context['product_description'] = product.product_description
         context['product_pic'] = product.product_pic
         context['user_id_required'] = product.user_id_required
-        context['quantity_set'] = range(1, 21)
+        context['quantity_set'] = range(1, (MAX_QTY + 1))
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         try:
             context['go_back'] = int(self.request.GET['go_back']) # this is a store pk
@@ -1037,6 +1052,9 @@ class ProductDetailView(View):
                 item = ItemInCart.objects.filter(incart_user=self.request.user)\
                        .get(incart_availability=availability)
                 item.incart_quantity += quantity_to_add
+                # can't buy more than a certain quantity of an item
+                if item.incart_quantity > MAX_QTY:
+                    item.incart_quantity = MAX_QTY
                 item.save()
                 messages.success(self.request, "'%s' quantity successfully updated" \
                                  % product, fail_silently=True)
@@ -1062,6 +1080,9 @@ class ProductDetailView(View):
         else: # if the user is anonymous
             try: # check if the item is already in the user's cart
                 new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
+                # can't buy more than a certain quantity of an item
+                if new_qty > MAX_QTY:
+                    new_qty = MAX_QTY
                 self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': new_qty}
                 messages.success(self.request, "'%s' quantity successfully updated."\
                                                 % product, fail_silently=True)
@@ -1163,7 +1184,7 @@ class CartView(View):
                 cart.append("%.2f" % cart_total)
 
             context['all_carts'] = all_carts
-            context['quantity_set'] = range(21)
+            context['quantity_set'] = range(MAX_QTY + 1)
 
             try:
                 last_active_cart = Store.objects.get(pk=self.request.GET['open_cart'])
@@ -1544,7 +1565,7 @@ class OrdersHistory(LoginRequiredMixin, View):
             'store_id': store_id,
             'store': Store.objects.get(pk=store_id),
             'zipcode': zipcode,
-            'quantity_set': range(1, 21),
+            'quantity_set': range(1, (MAX_QTY + 1)),
         }
 
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
@@ -1600,6 +1621,9 @@ class OrdersHistory(LoginRequiredMixin, View):
                         item = ItemInCart.objects.filter(incart_user=user)\
                                .get(incart_availability=availability)
                         item.incart_quantity += int(elt['product_qty'])
+                        # can't buy more than a certain quantity of an item
+                        if item.incart_quantity > MAX_QTY:
+                            item.incart_quantity = MAX_QTY
                         item.save()
                         items_added = True
                     except:
@@ -1645,6 +1669,9 @@ class OrdersHistory(LoginRequiredMixin, View):
                         item = ItemInCart.objects.filter(incart_user=user)\
                                .get(incart_availability=availability)
                         item.incart_quantity += quantity_to_add
+                        # can't buy more than a certain quantity of an item
+                        if item.incart_quantity > MAX_QTY:
+                            item.incart_quantity = MAX_QTY
                         item.save()
                         messages.success(self.request, "'%s' quantity successfully updated" \
                         % item.incart_availability.product, fail_silently=True)
