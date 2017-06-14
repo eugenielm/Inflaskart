@@ -460,11 +460,6 @@ class StartView(View):
     context_object_name = "available_stores"
 
     def get(self, request, zipcode):
-        # if the user types an invalid zipcode directly in the browser
-        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.", fail_silently=True)
-            return redirect('grocerystore:index')
-
         try: # check if there's at least one store that delivers the chosen zipcode
             # Zipcode objects are instanciated when a store wants to add it to its deliveray area
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
@@ -503,9 +498,6 @@ class StoreView(View):
     template_name = 'grocerystore/store.html'
 
     def get(self, request, zipcode, store_id):
-        if len(zipcode) < 4 or len(zipcode) > 5 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.", fail_silently=True)
-            return redirect('grocerystore:index')
         try:
             store = Store.objects.get(pk=store_id)
         except: # if the user try to access a non-existent store page
@@ -569,11 +561,6 @@ class Instock(View):
     template_name = 'grocerystore/instock.html'
 
     def get(self, request, zipcode, store_id, category_id, subcategory_id):
-        # if the user types an invalid zipcode directly in the browser
-        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.", fail_silently=True)
-            return redirect('grocerystore:index')
-
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
@@ -695,11 +682,6 @@ class BuyAgainView(LoginRequiredMixin, View):
     redirect_field_name = 'redirect_to'
 
     def get(self, request, zipcode, store_id):
-        # if the user types an invalid zipcode directly in the browser
-        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.", fail_silently=True)
-            return redirect('grocerystore:index')
-
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
@@ -807,11 +789,6 @@ class SearchView(View):
     template_name = 'grocerystore/search.html'
 
     def get(self, request, zipcode, store_id, searched_item):
-        # if the user types an invalid zipcode directly in the browser
-        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.", fail_silently=True)
-            return redirect('grocerystore:index')
-
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
@@ -978,11 +955,6 @@ class ProductDetailView(View):
     template_name = 'grocerystore/detail.html'
 
     def get(self, request, zipcode, store_id, product_id):
-        # if the user types an invalid zipcode directly in the browser
-        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.", fail_silently=True)
-            return redirect('grocerystore:index')
-
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
@@ -1303,11 +1275,6 @@ class CheckoutView(LoginRequiredMixin, View):
     redirect_field_name = 'redirect_to'
 
     def get(self, request, zipcode, store_id):
-        # if the user enters an invalid zipcode directly in the browser
-        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.", fail_silently=True)
-            return redirect('grocerystore:index')
-
         try:
             store = Store.objects.get(pk=store_id)
         except:
@@ -1554,11 +1521,6 @@ class OrdersHistory(LoginRequiredMixin, View):
     redirect_field_name = 'redirect_to'
 
     def get(self, request, zipcode, store_id):
-        # if the user types an invalid zipcode directly in the browser
-        if len(zipcode) > 5 or len(zipcode) < 4 or not zipcode.isnumeric():
-            messages.error(self.request, "You are looking for an invalid zipcode.", fail_silently=True)
-            return redirect('grocerystore:index')
-
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
