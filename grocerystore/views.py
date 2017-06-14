@@ -681,6 +681,8 @@ class Instock(View):
                                                         store_id=store_id,
                                                         category_id=category_id,
                                                         subcategory_id=subcategory_id)
+        messages.error(self.request, "Sorry, an error has occured...")
+        return redirect('grocerystore:instock', zipcode=zipcode, store_id=store_id, category_id=category_id, subcategory_id=subcategory_id)
 
 
 class BuyAgainView(LoginRequiredMixin, View):
@@ -792,6 +794,9 @@ class BuyAgainView(LoginRequiredMixin, View):
             messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
             return redirect('grocerystore:buyagain', zipcode=zipcode,
                                                      store_id=store_id)
+
+        messages.error(self.request, "Sorry, an error has occured...")
+        return redirect('grocerystore:buyagain', zipcode=zipcode, store_id=store_id)
 
 
 class SearchView(View):
@@ -964,6 +969,7 @@ class SearchView(View):
 
         # in case the product the user wants to put in their cart isn't available anymore
         # (eg: if the product availability was removed while the user was looking at the page)
+        messages.error(self.request, "Sorry, an error has occured...")
         return redirect('grocerystore:search', zipcode=zipcode, store_id=store_id)
 
 
@@ -1101,6 +1107,9 @@ class ProductDetailView(View):
                                                     + '?go_back=' + str(go_back_to))
             except:
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+
+        messages.error(self.request, "Sorry, an error has occured...")
+        return redirect('grocerystore:detail', zipcode=zipcode, store_id=store_id, product_id=product_id)
 
 
 class CartView(View):
@@ -1282,6 +1291,9 @@ class CartView(View):
                 return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
                                                     'zipcode': zipcode,}) \
                                                     + '?open_cart=' + str(product_to_update.store.pk))
+
+        messages.error(self.request, "Sorry, an error has occured...")
+        return redirect('grocerystore:cart', zipcode=zipcode)
 
 
 class CheckoutView(LoginRequiredMixin, View):
@@ -1689,6 +1701,9 @@ class OrdersHistory(LoginRequiredMixin, View):
                                                         'zipcode': zipcode,
                                                         'store_id': store_id,}) \
                                                         + '?open_order=' + str(order.pk))
+
+        messages.error(self.request, "Sorry, an error has occured...")
+        return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
 
 
 # HTTP Error 404
