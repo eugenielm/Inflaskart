@@ -6,7 +6,7 @@ import urllib
 import re
 from datetime import datetime, timedelta
 import time
-from django.shortcuts import redirect, render, render_to_response
+from django.shortcuts import redirect, render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
@@ -1670,8 +1670,8 @@ class OrdersHistory(LoginRequiredMixin, View):
 
 # HTTP Error 404
 def PageNotFound(request):
-    return render(request, '404.html', status=404)
+    return render(request, 'grocerystore/404.html', status=404)
 
-# HTTP Error 404
+# HTTP Error 500
 def ServerError(request):
-    return render(request, '500.html', status=500)
+    return render(request, 'grocerystore/500.html', status=500)
