@@ -42,7 +42,7 @@
                 </ul>
               </li>
             {% endif %}
-            <li><a href="{% url 'grocerystore:cart' zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
+            <li><a href="{% url 'grocerystore:cart' zipcode %}?open_cart={{store.pk}}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
           </ul>
 
           <form class="nav navbar-nav navbar-form" role="search" action="" method="post">

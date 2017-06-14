@@ -4,7 +4,7 @@ html {
   background: url(background.jpg) no-repeat center center;
   background-attachment: fixed;
   background-size: cover;
-  opacity: 0.93;
+  opacity: 0.95;
 }
 
 body {
@@ -287,7 +287,7 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 }
 
 .store_picture:hover {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .store_choice img {

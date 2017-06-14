@@ -42,7 +42,7 @@
                 </ul>
               </li>
             {% endif %}
-            <li><a href="{% url 'grocerystore:cart' zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
+            <li><a href="{% url 'grocerystore:cart' zipcode %}?open_cart={{store.pk}}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
           </ul>
 
           <form class="nav navbar-nav navbar-form" role="search" action="" method="post">
@@ -149,7 +149,7 @@
         |
         <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
         |
-        <p id="footer_contact">Contact: eugenie.le.moulec@gmail.com</p>
+        <p id="footer_contact"><span class="glyphicon glyphicon-envelope"></span> eugenie.le.moulec@gmail.com</p>
       </div>
     </footer> <!-- end of footer -->
 
