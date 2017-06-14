@@ -18,6 +18,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sessions.models import Session
 from django.contrib.messages import get_messages
+from django.template import RequestContext
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
                     Availability, Address, Store, Inflauser, State, Zipcode, \
                     ItemInCart, Order, ProductPurchase
