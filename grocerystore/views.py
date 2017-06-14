@@ -1222,8 +1222,6 @@ class CartView(View):
                                                     'zipcode': zipcode,}) \
                                                     + '?open_cart=' + str(product_to_update.store.pk))
 
-            # return redirect('grocerystore:cart', zipcode=zipcode)
-
         else: # if anonymous user
             store_pks = []
             # getting a list of all the stores'pk from which the user has added
@@ -1263,8 +1261,6 @@ class CartView(View):
                 return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
                                                     'zipcode': zipcode,}) \
                                                     + '?open_cart=' + str(product_to_update.store.pk))
-
-            # return redirect('grocerystore:cart', zipcode=zipcode)
 
 
 class CheckoutView(LoginRequiredMixin, View):

@@ -1,10 +1,20 @@
 html {
   height: 100%;
   width: 100%;
-  background: url(background.jpg) no-repeat center center;
-  background-attachment: fixed;
+}
+
+html:after{
+  content:"";
+  position:fixed; /* stretch a fixed position to the whole screen */
+  top:0;
+  height:100vh; /* fix for mobile browser address bar appearing disappearing */
+  left:0;
+  right:0;
+  z-index:-1; /* needed to keep in the background */
+  background: url(background.jpg) center center;
   background-size: cover;
-  opacity: 0.95;
+  background-repeat: no-repeat;
+  opacity: 0.1;
 }
 
 body {
@@ -39,6 +49,7 @@ a:hover, a:active {
 .page-header {
   padding: 0px;
   margin: 65px 3% 10px 3%;
+  border-bottom: none;
 }
 
 div.page-header h2, div.page-header h4, div.page-header h5, div.page-header h6 {
