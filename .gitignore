@@ -1,9 +1,6 @@
 *.pyc
 .*.sw?
 .DS_Store
-db.sqlite3
-grocerystore/migrations/0*
-grocerystore/static/grocerystore/style-old.css
 inflaskart/staticfiles
 inflaskart/aws_access_key_id.txt
 inflaskart/aws_secret_access_key.txt
