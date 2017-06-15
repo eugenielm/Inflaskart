@@ -227,7 +227,7 @@ class ItemInCart(models.Model):
     """An instance of this model is created when a user puts an item in their cart."""
     incart_user = models.ForeignKey(User, on_delete=models.CASCADE)
     incart_availability = models.ForeignKey(Availability, on_delete=models.CASCADE)
-    incart_quantity = models.PositiveIntegerField()
+    incart_quantity = models.FloatField()
 
     def __str__(self):
         return str(self.incart_quantity) + " " + str(self.incart_availability.product.product_name)

@@ -453,8 +453,8 @@ div#buy_again:hover, div#old_order:hover {
 }
 
 .vertical-align {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 li.list-group-item.row {
@@ -465,6 +465,10 @@ li.list-group-item.row {
 
 li.list-group-item.row>div {
   padding: 0px 5px;
+}
+
+li.list-group-item.row>div:nth-child(4) {
+  padding-right: 0px;
 }
 
 .single-cart .list-group-item img {
@@ -521,7 +525,10 @@ li.list-group-item.row>div {
   margin-bottom: 0px;
 }
 
-p.empty_cart {margin: 10px 10px 0px 10px}
+p.empty_cart {
+  margin: 10px 3% 0px 3%;
+  font-size: 2vh;
+}
 
 .empty_cart a {text-decoration: underline;}
 .empty_cart a:hover {text-decoration: none;}
@@ -562,10 +569,25 @@ p#no_delivery, p#delivery_fee {
   margin: 1vh 2vh 1vh 0vh;
 }
 
-/* the following is also in search.html and instock.html */
+/* the following is also in detail.html, search.html, buyagain.html, orders.html
+cart.html and instock.html */
+.quantity_input {
+  width:45px;
+  display:inline-block;
+  text-align:center;
+}
+
+/* the following is also in detail.html, search.html, buyagain.html, orders.html
+cart.html and instock.html */
+.btn.btn-info.btn-xs.quantity_input_button {
+  padding:1px 2px;
+  display:inline-block;
+}
+
+/* the following is also in search.html, buyagain.html, and detail.html */
 form.qty_selection {
   font-size: 1.8vh;
-  margin-left:0px;
+  text-align: center;
   margin-top:5px;
 }
 
@@ -798,7 +820,7 @@ form#registration_form .btn.submit {
   width: 54%;
   max-width: 350px;
   height: 24px;
-  background-color: #dadada;
+  background-color: rgba(238, 238, 238, 1);
 }
 
 div.user_profile table, div.user_profile>table>tbody {width: 100%;}
@@ -815,8 +837,6 @@ a#edit_pencil:hover {
   background-color: white;
 }
 
-/* the user isn't allowed to change their username */
-.user_profile tr:first-child > td.saved-field {background-color: rgba(238, 238, 238, 1)}
 
 /*****************************************************************************/
 /* profile_update.html */
@@ -867,7 +887,7 @@ a#edit_pencil:hover {
 table.user_table tr:first-child > td.update-field {
   padding: 1px 5px;
   height: 24px;
-  background-color: rgba(238, 238, 238, 1);
+  background-color: #e8e8e8; /* the user isn't allowed to change their username */
 }
 
 form#profile_form > input.btn.btn-info.btn-md.submit {
@@ -903,6 +923,8 @@ form#profile_form > input.btn.btn-info.btn-md.submit {
 .single-cart.checkout li.list-group-item {
   text-align: left;
 }
+
+.single-cart.checkout li.list-group-item.row>div:nth-child(4) {padding-right: 5px}
 
 #delivery_choice {
   font-size: 1.8vh;
@@ -986,14 +1008,14 @@ p#pickup {color: red;}
   padding: 10px 5px;
 }
 
+.single-cart.checkout #cart-total {
+  float: right;
+  padding: 0px 5px;
+}
+
 #change_cart {
   padding-left: 5px;
   text-align: left;
-}
-
-#cart-total {
-  padding-right: 5px;
-  float: right;
 }
 
 #change_cart>a {

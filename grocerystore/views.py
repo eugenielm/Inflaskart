@@ -50,7 +50,7 @@ This module contains the function search_item, which is used in the search tool
 """
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-MAX_QTY = 20 # the maximum units of an item the user is allowed to put in their cart
+MAX_QTY = float(20) # the maximum units of an item the user is allowed to put in their cart
 
 
 def search_item(searched_item, store_id):
@@ -65,6 +65,13 @@ def search_item(searched_item, store_id):
             if word.lower() in item.product.product_name.lower():
                 search_result.append(item)
     return search_result
+
+
+def ConvertQtyToFloat(quantity):
+    """Takes a unicode value as a parameter and returns a float if applicable,
+    or return None otherwise"""
+    try: return float(quantity)
+    except ValueError: return None
 
 
 class UserRegisterView(View):
@@ -602,7 +609,7 @@ class Instock(View):
         context['store_id'] = store_id
         context['store'] = store
         context['category_id'] = category_id
-        context['quantity_set'] = range(1, (MAX_QTY + 1))
+        context['quantity_set'] = range(1, (int(MAX_QTY) + 1))
 
         available_products = Availability.objects.filter(store__pk=int(store_id))\
                              .filter(product__product_category__pk=int(subcategory_id))
@@ -629,9 +636,16 @@ class Instock(View):
 
         available_products = Availability.objects.filter(store__pk=int(store_id))\
                              .filter(product__product_category__pk=int(subcategory_id))
+
         for availability in available_products: # list of Availability instances
             try:
-                quantity_to_add = int(self.request.POST.get(str(availability.pk)))
+                quantity_to_add = ConvertQtyToFloat(self.request.POST.get(str(availability.pk)))
+                if not quantity_to_add and quantity_to_add != float(0):
+                    messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                    return redirect('grocerystore:instock', zicode=zipcode,
+                                                            store_id=store_id,
+                                                            category_id=category_id,
+                                                            subcategory_id=subcategory_id)
             except TypeError:
                 continue
 
@@ -682,7 +696,8 @@ class Instock(View):
                                                         category_id=category_id,
                                                         subcategory_id=subcategory_id)
         messages.error(self.request, "Sorry, an error has occured...")
-        return redirect('grocerystore:instock', zipcode=zipcode, store_id=store_id, category_id=category_id, subcategory_id=subcategory_id)
+        return redirect('grocerystore:instock', zipcode=zipcode, store_id=store_id,
+                                                category_id=category_id, subcategory_id=subcategory_id)
 
 
 class BuyAgainView(LoginRequiredMixin, View):
@@ -715,12 +730,12 @@ class BuyAgainView(LoginRequiredMixin, View):
         context['zipcode'] = zipcode
         context['store_id'] = store_id
         context['store'] = store
-        context['quantity_set'] = range(1, (MAX_QTY + 1))
+        context['quantity_set'] = range(1, (int(MAX_QTY) + 1))
 
         available_here = []
         try:
             bought_here = ProductPurchase.objects.filter(customer=user)\
-                           .filter(purchase_store=store)
+                          .filter(purchase_store=store)
             # keep only the available products already bought in this store
             for item in bought_here:
                 try:
@@ -766,7 +781,11 @@ class BuyAgainView(LoginRequiredMixin, View):
 
         for availability in available_here: # list of Availability instances
             try:
-                quantity_to_add = int(self.request.POST.get(str(availability.pk)))
+                quantity_to_add = ConvertQtyToFloat(self.request.POST.get(str(availability.pk)))
+                if not quantity_to_add and quantity_to_add != float(0):
+                    messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                    return redirect('grocerystore:buyagain', zipcode=zipcode, store_id=store_id)
+
             except TypeError:
                 continue
 
@@ -823,7 +842,7 @@ class SearchView(View):
                                          "you've chosen.", fail_silently=True)
             return redirect('grocerystore:start', zipcode=zipcode)
 
-        context = {'quantity_set': range(1, (MAX_QTY + 1)),
+        context = {'quantity_set': range(1, (int(MAX_QTY) + 1)),
                   'zipcode': zipcode,
                   'store_id': store_id,
                   'store': store,
@@ -844,7 +863,7 @@ class SearchView(View):
         elif len(search_result) > 0:
             available_products = []
             for availability in search_result: # NB: availablity is an Availability instance
-                product_price = float(availability.product_price)
+                product_price = availability.product_price
                 product_unit = availability.product_unit
                 product_id = availability.product.pk
                 available_products.append([availability, product_price, product_unit, product_id])
@@ -896,7 +915,8 @@ class SearchView(View):
         searched_item = urllib.unquote(searched_item)
         search_result = search_item(searched_item, store_id)
 
-        if not search_result: # ie. there're results in other stores that deliver the same zipcode area
+        if not search_result:
+            # ie. check if there're results in other stores that deliver the same zipcode area
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             search_result = []
             stores_around = Store.objects.filter(delivery_area=zipcode_obj).exclude(pk=store_id)
@@ -917,12 +937,18 @@ class SearchView(View):
                                                     + '?go_back=' + str(store_id)\
                                                     + '&searched_item=' + str(urllib.quote(searched_item.encode('utf8'))))
 
-        if self.request.user.is_authenticated:
-            for availability in search_result:
-                try:
-                    quantity_to_add = int(self.request.POST.get(str(availability.pk)))
-                except TypeError:
-                    continue
+        for availability in search_result:
+            try:
+                quantity_to_add = ConvertQtyToFloat(self.request.POST.get(str(availability.pk)))
+                if not quantity_to_add and quantity_to_add != float(0):
+                    messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                    return redirect('grocerystore:search', zipcode=zipcode,
+                                                           store_id=store_id,
+                                                           searched_item=searched_item)
+            except TypeError:
+                continue
+
+            if self.request.user.is_authenticated:
                 # check if the item is already in the cart and update its quantity
                 try:
                     item = ItemInCart.objects.filter(incart_user=self.request.user)\
@@ -944,14 +970,7 @@ class SearchView(View):
                                      % availability.product, fail_silently=True)
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
-        else: # if the user is anonymous
-            for availability in search_result:
-                try:
-                    quantity_to_add = int(self.request.POST.get(str(availability.pk)))
-                except TypeError:
-                    continue
-
-                # once the quantity_to_add has been catched
+            else: # if the user is anonymous
                 try: # check if the item is already in the user's cart
                     new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
                     # can't buy more than a certain quantity of an item
@@ -970,7 +989,7 @@ class SearchView(View):
         # in case the product the user wants to put in their cart isn't available anymore
         # (eg: if the product availability was removed while the user was looking at the page)
         messages.error(self.request, "Sorry, an error has occured...")
-        return redirect('grocerystore:search', zipcode=zipcode, store_id=store_id)
+        return redirect('grocerystore:search', zipcode=zipcode, store_id=store_id, searched_item=searched_item)
 
 
 class ProductDetailView(View):
@@ -1021,7 +1040,7 @@ class ProductDetailView(View):
         context['product_description'] = product.product_description
         context['product_pic'] = product.product_pic
         context['user_id_required'] = product.user_id_required
-        context['quantity_set'] = range(1, (MAX_QTY + 1))
+        context['quantity_set'] = range(1, (int(MAX_QTY) + 1))
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         try:
             context['go_back'] = int(self.request.GET['go_back']) # this is a store pk
@@ -1037,7 +1056,12 @@ class ProductDetailView(View):
         """When an item is added to the user cart, its "name" key is the
         corresponding Availability object pk turned into a string"""
         try:
-            quantity_to_add = int(self.request.POST.get(str(product_id)))
+            quantity_to_add = ConvertQtyToFloat(self.request.POST[str(product_id)])
+            if not quantity_to_add and quantity_to_add != float(0):
+                messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                return redirect('grocerystore:detail', zipcode=zipcode,
+                                                       store_id=store_id,
+                                                       product_id=product_id)
         except: # if the user uses the search tool in the navigation bar
             searched_item = self.request.POST.get('search')
             if searched_item.replace(" ", "").replace("-", "").isalpha():
@@ -1132,15 +1156,18 @@ class CartView(View):
         all_carts = {}
 
         if self.request.user.is_authenticated:
-            user_zipcode = Inflauser.objects.get(infla_user=self.request.user).inflauser_address.zip_code
             context['username'] = self.request.user.username
+            user_zipcode = Inflauser.objects.get(infla_user=self.request.user).inflauser_address.zip_code
             context['user_zipcode'] = user_zipcode
 
             user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
             for item in user_cart:
                 item_availability = item.incart_availability
                 item_product = item_availability.product
-                item_qty = item.incart_quantity
+                if item.incart_quantity % 1 == 0:
+                    item_qty = int(item.incart_quantity)
+                else:
+                    item_qty = float(item.incart_quantity)
                 item_unit = item_availability.product_unit
                 item_price = "%.2f" % (float(item_qty) * float(item_availability.product_price))
                 elt = [item_product, item_qty, item_unit, item_price,
@@ -1152,6 +1179,22 @@ class CartView(View):
                     all_carts[item_store].append(elt)
                 except KeyError:
                     all_carts[item_store] = [elt]
+
+            if all_carts: # this block is specific to authorized users
+                for store, cart in all_carts.items():
+                    cart_total = 0
+                    for elt in cart:
+                        cart_total += float(elt[3])
+                    if cart_total < 30:
+                        cart.append('delivery_fee')
+                    else:
+                        cart.append('no_delivery_fee')
+                    # True is for a store that delivers the current zipcode area
+                    if store.delivery_area.all().filter(zipcode=user_zipcode):
+                        cart.append('delivery')
+                    else:
+                        cart.append('pickup')
+                    cart.append("%.2f" % cart_total)
 
         else: # if the user is anonymous
 
@@ -1172,28 +1215,25 @@ class CartView(View):
                 except KeyError:
                     all_carts[item_store] = [elt]
 
-        if all_carts:
-            for store, cart in all_carts.items():
-                cart_total = 0
+            if all_carts: # this block is specific to anonymous users
+                for store, cart in all_carts.items():
+                    cart_total = 0
+                    for elt in cart:
+                        cart_total += float(elt[3])
+                    if cart_total < 30:
+                        cart.append('delivery_fee')
+                    else:
+                        cart.append('no_delivery_fee')
+                    # True is for a store that delivers the current zipcode area
+                    if store.delivery_area.all().filter(zipcode=zipcode):
+                        cart.append('delivery')
+                    else:
+                        cart.append('pickup')
+                    cart.append("%.2f" % cart_total)
 
-                for elt in cart:
-                    cart_total += float(elt[3])
-
-                if cart_total < 30:
-                    cart.append('delivery_fee')
-                else:
-                    cart.append('no_delivery_fee')
-
-                # True is for a store that delivers the current zipcode area
-                if store.delivery_area.all().filter(zipcode=zipcode):
-                    cart.append('delivery')
-                else:
-                    cart.append('pickup')
-
-                cart.append("%.2f" % cart_total)
-
+        if all_carts: # if the user has put at least one item in their cart
             context['all_carts'] = all_carts
-            context['quantity_set'] = range(MAX_QTY + 1)
+            context['quantity_set'] = range(int(MAX_QTY) + 1)
 
             try:
                 last_active_cart = Store.objects.get(pk=self.request.GET['open_cart'])
@@ -1238,11 +1278,18 @@ class CartView(View):
             for elt in user_cart: # if the user wants to update an item quantity
                 product_to_update = elt.incart_availability
                 try:
-                    qty_to_change = int(self.request.POST.get(str(product_to_update.pk)))
+                    qty_to_change = ConvertQtyToFloat(self.request.POST.get(str(product_to_update.pk)))
+                    if not qty_to_change and qty_to_change != float(0):
+                        messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                        return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
+                                                            'zipcode': zipcode,}) \
+                                                            + '?open_cart=' + str(product_to_update.store.pk))
+
                 except TypeError: # loops in the cart until it hits the product to update
                     continue
+
                 # if the user wants to remove an item from their cart
-                if qty_to_change == 0:
+                if qty_to_change == float(0):
                     elt.delete()
                 else:
                     elt.incart_quantity = qty_to_change
@@ -1280,7 +1327,12 @@ class CartView(View):
             for item in self.request.session.keys():
                 product_to_update = Availability.objects.get(pk=int(self.request.session[item]["name"]))
                 try:
-                    qty_to_change = int(self.request.POST.get(str(product_to_update.pk)))
+                    qty_to_change = ConvertQtyToFloat(self.request.POST.get(str(product_to_update.pk)))
+                    if not qty_to_change and qty_to_change != float(0):
+                        messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                        return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
+                                                            'zipcode': zipcode,}) \
+                                                            + '?open_cart=' + str(product_to_update.store.pk))
                 except TypeError:
                     continue
                 if qty_to_change == 0:
@@ -1331,36 +1383,39 @@ class CheckoutView(LoginRequiredMixin, View):
 
         cart_total = float(0)
         in_cart = []
-        sales_tax = float(0.00)
+        sales_tax = float(0)
         for item in user_cart:
             if item.incart_availability.store.pk == int(store_id):
                 availability = item.incart_availability
                 product = availability.product
-                quantity = item.incart_quantity
+                if item.incart_quantity % 1:
+                    quantity = float(item.incart_quantity)
+                else:
+                    quantity = int(item.incart_quantity)
                 item_price = availability.product_price
-                item_total = float(item_price * quantity)
+                item_total = float(item_price) * float(quantity)
                 cart_total += item_total
                 item_total = "%.2f" % item_total
                 item_unit = availability.product_unit
                 if product.taxability:
                     # NB: need to use a sales tax API in real life ;-)
                     # 8.5% is the sales tax rate in San Francisco county
-                    sales_tax += float(float(item_price) * float(quantity) * 8.5 / 100)
+                    sales_tax += float(item_total) * 8.5 / 100
                 elt = [product, quantity, item_price, item_unit, item_total]
                 in_cart.append(elt)
 
-        if float(cart_total) == 0.00:
+        if cart_total == 0.00:
             messages.error(self.request, "You must put items in your cart to be able "\
                                          "to place an order!", fail_silently=True)
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         # calculating service fee before adding sales taxes
-        service = float(cart_total * 0.10)
+        service = cart_total * 0.10
         cart_total += service
         context['service'] = "%.2f" % service
 
         # adding sales taxes (if applicable)
-        if sales_tax > float(0.00):
+        if sales_tax > float(0):
             cart_total += sales_tax
             context['sales_tax'] = "%.2f" % sales_tax
 
@@ -1461,12 +1516,12 @@ class CheckoutView(LoginRequiredMixin, View):
                             'product_pk': item.incart_availability.product.pk,
                             'availability_pk': item.incart_availability.pk,
                             'product_name': item.incart_availability.product.product_name,
-                            'unit_price': str(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
+                            'unit_price': "%.2f" % (float(item.incart_availability.product_price)), # float and decimal types aren't JSON serializable
                             'product_qty': item.incart_quantity,
-                            'total_item_price': "%.2f" % (float(item.incart_availability.product_price) * item.incart_quantity),
+                            'total_item_price': "%.2f" % (float(item.incart_availability.product_price) * float(item.incart_quantity)),
                             'product_unit': item.incart_availability.product_unit,
                             })
-                        order_total += float(item.incart_availability.product_price) * item.incart_quantity
+                        order_total += float(item.incart_availability.product_price) * float(item.incart_quantity)
                     except: # if order_data hasn't been declared yet, ie. it's the first loop of the iteration
                         # a datetime.datetime object isn't JSON serializable
                         purchase_date = []
@@ -1519,7 +1574,7 @@ class CheckoutView(LoginRequiredMixin, View):
                             'product_unit': item.incart_availability.product_unit,
                             }],
                         }
-                        order_total += float(item.incart_availability.product_price) * item.incart_quantity
+                        order_total += float(item.incart_availability.product_price) * float(item.incart_quantity)
 
                     try:
                         item_history = ProductPurchase.objects.filter(customer=user)\
@@ -1577,7 +1632,7 @@ class OrdersHistory(LoginRequiredMixin, View):
             'store_id': store_id,
             'store': Store.objects.get(pk=store_id),
             'zipcode': zipcode,
-            'quantity_set': range(1, (MAX_QTY + 1)),
+            'quantity_set': range(1, (int(MAX_QTY) + 1)),
         }
 
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
@@ -1591,6 +1646,16 @@ class OrdersHistory(LoginRequiredMixin, View):
             for order in user_orders:
                 for product in order.data['items']:
                     product['product_pic'] = Product.objects.get(pk=int(product['product_pk'])).product_pic
+                    if product['product_qty'] % 1:
+                        product['product_qty'] = float(product['product_qty'])
+                    else:
+                        product['product_qty'] = int(product['product_qty'])
+                    try:
+                        product['availability'] = Availability.objects.filter(store__pk=store_id)\
+                                                  .get(product__pk=product['product_pk'])
+                    except:
+                        product['availability'] = 'not_available'
+
             context['user_orders'] = user_orders
 
             try:
@@ -1632,7 +1697,7 @@ class OrdersHistory(LoginRequiredMixin, View):
                     try:
                         item = ItemInCart.objects.filter(incart_user=user)\
                                .get(incart_availability=availability)
-                        item.incart_quantity += int(elt['product_qty'])
+                        item.incart_quantity += float(elt['product_qty'])
                         # can't buy more than a certain quantity of an item
                         if item.incart_quantity > MAX_QTY:
                             item.incart_quantity = MAX_QTY
@@ -1641,7 +1706,7 @@ class OrdersHistory(LoginRequiredMixin, View):
                     except:
                         ItemInCart.objects.create(incart_user=user,
                                                   incart_availability=availability,
-                                                  incart_quantity=int(elt['product_qty']))
+                                                  incart_quantity=float(elt['product_qty']))
                         items_added = True
 
                 if items_added and not unavailable_items:
@@ -1663,7 +1728,11 @@ class OrdersHistory(LoginRequiredMixin, View):
             except:
                 for elt in order.data['items']:
                     try:
-                        quantity_to_add = int(self.request.POST.get(str(elt['availability_pk'])))
+                        quantity_to_add = ConvertQtyToFloat(self.request.POST.get(str(elt['availability_pk'])))
+                        if not quantity_to_add and quantity_to_add != float(0):
+                            messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                            return redirect('grocerystore:orders', zipcode=zipcode,
+                                                                   store_id=store_id)
                     except: continue
 
                     try:

@@ -122,17 +122,20 @@
                         <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
                       {% endif %}
                     </div>
-                    <div class="col-xs-8 col-sm-10"> <!-- product name -->
+                    <div class="col-xs-7 col-sm-9"> <!-- product name -->
                       {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }} - <b>${{ item.3 }}</b>
                     </div>
-                    <div class="col-xs-2 col-sm-1"> <!-- quantity update button -->
+                    <div class="col-xs-3 col-sm-2"> <!-- quantity update button -->
                       <form class="qty_update" action="" method="post">
                         {% csrf_token %}
-                        <select name="{{item.4}}" onchange='this.form.submit()' style="padding-left:10px">
-                          {% for quantity in quantity_set %}
-                            <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}>{{ quantity }}</option>
-                          {% endfor %}
-                        </select>
+                        {% if item.2 == "lbs" and item.0.product_category.parent.top_category == "Produce" %}
+                          <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="20" step="0.1">
+                        {% elif item.2 == "lbs" and "counter" in item.0.product_category.sub_category_name %}
+                          <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="20" step="0.1">
+                        {% else %}
+                          <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="20" step="1">
+                        {% endif %}
+                          <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok" />
                       </form>
                     </div>
                   </li>
