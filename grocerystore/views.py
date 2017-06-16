@@ -21,7 +21,7 @@ from django.contrib.messages import get_messages
 from django.template import RequestContext
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
                     Availability, Address, Store, Inflauser, State, Zipcode, \
-                    ItemInCart, Order, ProductPurchaseHistory
+                    ItemInCart, Order, ProductPurchase
 from .forms import LoginForm, PaymentForm, UserForm, AddressForm
 
 
@@ -734,7 +734,7 @@ class BuyAgainView(LoginRequiredMixin, View):
 
         available_here = []
         try:
-            bought_here = ProductPurchaseHistory.objects.filter(customer=user)\
+            bought_here = ProductPurchase.objects.filter(purchaser=user)\
                           .filter(purchase_store=store)
             # keep only the available products already bought in this store
             for item in bought_here:
@@ -769,7 +769,7 @@ class BuyAgainView(LoginRequiredMixin, View):
         except: pass # if the user doesn't use the search tool
 
         # get list of the products bought by the user in this specific store
-        bought_here = ProductPurchaseHistory.objects.filter(customer=user).filter(purchase_store=store)
+        bought_here = ProductPurchase.objects.filter(purchaser=user).filter(purchase_store=store)
 
         # filter the available products
         available_here = []
@@ -1203,10 +1203,13 @@ class CartView(View):
                 item_availability = Availability.objects.get(pk=item_availability_pk)
                 item_store = item_availability.store
                 item_product = item_availability.product
+                if self.request.session[item]["qty"] % 1 == 0:
+                    item_qty = int(self.request.session[item]["qty"])
+                else:
+                    item_qty = float(self.request.session[item]["qty"])
                 item_price = "%.2f" % (float(self.request.session[item]["qty"])\
                 * float(item_availability.product_price))
-                elt = [item_product, self.request.session[item]["qty"],
-                       item_availability.product_unit, item_price,
+                elt = [item_product, item_qty, item_availability.product_unit, item_price,
                        item_availability_pk, item_product.pk, item_availability.product_price,
                        item_availability.store.store_zipcode]
 
@@ -1516,7 +1519,7 @@ class CheckoutView(LoginRequiredMixin, View):
                             'product_pk': item.incart_availability.product.pk,
                             'availability_pk': item.incart_availability.pk,
                             'product_name': item.incart_availability.product.product_name,
-                            'unit_price': "%.2f" % (float(item.incart_availability.product_price)), # float and decimal types aren't JSON serializable
+                            'unit_price': "%.2f" % float(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
                             'product_qty': item.incart_quantity,
                             'total_item_price': "%.2f" % (float(item.incart_availability.product_price) * float(item.incart_quantity)),
                             'product_unit': item.incart_availability.product_unit,
@@ -1568,25 +1571,22 @@ class CheckoutView(LoginRequiredMixin, View):
                             'product_pk': item.incart_availability.product.pk,
                             'availability_pk': item.incart_availability.pk,
                             'product_name': item.incart_availability.product.product_name,
-                            'unit_price': str(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
+                            'unit_price': "%.2f" % float(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
                             'product_qty': item.incart_quantity,
-                            'total_item_price': "%.2f" % (float(item.incart_availability.product_price) * item.incart_quantity),
+                            'total_item_price': "%.2f" % (float(item.incart_availability.product_price) * float(item.incart_quantity)),
                             'product_unit': item.incart_availability.product_unit,
                             }],
                         }
                         order_total += float(item.incart_availability.product_price) * float(item.incart_quantity)
 
-                    try:
-                        item_history = ProductPurchaseHistory.objects.filter(customer=user)\
-                                       .get(bought_product=item.incart_availability.product)
-                        item_history.purchase_dates.append(datetime.now())
-                        item_history.nb_of_purchases += 1
-                        item_history.save()
-                    except ProductPurchaseHistory.DoesNotExist:
-                        ProductPurchaseHistory.objects.create(customer=user,
-                                                       bought_product=item.incart_availability.product,
-                                                       purchase_store=store,
-                                                       purchase_dates=[datetime.now()])
+                    item_purchase = ProductPurchase.objects.create(
+                                    bought_product=item.incart_availability.product,
+                                    bought_product_category=item.incart_availability.product.product_category,
+                                    purchaser=user,
+                                    purchase_store=store,
+                                    purchase_date=datetime.now(),
+                                    purchase_amount=float(item.incart_availability.product_price) *\
+                                                    float(item.incart_quantity))
                     item.delete()
 
             order = Order.objects.create(data=order_data)

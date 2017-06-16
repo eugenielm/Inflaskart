@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Product, Store, Availability, Inflauser, Address, Dietary,\
                     ProductCategory, ProductSubCategory, State, Zipcode, Order,\
-                    ProductPurchaseHistory
+                    ProductPurchase
 
 # class StoreAdmin(admin.ModelAdmin):
 #     fieldsets = [
@@ -24,4 +24,4 @@ admin.site.register(ProductCategory)
 admin.site.register(ProductSubCategory)
 admin.site.register(Availability)
 admin.site.register(Order)
-admin.site.register(ProductPurchaseHistory)
+admin.site.register(ProductPurchase)

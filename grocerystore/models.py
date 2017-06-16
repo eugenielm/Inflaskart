@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField, ArrayField
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 import json
 
@@ -23,7 +23,7 @@ Availability model's store field)
 - Availability (used by the ItemInCart model's incart_availability field)
 - ItemInCart
 - Order
-- ProductPurchaseHistory
+- ProductPurchase
 """
 
 
@@ -245,15 +245,15 @@ class Order(models.Model):
         ordering = ['-pk']
 
 
-class ProductPurchaseHistory(models.Model):
+class ProductPurchase(models.Model):
     """All bought items are stored as ProductPurchase instances - for data
     analysis purposes."""
     bought_product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    customer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    bought_product_category = models.ForeignKey(ProductSubCategory, on_delete=models.SET_NULL, null=True)
+    purchaser = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     purchase_store = models.ForeignKey(Store, on_delete=models.SET_NULL, null=True)
-    # https://docs.djangoproject.com/en/1.11/ref/models/fields/#datefield
-    purchase_dates = ArrayField(models.DateTimeField())
-    nb_of_purchases = models.PositiveIntegerField(default=1)
+    purchase_date = models.DateTimeField()
+    purchase_amount = models.FloatField()
 
     class Meta:
-        ordering = ['customer__username','bought_product__product_name']
+        ordering = ['purchaser__username','bought_product__product_name']
