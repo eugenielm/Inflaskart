@@ -21,7 +21,7 @@ from django.contrib.messages import get_messages
 from django.template import RequestContext
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
                     Availability, Address, Store, Inflauser, State, Zipcode, \
-                    ItemInCart, Order, ProductPurchase
+                    ItemInCart, Order, ProductPurchaseHistory
 from .forms import LoginForm, PaymentForm, UserForm, AddressForm
 
 
@@ -734,7 +734,7 @@ class BuyAgainView(LoginRequiredMixin, View):
 
         available_here = []
         try:
-            bought_here = ProductPurchase.objects.filter(customer=user)\
+            bought_here = ProductPurchaseHistory.objects.filter(customer=user)\
                           .filter(purchase_store=store)
             # keep only the available products already bought in this store
             for item in bought_here:
@@ -769,7 +769,7 @@ class BuyAgainView(LoginRequiredMixin, View):
         except: pass # if the user doesn't use the search tool
 
         # get list of the products bought by the user in this specific store
-        bought_here = ProductPurchase.objects.filter(customer=user).filter(purchase_store=store)
+        bought_here = ProductPurchaseHistory.objects.filter(customer=user).filter(purchase_store=store)
 
         # filter the available products
         available_here = []
@@ -1577,13 +1577,13 @@ class CheckoutView(LoginRequiredMixin, View):
                         order_total += float(item.incart_availability.product_price) * float(item.incart_quantity)
 
                     try:
-                        item_history = ProductPurchase.objects.filter(customer=user)\
+                        item_history = ProductPurchaseHistory.objects.filter(customer=user)\
                                        .get(bought_product=item.incart_availability.product)
                         item_history.purchase_dates.append(datetime.now())
                         item_history.nb_of_purchases += 1
                         item_history.save()
-                    except ProductPurchase.DoesNotExist:
-                        ProductPurchase.objects.create(customer=user,
+                    except ProductPurchaseHistory.DoesNotExist:
+                        ProductPurchaseHistory.objects.create(customer=user,
                                                        bought_product=item.incart_availability.product,
                                                        purchase_store=store,
                                                        purchase_dates=[datetime.now()])
