@@ -126,23 +126,36 @@
                   {% endif %}
                 </div>
                 <div class="col-xs-6 col-sm-8"> <!-- product name & quantity -->
-                  <p>{{ item.product_name }}</a> | {{ item.product_qty }} x ${{ item.unit_price }} / {{ item.product_unit }} = ${{ item.total_item_price }}</p>
+                  {{ item.product_name }}</a> | {{ item.product_qty }} x ${{ item.unit_price }} / {{ item.product_unit }} = ${{ item.total_item_price }}
                 </div>
                 <div class="col-xs-4 col-sm-3"> <!-- add in cart button -->
-                  <form class="qty_update" action="" method="post">
+                  <form class="qty_selection float_right" action="" method="post">
                     {% csrf_token %}
                     {% if item.availability == 'not_available' %}
-                      <i>Product not available</i>
-                    {% elif item.product_unit == "lbs" and item.availability.product.product_category.parent.top_category == "Produce" %}
-                      <input class="quantity_input" type="number" name="{{item.availability_pk}}" value="0.1" min="0.1" max="20" step="0.1">
-                      <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="add" />
-                    {% elif item.product_unit == "lbs" and "counter" in item.availability.product.product_category.sub_category_name %}
-                      <input class="quantity_input" type="number" name="{{item.availability_pk}}" value="0.1" min="0.1" max="20" step="0.1">
-                      <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="add" />
+                      <span style="font-style:italic;font-size:1.8vh;">Not available </span>
                     {% else %}
-                      <input class="quantity_input" type="number" name="{{item.availability_pk}}" value="1" min="1" max="20" step="1">
-                      <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="add" />
+                      <select id="input_{{item.availability_pk}}" name="{{item.availability_pk}}" onchange="if (value == 'other') {
+                        document.getElementById('input_{{item.availability_pk}}').style.display = 'none';
+                        document.getElementById('other_qty_{{item.availability_pk}}').style.display = 'inline-block';
+                        document.getElementById('input_{{item.availability_pk}}').setAttribute('name', '');
+                        document.getElementById('other_qty_input_{{item.availability_pk}}').setAttribute('name', '{{item.availability_pk}}');}">
+                        {% for quantity in quantity_set %}
+                          <option value="{{quantity}}">{{ quantity }}</option>
+                        {% endfor %}
+                      </select>
+
+                      <div id="other_qty_{{item.availability_pk}}" style="display:none;">
+                        {% if item.product_unit == "lbs" and item.availability.product.product_category.parent.top_category|lower == "produce" %}
+                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="number" name="" value="0.25" min="0.25" max="99" step="0.25" autofocus>
+                        {% elif item.product_unit == "lbs" and "counter" in item.availability.product.product_category.sub_category_name|lower %}
+                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="number" name="" value="0.25" min="0.25" max="99" step="0.25" autofocus>
+                        {% else %}
+                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="number" name="" value="1" min="1" max="99" step="1" autofocus>
+                        {% endif %}
+                      </div>
+                      <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="add">
                     {% endif %}
+
                   </form>
                 </div>
               </li>

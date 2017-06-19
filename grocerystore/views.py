@@ -50,7 +50,9 @@ This module contains the function search_item, which is used in the search tool
 """
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-MAX_QTY = float(20) # the maximum units of an item the user is allowed to put in their cart
+MAX_QTY = float(99) # the maximum units of an item the user is allowed to put in their cart
+QUANTITY_SET = range(1, 13)
+QUANTITY_SET.append('other')
 
 
 def search_item(searched_item, store_id):
@@ -609,7 +611,7 @@ class Instock(View):
         context['store_id'] = store_id
         context['store'] = store
         context['category_id'] = category_id
-        context['quantity_set'] = range(1, (int(MAX_QTY) + 1))
+        context['quantity_set'] = QUANTITY_SET
 
         available_products = Availability.objects.filter(store__pk=int(store_id))\
                              .filter(product__product_category__pk=int(subcategory_id))
@@ -730,7 +732,7 @@ class BuyAgainView(LoginRequiredMixin, View):
         context['zipcode'] = zipcode
         context['store_id'] = store_id
         context['store'] = store
-        context['quantity_set'] = range(1, (int(MAX_QTY) + 1))
+        context['quantity_set'] = QUANTITY_SET
 
         available_here = []
         try:
@@ -842,7 +844,7 @@ class SearchView(View):
                                          "you've chosen.", fail_silently=True)
             return redirect('grocerystore:start', zipcode=zipcode)
 
-        context = {'quantity_set': range(1, (int(MAX_QTY) + 1)),
+        context = {'quantity_set': QUANTITY_SET,
                   'zipcode': zipcode,
                   'store_id': store_id,
                   'store': store,
@@ -1040,7 +1042,7 @@ class ProductDetailView(View):
         context['product_description'] = product.product_description
         context['product_pic'] = product.product_pic
         context['user_id_required'] = product.user_id_required
-        context['quantity_set'] = range(1, (int(MAX_QTY) + 1))
+        context['quantity_set'] = QUANTITY_SET
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         try:
             context['go_back'] = int(self.request.GET['go_back']) # this is a store pk
@@ -1212,7 +1214,6 @@ class CartView(View):
                 elt = [item_product, item_qty, item_availability.product_unit, item_price,
                        item_availability_pk, item_product.pk, item_availability.product_price,
                        item_availability.store.store_zipcode]
-
                 try:
                     all_carts[item_store].append(elt)
                 except KeyError:
@@ -1236,7 +1237,9 @@ class CartView(View):
 
         if all_carts: # if the user has put at least one item in their cart
             context['all_carts'] = all_carts
-            context['quantity_set'] = range(int(MAX_QTY) + 1)
+            quantity_set = QUANTITY_SET[:]
+            quantity_set.insert(0,0) # allow the user to remove an item from their cart
+            context['quantity_set'] = quantity_set
 
             try:
                 last_active_cart = Store.objects.get(pk=self.request.GET['open_cart'])
@@ -1288,7 +1291,7 @@ class CartView(View):
                                                             'zipcode': zipcode,}) \
                                                             + '?open_cart=' + str(product_to_update.store.pk))
 
-                except TypeError: # loops in the cart until it hits the product to update
+                except TypeError: # loop in the cart until it hits the product to update
                     continue
 
                 # if the user wants to remove an item from their cart
@@ -1632,7 +1635,7 @@ class OrdersHistory(LoginRequiredMixin, View):
             'store_id': store_id,
             'store': Store.objects.get(pk=store_id),
             'zipcode': zipcode,
-            'quantity_set': range(1, (int(MAX_QTY) + 1)),
+            'quantity_set': QUANTITY_SET,
         }
 
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)

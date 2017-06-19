@@ -111,14 +111,27 @@
 
               <form class="qty_selection" action="" method="post">
                 {% csrf_token %}
-                {% if product.2 == "lbs" and product.0.product.product_category.parent.top_category == "Produce" %}
-                  <input class="quantity_input" type="number" name="{{product.0.pk}}" value="0.1" min="0.1" max="20" step="0.1">
-                {% elif product.2 == "lbs" and "counter" in product.0.product.product_category.sub_category_name %}
-                  <input class="quantity_input" type="number" name="{{product.0.pk}}" value="0.1" min="0.1" max="20" step="0.1">
-                {% else %}
-                  <input class="quantity_input" type="number" name="{{product.0.pk}}" value="1" min="1" max="20" step="1">
-                {% endif %}
+                <select id="input_{{product.0.pk}}" name="{{product.0.pk}}" onchange="if (value == 'other') {
+                  document.getElementById('input_{{product.0.pk}}').style.display = 'none';
+                  document.getElementById('other_qty_{{product.0.pk}}').style.display = 'inline-block';
+                  document.getElementById('input_{{product.0.pk}}').setAttribute('name', '');
+                  document.getElementById('other_qty_input_{{product.0.pk}}').setAttribute('name', '{{product.0.pk}}');}">
+                  {% for quantity in quantity_set %}
+                    <option value="{{quantity}}">{{ quantity }}</option>
+                  {% endfor %}
+                </select>
+
+                <div id="other_qty_{{product.0.pk}}" style="display:none;">
+                  {% if product.2 == "lbs" and product.0.product.product_category.parent.top_category|lower == "produce" %}
+                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="number" name="" value="0.25" min="0.25" max="99" step="0.25" autofocus>
+                  {% elif product.2 == "lbs" and "counter" in product.0.product.product_category.sub_category_name|lower %}
+                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="number" name="" value="0.25" min="0.25" max="99" step="0.25" autofocus>
+                  {% else %}
+                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="number" name="" value="1" min="1" max="99" step="1" autofocus>
+                  {% endif %}
+                </div>
                 <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="add">
+
               </form>
             </div>
           {% endfor %}

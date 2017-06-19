@@ -123,20 +123,48 @@
                       {% endif %}
                     </div>
                     <div class="col-xs-7 col-sm-9"> <!-- product name -->
-                      {{ item.0 }}</a>: {{ item.1 }} x ${{item.6}}/{{ item.2 }} - <b>${{ item.3 }}</b>
+                      {{ item.0 }}</a>: {{ item.1 }} {{ item.2 }} x ${{item.6}} - <b>${{ item.3 }}</b>
                     </div>
                     <div class="col-xs-3 col-sm-2"> <!-- quantity update button -->
-                      <form class="qty_update" action="" method="post">
-                        {% csrf_token %}
-                        {% if item.2 == "lbs" and item.0.product_category.parent.top_category == "Produce" %}
-                          <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="20" step="0.1">
-                        {% elif item.2 == "lbs" and "counter" in item.0.product_category.sub_category_name %}
-                          <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="20" step="0.1">
-                        {% else %}
-                          <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="20" step="1">
-                        {% endif %}
-                          <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok" />
-                      </form>
+                      {% if item.1 in quantity_set %}
+                        <form class="qty_update" action="" method="post">
+                          {% csrf_token %}
+                          <select id="input_{{item.4}}" name="{{item.4}}" style="width:69px;" onchange="if (value == 'other') {
+                            document.getElementById('input_{{item.4}}').style.display = 'none';
+                            document.getElementById('other_qty_{{item.4}}').style.display = 'inline-block';
+                            document.getElementById('input_{{item.4}}').setAttribute('name', '');
+                            document.getElementById('other_qty_input_{{item.4}}').setAttribute('name', '{{item.4}}');} else {this.form.submit();}">
+                            {% for quantity in quantity_set %}
+                              <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}>{{ quantity }}</option>
+                            {% endfor %}
+                          </select>
+
+                          <div id="other_qty_{{item.4}}" style="display:none;">
+                            {% if item.2 == "lbs" and item.0.product_category.parent.top_category|lower == "produce" %}
+                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="number" name="" value="{{item.1}}" min="0" max="99" step="0.25" autofocus>
+                            {% elif item.2 == "lbs" and "counter" in item.0.product_category.sub_category_name|lower %}
+                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="number" name="" value="{{item.1}}" min="0" max="99" step="0.25" autofocus>
+                            {% else %}
+                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="number" name="" value="{{item.1}}" min="0" max="99" step="1" autofocus>
+                            {% endif %}
+                            <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok">
+                          </div>
+                        </form>
+
+                      {% else %}
+                        <form class="qty_update" action="" method="post">
+                          {% csrf_token %}
+                          {% if item.2 == "lbs" and item.0.product_category.parent.top_category|lower == "produce" %}
+                            <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="99" step="0.25">
+                          {% elif item.2 == "lbs" and "counter" in item.0.product_category.sub_category_name|lower %}
+                            <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="99" step="0.25">
+                          {% else %}
+                            <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="99" step="1">
+                          {% endif %}
+                          <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok">
+                        </form>
+                      {% endif %}
+
                     </div>
                   </li>
                 {% endfor %}

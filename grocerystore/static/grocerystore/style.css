@@ -162,6 +162,32 @@ p#footer_contact {
   color: #7f6369;
 }
 
+
+/*****************************************************************************/
+/* other */
+.float_right {float: right;}
+
+/* in orders.html, instock.html, detail.html, search.html and buyagain.html */
+/* modified in cart.html */
+.qty_update select {
+  width:45px;
+  height: 24px;
+}
+
+/* in cart.html, orders.html, instock.html, detail.html, search.html and buyagain.html */
+.quantity_input {
+  width: 45px;
+  display: inline-block;
+}
+
+/* the following is also in detail.html, search.html, buyagain.html, orders.html
+and instock.html - when displayed */
+.qty_selection select {
+  width:45px;
+  height: 24px;
+}
+
+
 /*****************************************************************************/
 /* index.html */
 
@@ -571,14 +597,6 @@ p#no_delivery, p#delivery_fee {
 
 /* the following is also in detail.html, search.html, buyagain.html, orders.html
 cart.html and instock.html */
-.quantity_input {
-  width:45px;
-  display:inline-block;
-  text-align:center;
-}
-
-/* the following is also in detail.html, search.html, buyagain.html, orders.html
-cart.html and instock.html */
 .btn.btn-info.btn-xs.quantity_input_button {
   padding:1px 2px;
   display:inline-block;
@@ -588,7 +606,6 @@ cart.html and instock.html */
 form.qty_selection {
   font-size: 1.8vh;
   text-align: center;
-  margin-top:5px;
 }
 
 .product_button {
