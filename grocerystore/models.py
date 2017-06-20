@@ -52,7 +52,7 @@ class Address(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE, error_messages={'invalid': "Please enter a valid ZIP code."})
 
     def __str__(self):
-        return str(self.street_address1) + ", " + str(self.zip_code)
+        return str(self.street_address1) + ", " + str(self.city) + ", " + str(self.state.state_postal_code) + " " + str(self.zip_code)
 
     class Meta:
         ordering = ['state', 'city', 'street_address1']
@@ -110,30 +110,31 @@ class Store(models.Model):
 @python_2_unicode_compatible
 class ProductCategory(models.Model):
     """Model used for product categories. Each category has several sub-categories."""
-    top_category = models.CharField(max_length=30, verbose_name="top product category")
+    top_category = models.CharField(max_length=30)
 
     def __str__(self):
         return str(self.top_category)
 
     class Meta:
         ordering = ['top_category',]
-        verbose_name_plural = "product categories"
+        verbose_name = "Top category"
+        verbose_name_plural = "Top categories"
 
 
 @python_2_unicode_compatible
 class ProductSubCategory(models.Model):
     """Model used for product sub-categories. Each sub-category has only one
     parent category."""
-    parent = models.ForeignKey(ProductCategory, verbose_name="top product category")
-    sub_category_name = models.CharField(max_length=30, verbose_name="product sub-category")
+    parent = models.ForeignKey(ProductCategory, verbose_name="top category")
+    sub_category_name = models.CharField(max_length=30, verbose_name="sub-category")
 
     def __str__(self):
         return str(self.parent.top_category) + " / " + str(self.sub_category_name)
 
     class Meta:
         ordering = ['parent__top_category', 'sub_category_name']
-        verbose_name = "product sub-category"
-        verbose_name_plural = "product sub-categories"
+        verbose_name = "Product category"
+        verbose_name_plural = "Product categories"
 
 
 @python_2_unicode_compatible
