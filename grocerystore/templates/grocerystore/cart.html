@@ -140,9 +140,9 @@
                           </select>
 
                           <div id="other_qty_{{item.4}}" style="display:none;">
-                            {% if item.2 == "lbs" and item.0.product_category.parent.top_category|lower == "produce" %}
+                            {% if item.2 == "lb" and item.0.product_category.parent.top_category|lower == "produce" %}
                               <input class="quantity_input" id="other_qty_input_{{item.4}}" type="number" name="" value="{{item.1}}" min="0" max="99" step="0.25" autofocus>
-                            {% elif item.2 == "lbs" and "counter" in item.0.product_category.sub_category_name|lower %}
+                            {% elif item.2 == "lb" and "counter" in item.0.product_category.sub_category_name|lower %}
                               <input class="quantity_input" id="other_qty_input_{{item.4}}" type="number" name="" value="{{item.1}}" min="0" max="99" step="0.25" autofocus>
                             {% else %}
                               <input class="quantity_input" id="other_qty_input_{{item.4}}" type="number" name="" value="{{item.1}}" min="0" max="99" step="1" autofocus>
@@ -154,9 +154,9 @@
                       {% else %}
                         <form class="qty_update" action="" method="post">
                           {% csrf_token %}
-                          {% if item.2 == "lbs" and item.0.product_category.parent.top_category|lower == "produce" %}
+                          {% if item.2 == "lb" and item.0.product_category.parent.top_category|lower == "produce" %}
                             <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="99" step="0.25">
-                          {% elif item.2 == "lbs" and "counter" in item.0.product_category.sub_category_name|lower %}
+                          {% elif item.2 == "lb" and "counter" in item.0.product_category.sub_category_name|lower %}
                             <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="99" step="0.25">
                           {% else %}
                             <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="99" step="1">
