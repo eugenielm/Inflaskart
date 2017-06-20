@@ -48,9 +48,9 @@ class StateAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_name','get_dietary', 'product_brand_or_variety', 'product_category')
+    list_display = ('product_name','product_diet', 'product_brand_or_variety', 'product_category')
 
-    def get_dietary(self, obj):
+    def product_diet(self, obj):
         return " // ".join([d.name for d in obj.product_dietary.all()])
 
 
