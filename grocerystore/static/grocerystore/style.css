@@ -309,16 +309,20 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 /*****************************************************************************/
 /* start.html */
 
-.all_stores {margin: 10px 3%}
+.all_stores {
+  width: 94%;
+  max-width: 68vh;
+  margin: 10px auto;
+}
 
 .store_choice {
   display: inline-block;
-  margin: 0px 5px 5px 0px;
+  margin: 0px 1vh 10px 1vh;
 }
 
 .store_picture {
-  width: 18vh;
-  height: 15vh;
+  width: 20vh;
+  height: 18vh;
   background-color: white;
   box-shadow: 1px 1px 20px 0;
   border-radius: 5px;
@@ -333,7 +337,7 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 }
 
 .store_choice img {
-  width: 16vh;
+  width: 18vh;
   height: auto;
   /* horizontally center the store logos inside their div */
   display: block;
