@@ -27,7 +27,7 @@
         </div>
         {% if username %}
         <div class="dropdown index_dropdown">
-            <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
+            <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user" style="color:#dadada"></span><span class="caret" style="color:#dadada"></span></button>
             <ul class="dropdown-menu dropdown-menu-right">
                 <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
                 <li><a href="{% url 'grocerystore:cart' zipcode %}">Your cart</a></li>
