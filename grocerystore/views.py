@@ -741,8 +741,10 @@ class BuyAgainView(LoginRequiredMixin, View):
             # keep only the available products already bought in this store
             for item in bought_here:
                 try:
-                    available_here.append(Availability.objects.filter(store=store)\
-                    .get(product=item.bought_product))
+                    if Availability.objects.filter(store=store).get(product=item.bought_product) not in available_here:
+                        available_here.append(Availability.objects.filter(store=store)\
+                        .get(product=item.bought_product))
+                    else: pass
                 except: continue
         except: pass # if the user has never placed any order in this store
 
@@ -777,8 +779,9 @@ class BuyAgainView(LoginRequiredMixin, View):
         available_here = []
         for item in bought_here:
             try:
-                available_here.append(Availability.objects.filter(store=store)\
-                .get(product=item.bought_product))
+                if Availability.objects.filter(store=store).get(product=item.bought_product) not in available_here:
+                    available_here.append(Availability.objects.filter(store=store)\
+                    .get(product=item.bought_product))
             except: continue
 
         for availability in available_here: # list of Availability instances
