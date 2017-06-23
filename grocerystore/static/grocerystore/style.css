@@ -191,6 +191,13 @@ and instock.html - when displayed */
 /*****************************************************************************/
 /* index.html */
 
+.container.index {margin-bottom:-10px}
+
+.container.index .alert {
+  margin-top:70px;
+  margin-bottom:-70px;
+}
+
 #index_top_bar {
   height: 51px;
   margin: 0px;
@@ -214,6 +221,8 @@ and instock.html - when displayed */
   padding-top: 0px;
   font-size: 10px;
 }
+
+.index_dropdown .glyphicon-user, .index_dropdown .caret {color:#dadada}
 
 form#zipcode_choice {
   margin-top: 20px;
@@ -247,6 +256,48 @@ ul.dropdown-menu.dropdown-menu-right {
 .personal-welcome p {margin: 0px auto 5px auto}
 
 .personal-welcome a.btn.btn-success.btn-md {color: white;}
+
+.personal-welcome>p:nth-child(1) {margin:0px auto 3vh auto}
+
+p#this_map {
+  font-size:1.8vh;
+  font-style:italic;
+}
+
+#this_map a {text-decoration:underline}
+
+.personal-welcome>p:nth-child(4) {
+  font-size:10px;
+  margin: 30px auto 5px auto;
+  letter-spacing:10px;
+  display:block;
+}
+
+.personal-welcome>p:nth-child(5) {
+  font-size:10px;
+  margin: 25px 5px 0px 5px;
+  display:block;
+}
+
+.personal-welcome>p:nth-child(6), .personal-welcome>p:nth-child(7) {
+  font-size:10px;
+  margin: 0px 5px;
+  display:block;
+}
+
+#index-identification>p:nth-child(3) {
+  font-size:10px;
+  margin: 15px auto 10px auto;
+  letter-spacing:10px;
+  display:block;
+}
+
+#index-identification>p:nth-child(4), #index-identification>p:nth-child(5),
+#index-identification>p:nth-child(6) {
+  font-size:10px;
+  margin: 0px 5px;
+  display:block;
+}
 
 form.zipcode_choice {margin-bottom: 5px}
 
@@ -384,6 +435,8 @@ div.qty_selection {
   font-size: 2vh;
 }
 
+p#required_age {color:red;}
+
 /*****************************************************************************/
 /* store.html */
 
@@ -514,7 +567,7 @@ li.list-group-item.row>div:nth-child(4) {
 
 .all_carts form.qty_update {text-align: right}
 
-.all_carts form.qty_update select {max-width: 100%}
+.all_carts form.qty_update select {width:69px;}
 
 .single-cart .panel-heading {
   border-top-left-radius: 0px;
@@ -658,6 +711,7 @@ div.product_button_content p {
 /*****************************************************************************/
 
 /* buyagain.html: see instock.html above */
+#no_stock a {text-decoration: underline;}
 
 /*****************************************************************************/
 /* search.html ; see instock.html */
@@ -946,11 +1000,12 @@ form#profile_form > input.btn.btn-info.btn-md.submit {
   font-size:1.8vh;
 }
 
-.single-cart.checkout li.list-group-item {
-  text-align: left;
-}
+.single-cart.checkout li.list-group-item {text-align: left;}
 
 .single-cart.checkout li.list-group-item.row>div:nth-child(4) {padding-right: 5px}
+
+.single-cart.checkout .list-group-item div:last-child b,
+.single-cart.checkout .panel-footer b {float:right}
 
 #delivery_choice {
   font-size: 1.8vh;
@@ -1102,6 +1157,8 @@ p#pickup {color: red;}
 
 #no_orders p {margin: 0px 20px 0px 20px}
 
+#no_orders a {text-decoration: underline}
+
 .panel.panel-default.single-order {
   font-size: 1.8px;
   top: 0px;
@@ -1147,3 +1204,10 @@ p#pickup {color: red;}
 .orders form.qty_update select {max-width: 100%}
 
 .orders .btn.btn-info.btn-xs.update_qty {padding: 0px 2px;}
+
+span#not_available_anymore {
+  font-style:italic;
+  font-size:1.8vh;
+}
+
+p#if_different_prices {font-size:1.2vh}

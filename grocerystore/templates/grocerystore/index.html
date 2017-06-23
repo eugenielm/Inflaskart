@@ -27,7 +27,7 @@
         </div>
         {% if username %}
         <div class="dropdown index_dropdown">
-            <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user" style="color:#dadada"></span><span class="caret" style="color:#dadada"></span></button>
+            <button class="btn btn-default dropdown-toggle" id="index_profile_button" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-right">
                 <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
                 <li><a href="{% url 'grocerystore:cart' zipcode %}">Your cart</a></li>
@@ -39,14 +39,14 @@
     </nav> <!-- end of nav bar -->
 
 
-    <div class="container" style="margin-bottom:-10px"> <!-- beginning of main content -->
+    <div class="container index"> <!-- beginning of main content -->
 
       {% if messages %}
         {% for message in messages %}
           {% if message.tags == 'error' %}
-            <div class="alert alert-danger" role="alert" style="margin-top:70px;margin-bottom:-70px;">{{ message }}</div>
+            <div class="alert alert-danger" role="alert">{{ message }}</div>
           {% else %}
-            <div class="alert alert-{{message.tags}}" role="alert" style="margin-top:70px;margin-bottom:-70px;">{{ message }}</div>
+            <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
           {% endif %}
         {% endfor %}
       {% endif %}
@@ -71,7 +71,7 @@
 
       {% if username %}
         <div class="personal-welcome">
-          <p style="margin:0px auto 3vh auto"><a href="{% url 'grocerystore:start' zipcode %}" class="btn btn-success btn-md" role="button">Shop in {{ zipcode }}</a></p>
+          <p><a href="{% url 'grocerystore:start' zipcode %}" class="btn btn-success btn-md" role="button">Shop in {{ zipcode }}</a></p>
           <form class="zipcode_choice" action="" method="post">
             {% csrf_token %}
             <select name="zipcode_choice" onchange='if (this.value != "-- Shop elsewhere --") { this.form.submit(); }'>
@@ -80,11 +80,11 @@
               {% endfor %}
             </select>
           </form>
-          <p style="font-size:1.8vh;font-style:italic">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> of the city may be helpful (source: cccarto.com)</p>
-          <p style="font-size:10px;margin: 30px auto 5px auto;letter-spacing:10px;display:block">*****</p>
-          <p style="font-size:10px;margin: 25px 5px 0px 5px;display:block">THIS WEB APP IS FOR DEMO PURPOSES ONLY - THIS IS NOT A REAL DELIVERY PLATFORM !</p>
-          <p style="font-size:10px;margin: 0px 5px;display:block">Apart from Inflaskart's logo, all the logos, trademarks and product pictures belong to their respective owners.</p>
-          <p style="font-size:10px;margin: 0px 5px;display:block">This demo web application isn't meant to be a store, its mission is to deliver your favorite grocery stores at your door (cf. Instacart) :)</p>
+          <p id="this_map">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg">map</a> of the city may be helpful (source: cccarto.com)</p>
+          <p>*****</p>
+          <p>THIS WEB APP IS FOR DEMO PURPOSES ONLY - THIS IS NOT A REAL DELIVERY PLATFORM !</p>
+          <p>Apart from Inflaskart's logo, all the logos, trademarks and product pictures belong to their respective owners.</p>
+          <p>This demo web application isn't meant to be a store, its mission is to deliver your favorite grocery stores at your door (cf. Instacart) :)</p>
         </div>
 
       {% else %}
@@ -97,15 +97,15 @@
               {% endfor %}
             </select>
           </form>
-          <p style="font-size:1.8vh;font-style:italic">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg" style="text-decoration:underline">map</a> may be helpful (source: cccarto.com)</p>
+          <p id="this_map">This <a target="_blank" href="http://www.cccarto.com/ca/sanfran/files/san%20francisco%20county%20zip%20code%20map.jpg">map</a> may be helpful (source: cccarto.com)</p>
 
           <div id="index-identification">
             <p><a id="login" href="{% url 'grocerystore:login' %}" class="btn btn-info btn-md" role="button">login</a></p>
             <p><a id="register" href="{% url 'grocerystore:register' %}" class="btn btn-info btn-md" role="button">sign up</a></p>
-            <p style="font-size:10px;margin: 15px auto 5px auto;letter-spacing:10px;display:block">*****</p>
-            <p style="font-size:10px;margin: 0px 5px;display:block">THIS WEB APP IS FOR DEMO PURPOSES ONLY - THIS IS NOT A REAL DELIVERY PLATFORM !</p>
-            <p style="font-size:10px;margin: 0px 5px;display:block">Apart from Inflaskart's logo, all the logos, trademarks and product pictures belong to their respective owners.</p>
-            <p style="font-size:10px;margin: 0px 5px;display:block">This demo web application isn't meant to be a store, its mission is to deliver your favorite grocery stores at your door (cf. Instacart) :)</p>
+            <p>*****</p>
+            <p>THIS WEB APP IS FOR DEMO PURPOSES ONLY - THIS IS NOT A REAL DELIVERY PLATFORM !</p>
+            <p>Apart from Inflaskart's logo, all the logos, trademarks and product pictures belong to their respective owners.</p>
+            <p>This demo web application isn't meant to be a store, its mission is to deliver your favorite grocery stores at your door (cf. Instacart) :)</p>
           </div>
         </div>
       {% endif %}

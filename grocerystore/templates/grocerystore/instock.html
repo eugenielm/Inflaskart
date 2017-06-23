@@ -140,7 +140,7 @@
       {% else %}
       <div id="no_stock">
         <p>Sorry, there's nothing available in this section.</p>
-        <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}" style="text-decoration: underline">{{ store }}</a>.</p>
+        <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a>.</p>
       </div>
       {% endif %}
 

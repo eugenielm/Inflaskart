@@ -132,7 +132,7 @@
                   <form class="qty_selection float_right" action="" method="post">
                     {% csrf_token %}
                     {% if item.availability == 'not_available' %}
-                      <span style="font-style:italic;font-size:1.8vh;">Not available </span>
+                      <span id="not_available_anymore">Not available </span>
                     {% else %}
                       <select id="input_{{item.availability_pk}}" name="{{item.availability_pk}}" onchange="if (value == 'other') {
                         document.getElementById('input_{{item.availability_pk}}').style.display = 'none';
@@ -166,7 +166,7 @@
                 <form action="" method="post">
                   {% csrf_token %}
                   <input class="btn btn-success btn-sm" name="everything {{ order.pk }}" type="submit" value="Place the same order in cart" />
-                  <p style="font-size:1.2vh">* Prices may have changed *</p>
+                  <p id="if_different_prices">* Prices may have changed *</p>
                 </form>
                 <p id="order_total">Order total was: <b>${{ order.data.order_total }}</b></p>
                 <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></p>
@@ -180,7 +180,7 @@
       {% else %}
       <div id="no_orders">
         <p>You never placed any order in this store.</p>
-        <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}" style="text-decoration: underline">{{ store }}</a></p>
+        <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></p>
       </div>
       {% endif %}
 

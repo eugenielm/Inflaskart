@@ -129,7 +129,7 @@
                       {% if item.1 in quantity_set %}
                         <form class="qty_update" action="" method="post">
                           {% csrf_token %}
-                          <select id="input_{{item.4}}" name="{{item.4}}" style="width:69px;" onchange="if (value == 'other') {
+                          <select id="input_{{item.4}}" name="{{item.4}}" onchange="if (value == 'other') {
                             document.getElementById('input_{{item.4}}').style.display = 'none';
                             document.getElementById('other_qty_{{item.4}}').style.display = 'inline-block';
                             document.getElementById('input_{{item.4}}').setAttribute('name', '');

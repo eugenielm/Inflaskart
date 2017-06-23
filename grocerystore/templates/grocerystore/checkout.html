@@ -115,20 +115,20 @@
                       {{ item.0 }}</a> | {{ item.1 }} x ${{item.2}}/{{ item.3 }}
                     </div>
                     <div class="col-xs-2 col-sm-1">
-                      <b style="float:right">${{ item.4 }}</b>
+                      <b>${{ item.4 }}</b>
                     </div>
                   </li>
                 {% endfor %}
                 <li class="list-group-item row vertical-align">
                   <div class="col-xs-2 col-sm-1"></div>
                   <div class="col-xs-8 col-sm-10">Personal shopper fee</div>
-                  <div class="col-xs-2 col-sm-1"><b style="float:right">${{ service }}</b></div>
+                  <div class="col-xs-2 col-sm-1"><b>${{ service }}</b></div>
                 </li>
                 {% if sales_tax %}
                   <li class="list-group-item row vertical-align">
                     <div class="col-xs-2 col-sm-1"></div>
                     <div class="col-xs-8 col-sm-10">San Francisco county sales tax (8.50% when applicable)</div>
-                    <div class="col-xs-2 col-sm-1"><b style="float:right">${{ sales_tax }}</b></div>
+                    <div class="col-xs-2 col-sm-1"><b>${{ sales_tax }}</b></div>
                   </li>
                 {% endif %}
 
@@ -136,14 +136,14 @@
                   <li class="list-group-item row vertical-align">
                     <div class="col-xs-2 col-sm-1"></div>
                     <div class="col-xs-8 col-sm-10">Delivery fee for an order under $30</div>
-                    <div class="col-xs-2 col-sm-1"><b style="float:right">$5.00</b></div>
+                    <div class="col-xs-2 col-sm-1"><b>$5.00</b></div>
                   </li>
                 {% endif %}
               </ul>
               <div class="panel-footer row vertical-align">
                 <div class="col-xs-2 col-sm-1"></div>
                 <div class="col-xs-5 col-sm-5" id="change_cart"><a href="{% url 'grocerystore:cart' zipcode %}?open_cart={{store.pk}}">Change your cart</a></div>
-                <div class="col-xs-5 col-sm-6" id="cart-total"><b style="float:right">Cart total: ${{ cart_total }}</b></div>
+                <div class="col-xs-5 col-sm-6" id="cart-total"><b>Cart total: ${{ cart_total }}</b></div>
               </div>
             </div>
           </div>
