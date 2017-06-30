@@ -123,14 +123,14 @@
 
                 <div id="other_qty_{{product.0.pk}}" style="display:none;">
                   {% if product.2 == "lb" and product.0.product.product_category.parent.top_category|lower == "produce" %}
-                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="number" name="" value="0.25" min="0.25" max="99" step="0.25" autofocus>
+                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
                   {% elif product.2 == "lb" and "counter" in product.0.product.product_category.sub_category_name|lower %}
-                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="number" name="" value="0.25" min="0.25" max="99" step="0.25" autofocus>
+                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
                   {% else %}
-                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="number" name="" value="1" min="1" max="99" step="1" autofocus>
+                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="text" name="" value="" pattern="[1-9]{1}[0-9]?" autofocus>
                   {% endif %}
                 </div>
-                <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="add">
+                <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok">
 
               </form>
             </div>

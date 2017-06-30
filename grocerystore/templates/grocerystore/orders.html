@@ -126,7 +126,7 @@
                   {% endif %}
                 </div>
                 <div class="col-xs-6 col-sm-8"> <!-- product name & quantity -->
-                  {{ item.product_name }}</a> | {{ item.product_qty }} x ${{ item.unit_price }} / {{ item.product_unit }} = ${{ item.total_item_price }}
+                  {{ item.product_name }}</a> | <b>{{ item.product_qty }} x ${{ item.unit_price }} / {{ item.product_unit }}</b> = ${{ item.total_item_price }}
                 </div>
                 <div class="col-xs-4 col-sm-3"> <!-- add in cart button -->
                   <form class="qty_selection float_right" action="" method="post">
@@ -146,11 +146,11 @@
 
                       <div id="other_qty_{{item.availability_pk}}" style="display:none;">
                         {% if item.product_unit == "lb" and item.availability.product.product_category.parent.top_category|lower == "produce" %}
-                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="number" name="" value="0.25" min="0.25" max="99" step="0.25" autofocus>
+                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
                         {% elif item.product_unit == "lb" and "counter" in item.availability.product.product_category.sub_category_name|lower %}
-                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="number" name="" value="0.25" min="0.25" max="99" step="0.25" autofocus>
+                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
                         {% else %}
-                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="number" name="" value="1" min="1" max="99" step="1" autofocus>
+                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="text" name="" value="" pattern="[1-9]{1}[0-9]?" autofocus>
                         {% endif %}
                       </div>
                       <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="add">
@@ -165,11 +165,11 @@
               <div class="add_everything">
                 <form action="" method="post">
                   {% csrf_token %}
-                  <input class="btn btn-success btn-sm" name="everything {{ order.pk }}" type="submit" value="Place the same order in cart" />
+                  <input class="btn btn-success btn-sm" name="everything {{ order.pk }}" type="submit" value="Place the same order" />
                   <p id="if_different_prices">* Prices may have changed *</p>
                 </form>
                 <p id="order_total">Order total was: <b>${{ order.data.order_total }}</b></p>
-                <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></p>
+                <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store.store_name }}</a></p>
               </div>
             </div>
           </div>
@@ -180,7 +180,7 @@
       {% else %}
       <div id="no_orders">
         <p>You never placed any order in this store.</p>
-        <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store }}</a></p>
+        <p>Keep shopping at <a href="{% url 'grocerystore:store' zipcode store_id %}">{{ store.store_name }}</a></p>
       </div>
       {% endif %}
 

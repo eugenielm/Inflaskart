@@ -14,11 +14,11 @@ html:after{
   background: url(background.jpg) center center;
   background-size: cover;
   background-repeat: no-repeat;
-  opacity: 0.05;
+  opacity: 0.03;
 }
 
 body {
-  background-color: rgba(238, 238, 238, 1);
+  background-color: #ffffff;
   min-height: 100%;
   min-width: 100%;
   position: absolute;
@@ -57,22 +57,21 @@ div.page-header h2, div.page-header h4, div.page-header h5, div.page-header h6 {
   margin: 0px;
 }
 
-div.page-header h4 {font-size: 2.5vh}
-div.page-header h6 {font-size: 2vh}
+div.page-header h4 {font-size: 1.2em}
+div.page-header h6 {font-size: 0.8em}
 
 div.page-header > a {
   overflow:auto;
-  font-size: 2vh;
+  font-size: 0.8em;
 }
 
 div.page-header>h6>a {
-  border: thin;
-  border-style: solid;
+  border: thin solid #9e9e9e;
   border-radius: 3px;
   padding: 1px 3px;
 }
 div.page-header>h6>a:hover {
-  background-color: white;
+  background-color: #f1f1f1;
   color: black;
 }
 
@@ -84,6 +83,7 @@ div.page-header > a.btn.btn-success.btn-xs {color: white;}
   border-bottom-right-radius: 5px;
   border-bottom-left-radius: 5px;
   box-shadow: 2px 5px 10px 0;
+  font-size: 1em;
 }
 
 a.navbar-brand > img {
@@ -152,7 +152,7 @@ p#footer_contact {
 /* messages in session after user input (in forms or when changing the cart)*/
 
 .alert {
-  font-size: 1.8vh;
+  font-size: 10px;
   padding: 2px;
   margin: 2px 3%;
 }
@@ -167,26 +167,36 @@ p#footer_contact {
 /* other */
 .float_right {float: right;}
 
+.float_left {float: left;}
+
+.right_align {text-align: right;}
+
+.inline {display: inline;}
+
 /* in orders.html, instock.html, detail.html, search.html and buyagain.html */
-/* modified in cart.html */
-.qty_update select {
-  width:45px;
-  height: 24px;
-}
-
-/* in cart.html, orders.html, instock.html, detail.html, search.html and buyagain.html */
 .quantity_input {
-  width: 45px;
-  display: inline-block;
-}
-
-/* the following is also in detail.html, search.html, buyagain.html, orders.html
-and instock.html - when displayed */
-.qty_selection select {
-  width:45px;
+  width: 4em;
   height: 24px;
+  display: inline-block;
+  border: solid thin #9e9e9e;
+  border-radius: 5px;
+  padding: 2px;
+  font-size: 10px;
 }
 
+/* in detail.html, search.html, buyagain.html, orders.html and instock.html - when displayed */
+.qty_selection select {
+  width:4em;
+  height: 24px;
+  background-color: #ffffff;
+  font-size: 10px;
+}
+
+.list-group-item div {font-size:10px;}
+
+.panel-group .panel-heading {border-bottom: solid thin #c5c5c5}
+
+.btn-xs {font-size: 10px;}
 
 /*****************************************************************************/
 /* index.html */
@@ -224,9 +234,9 @@ and instock.html - when displayed */
 
 .index_dropdown .glyphicon-user, .index_dropdown .caret {color:#dadada}
 
-form#zipcode_choice {
-  margin-top: 20px;
-}
+.zipcode_choice > select {background-color: #ffffff;}
+
+form.zipcode_choice {margin-bottom: 5px}
 
 div.dropdown.index_dropdown {
   z-index:100;
@@ -299,8 +309,6 @@ p#this_map {
   display:block;
 }
 
-form.zipcode_choice {margin-bottom: 5px}
-
 #index-identification {
   margin: 30px auto;
 }
@@ -362,7 +370,7 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 
 .all_stores {
   width: 94%;
-  max-width: 68vh;
+  max-width: 800px;
   margin: 10px auto;
 }
 
@@ -372,8 +380,8 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 }
 
 .store_picture {
-  width: 20vh;
-  height: 18vh;
+  width: 9em;
+  height: 8em;
   background-color: white;
   box-shadow: 1px 1px 20px 0;
   border-radius: 5px;
@@ -388,7 +396,7 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 }
 
 .store_choice img {
-  width: 18vh;
+  width: 8em;
   height: auto;
   /* horizontally center the store logos inside their div */
   display: block;
@@ -397,7 +405,7 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 
 p.store_name {
   text-align: left;
-  font-size: 1.8vh;
+  font-size: 0.7em;
   margin: 5px;
 }
 
@@ -408,7 +416,7 @@ p.store_name {
 
 #product-details-section {
   margin: 10px 3%;
-  max-width: 600px;
+  max-width: 800px;
   padding: 10px 20px;
   background-color: white;
   border-style: none;
@@ -419,7 +427,7 @@ p.store_name {
 
 div.product_details p {
   margin-top: 5px;
-  font-size: 1.8vh;
+  font-size: 12px;
 }
 
 div.product_details a {font-style: oblique;}
@@ -427,8 +435,6 @@ div.qty_selection {
   margin: 10px 3%;
   font-size: 2vh;
 }
-
-.btn.btn-info.btn-xs {font-size: 1.8vh}
 
 #other_availabilities {
   margin: 0px;
@@ -442,16 +448,21 @@ p#required_age {color:red;}
 
 #store_categories {
   width: 94%;
-  max-width: 600px;
+  max-width: 800px;
   margin: 10px auto;
+}
+
+#store_categories .list-group-item {
+  font-size: 12px;
+  padding: 10px 15px;
 }
 
 div#accordion.panel-group.category {
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
 }
 
-#store_categories .panel-heading>h4 {font-size: 2vh}
+#store_categories .panel-heading>h4 {font-size: 12px;}
 
 .category .panel.panel-default {
   display: block;
@@ -461,13 +472,14 @@ div#accordion.panel-group.category {
   margin: 10px 0px;
 }
 
-/* panel heading background color when hovering */
+/* panel heading background color */
 div.link_div {
-  background-color: #d7d8d7;
+  background-color: #ffffff;
   border-radius: 4px;
 }
+/* panel heading background color when hovering */
 div.link_div:hover {
-  background-color: #efecf1;
+  background-color: #f5f5f5;
 }
 
 .panel-group.category .panel-heading .accordion-toggle:after {
@@ -483,6 +495,7 @@ div.link_div:hover {
     content: "\e080";    /* adjust as needed, taken from bootstrap.css */
 }
 
+/* sub-categories */
 .panel-group.category .list-group>a>li {
   background-color: #ffffff;
   color: black;
@@ -497,7 +510,7 @@ div#buy_again, div#old_order {
   margin: 10px 0px;
   padding: 10px 15px;
   width: 100%;
-  background-color: #d7d8d7;
+  background-color: #ffffff;
   border-style: none;
   border-radius: 4px;
   box-shadow: 1px 1px 8px 0 grey;
@@ -505,12 +518,12 @@ div#buy_again, div#old_order {
 
 div#buy_again h4, div#old_order h4 {
   margin: 0px;
-  font-size: 2vh;
+  font-size: 12px;
 }
 
 div#buy_again:hover, div#old_order:hover {
   text-decoration: none;
-  background-color: #efecf1;
+  background-color: #f5f5f5;
 }
 
 /*****************************************************************************/
@@ -518,13 +531,19 @@ div#buy_again:hover, div#old_order:hover {
 
 .all_carts {
   width: 94%;
-  max-width: 600px;
+  max-width: 800px;
   margin: 10px auto;
 }
 
 .single-cart {margin: 0px}
 
-#accordion h4.panel-title {font-size: 2vh}
+.single-cart .panel-heading {
+  background-color: #f5f5f5;
+  border-style: none;
+  border-radius: 4px;
+}
+
+.single-cart h4.panel-title {font-size: 12px;}
 
 .panel.panel-default.single-cart {
   display: block;
@@ -533,7 +552,7 @@ div#buy_again:hover, div#old_order:hover {
   box-shadow: 1px 1px 8px 0 grey;
   margin: 10px 0px;
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
 }
 
 .single-cart .list-group-item {
@@ -561,20 +580,31 @@ li.list-group-item.row>div:nth-child(4) {
 
 .single-cart .list-group-item img {
   max-width: 100%;
-  max-height: 5vh;
-  height: auto;
+  max-height: 35px;
+}
+
+.glyphicon-trash {
+  margin: 0px 5px;
+  display: inline-block;
+}
+
+.all_carts .list-group-item .btn.btn-warning.btn-xs {
+  padding: 0px;
+  text-align: center;
+  width: 24px;
+  height: 24px;
 }
 
 .all_carts form.qty_update {text-align: right}
 
-.all_carts form.qty_update select {width:69px;}
-
-.single-cart .panel-heading {
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-  background-color: #d7d8d7;
-  border-style: none;
+.all_carts form.qty_update select {
+  width:60px;
+  height: 24px;
+  background-color: white;
+  font-size: 10px;
 }
+
+.all_carts .quantity_input {width: 34px}
 
 .single-cart .checkout-empty {display: inline-block}
 
@@ -582,7 +612,9 @@ li.list-group-item.row>div:nth-child(4) {
 
 .single-cart .checkout-empty form {display: inline;}
 
-.single-cart .checkout-empty input.btn.btn-xs {font-size: 1.8vh}
+.single-cart .checkout-empty input.btn.btn-xs {font-size: 10px;}
+
+.single-order .panel-heading {border-bottom: none;}
 
 .single-cart .panel-heading .accordion-toggle:after {
     /* symbol for "opening" panels */
@@ -602,20 +634,17 @@ li.list-group-item.row>div:nth-child(4) {
 
 .panel-footer {padding: 10px}
 
-.single-cart .btn.btn-info.btn-xs.update_qty {
-  font-size: 1.8vh;
-}
-
 #cart-total {
   display: inline-block;
   float: right;
   font-weight: bold;
   margin-bottom: 0px;
+  font-size: 10px;
 }
 
 p.empty_cart {
   margin: 10px 3% 0px 3%;
-  font-size: 2vh;
+  font-size: 10px;
 }
 
 .empty_cart a {text-decoration: underline;}
@@ -623,18 +652,18 @@ p.empty_cart {
 
 p#keep_shopping {
   margin: 10px 0px 5px 0px;
-  font-size: 1.8vh;
+  font-size: 10px;
 }
 
 p#keep_shopping>a {
-  border: solid thin #d8d6d6;
+  border: solid thin #9e9e9e;
   border-radius: 3px;
-  background-color: #e0f5fd;
+  background-color: #ffffff;
   padding:2px 5px;
 }
 
 p#keep_shopping>a:hover {
-  background-color: #c1e9f9;
+  background-color: #f7f7f7;
   color: black;
 }
 
@@ -660,8 +689,11 @@ p#no_delivery, p#delivery_fee {
 /* the following is also in detail.html, search.html, buyagain.html, orders.html
 cart.html and instock.html */
 .btn.btn-info.btn-xs.quantity_input_button {
-  padding:1px 2px;
   display:inline-block;
+  height: 24px;
+  width: 24px;
+  padding: 0px;
+  text-align: center;
 }
 
 /* the following is also in search.html, buyagain.html, and detail.html */
@@ -671,28 +703,27 @@ form.qty_selection {
 }
 
 .product_button {
-  border-style: solid;
-  border-width: thin;
+  border: solid thin #9e9e9e;
   border-radius: 3px;
   background-color: white;
-  width: 22vh;
-  height: 22vh;
+  width: 8em;
+  height: 8em;
   box-shadow: 1px 1px 20px 0;
   padding: 0px 5px;
-  margin-bottom: 1vh;
+  margin-bottom: 0.5em;
   overflow: hidden;
 }
 
 .product_button img {
   display: block;
-  height: 9vh;
+  height: 40px;
   margin: 0px auto 5px auto;
   text-align: center;
 }
 
 div.product_button_content {
-  height: 22vh;
-  width: 22vh;
+  height: 8em;
+  width: 8em;
   overflow: hidden;
   background-color: white;
   /* needed to center vertically the div inside ie. .product_button_content */
@@ -703,7 +734,7 @@ div.product_button_content {
 
 div.product_button_content p {
   margin: 0px;
-  font-size: 1.5vh;
+  font-size: 0.6em;
 }
 
 .available_product form {text-align: center;}
@@ -761,13 +792,13 @@ form#login_form, table#login_table {width: 100%;}
   width: 100%;
   height: 100%;
   padding: 0px 5px;
-  border-style: none;
-  border-radius: 5px;
+  border: solid thin #9e9e9e;
+  border-radius: 4px;
 }
 
 form#login_form .btn.btn-info.btn-xs.submit {
   float:right;
-  margin: 0px 1.5% 0px 0px;
+  margin: 0px 1.7% 0px 0px;
   font-size: 12px;
   padding: 1px 3px;
 }
@@ -834,13 +865,13 @@ div.register-block table, div.register-block>table>tbody {width: 100%;}
   width: 100%;
   height: 100%;
   padding: 0px 5px;
-  border-style: none;
-  border-radius: 5px;
+  border: solid thin #9e9e9e;
+  border-radius: 4px;
 }
 
 form#registration_form .btn.submit {
   float: right;
-  margin: 7px 1.5% 0px 0px;
+  margin: 7px 3.3% 0px 0px;
   padding: 1px 3px;
   font-size: 12px;
 }
@@ -849,9 +880,8 @@ form#registration_form .btn.submit {
 .register-block select#id_state {
   width: 100%;
   height: 100%;
-  border-style: none;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
+  border: solid thin #9e9e9e;
+  border-radius: 4px;
 }
 
 /* in the header */
@@ -954,13 +984,15 @@ a#edit_pencil:hover {
   width: 100%;
   height: 100%;
   padding: 0px 5px;
-  border-style: none;
+  border: solid thin #9e9e9e;
+  border-radius: 4px;
 }
 
 #id_state {
   width: 100%;
   height: 100%;
-  border-style: none;
+  border: solid thin #9e9e9e;
+  border-radius: 4px;
   background-color: white;
 }
 
@@ -968,11 +1000,13 @@ table.user_table tr:first-child > td.update-field {
   padding: 1px 5px;
   height: 24px;
   background-color: #e8e8e8; /* the user isn't allowed to change their username */
+  border: solid thin #9e9e9e;
+  border-radius: 4px;
 }
 
 form#profile_form > input.btn.btn-info.btn-md.submit {
   float: right;
-  margin: 7px 1.5% 0px 0px;
+  margin: 7px 1.7% 0px 0px;
   padding: 1px 3px;
   font-size: 12px;
 }
@@ -982,18 +1016,22 @@ form#profile_form > input.btn.btn-info.btn-md.submit {
 
 .container.checkout {
   width: 94%;
-  max-width: 600px;
+  max-width: 800px;
   text-align: center;
   margin: 1vh auto;
 }
 
 .single-cart.checkout {margin: 1.5vh auto 0px auto;}
 
-.panel-group.checkout .panel-heading {padding: 7px}
+.single-cart.checkout .panel-default {border: none;}
+
+.single-cart.checkout .panel-group.checkout {border-radius: 4px;}
+
+.panel-group.checkout .panel-heading {
+  padding: 7px;
+}
 
 .panel-group.checkout .panel-heading>h4 {font-size: 2vh}
-
-.single-cart.checkout .panel.panel-default {border-radius: 0px;}
 
 .panel-group.checkout {
   box-shadow: 1px 1px 8px 0 grey;
@@ -1007,9 +1045,9 @@ form#profile_form > input.btn.btn-info.btn-md.submit {
 .single-cart.checkout .list-group-item div:last-child b,
 .single-cart.checkout .panel-footer b {float:right}
 
-#delivery_choice {
-  font-size: 1.8vh;
-}
+#delivery_choice {font-size: 1.8vh;}
+
+#delivery_choice>select {background-color: white;}
 
 form#payment_form {width: 100%}
 
@@ -1063,10 +1101,13 @@ table.payment_table {width: 100%}
 
 /* Ajusting the size of the input area */
 #ckt_form td.input-field input {
-  border-style: none;
+  border: solid thin #9e9e9e;
+  border-radius: 4px;
   padding: 2px 5px;
   width: 100%;
 }
+
+select#id_expire_year, select#id_expire_month {background-color: white;}
 
 .container.checkout>p {
   font-size: 10px;
@@ -1100,14 +1141,14 @@ p#pickup {color: red;}
 }
 
 #change_cart>a {
-  border: solid thin #d8d6d6;
+  border: solid thin #9e9e9e;
   border-radius: 3px;
-  background-color: #e0f5fd;
+  background-color: #ffffff;
   padding:2px 5px;
 }
 
 #change_cart>a:hover {
-  background-color: #c1e9f9;
+  background-color: #f7f7f7;
   color: black;
 }
 
@@ -1117,10 +1158,10 @@ p#pickup {color: red;}
 .panel-group.orders {
   margin: 10px auto;
   width: 94%;
-  max-width: 600px;
+  max-width: 800px;
 }
 
-.panel-group.orders .panel-heading>h4 {font-size: 2vh}
+.panel-group.orders .panel-heading>h4 {font-size: 7em}
 
 .panel-group.orders li.list-group-item {
   font-size: 1.8vh;
@@ -1132,7 +1173,7 @@ p#pickup {color: red;}
 
 .add_everything>form>input.btn.btn-success.btn-sm {
   padding: 3px 5px;
-  font-size: 1.8vh;
+  font-size: 10px;
 }
 
 .panel.panel-default.single-order {
@@ -1140,9 +1181,8 @@ p#pickup {color: red;}
 }
 
 .single-order .panel-heading {
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-  background-color: #d7d8d7;
+  border-radius: 4px;
+  background-color: #f5f5f5;
 }
 
 .single-order .add_everything p {
@@ -1192,7 +1232,7 @@ p#pickup {color: red;}
 #order_total {
   display: inline-block;
   float: right;
-  font-size: 1.8vh;
+  font-size: 10px;
   line-height: 4vh;
 }
 
@@ -1207,7 +1247,7 @@ p#pickup {color: red;}
 
 span#not_available_anymore {
   font-style:italic;
-  font-size:1.8vh;
+  font-size: 10px;
 }
 
-p#if_different_prices {font-size:1.2vh}
+p#if_different_prices {font-size:7px}

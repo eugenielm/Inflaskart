@@ -122,12 +122,13 @@
                         <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
                       {% endif %}
                     </div>
-                    <div class="col-xs-7 col-sm-9"> <!-- product name -->
+                    <div class="col-xs-6 col-sm-9"> <!-- product name -->
                       {{ item.0 }}</a>: {{ item.1 }} {{ item.2 }} x ${{item.6}} - <b>${{ item.3 }}</b>
                     </div>
-                    <div class="col-xs-3 col-sm-2"> <!-- quantity update button -->
+
+                    <div class="col-xs-4 col-sm-2 right_align"> <!-- quantity update button -->
                       {% if item.1 in quantity_set %}
-                        <form class="qty_update" action="" method="post">
+                        <form class="qty_update inline float_left" action="" method="post">
                           {% csrf_token %}
                           <select id="input_{{item.4}}" name="{{item.4}}" onchange="if (value == 'other') {
                             document.getElementById('input_{{item.4}}').style.display = 'none';
@@ -141,29 +142,37 @@
 
                           <div id="other_qty_{{item.4}}" style="display:none;">
                             {% if item.2 == "lb" and item.0.product_category.parent.top_category|lower == "produce" %}
-                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="number" name="" value="{{item.1}}" min="0" max="99" step="0.25" autofocus>
+                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
                             {% elif item.2 == "lb" and "counter" in item.0.product_category.sub_category_name|lower %}
-                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="number" name="" value="{{item.1}}" min="0" max="99" step="0.25" autofocus>
+                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
                             {% else %}
-                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="number" name="" value="{{item.1}}" min="0" max="99" step="1" autofocus>
+                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="text" name="" value="" pattern="[1-9]{1}[0-9]?" autofocus>
                             {% endif %}
                             <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok">
                           </div>
+
                         </form>
 
                       {% else %}
-                        <form class="qty_update" action="" method="post">
+                        <form class="qty_update inline float_left" action="" method="post">
                           {% csrf_token %}
                           {% if item.2 == "lb" and item.0.product_category.parent.top_category|lower == "produce" %}
-                            <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="99" step="0.25">
+                            <input class="quantity_input" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
                           {% elif item.2 == "lb" and "counter" in item.0.product_category.sub_category_name|lower %}
-                            <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="99" step="0.25">
+                            <input class="quantity_input" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
                           {% else %}
-                            <input class="quantity_input" type="number" name="{{item.4}}" value="{{item.1}}" min="0" max="99" step="1">
+                            <input class="quantity_input" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[1-9]{1}[0-9]?">
                           {% endif %}
                           <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok">
                         </form>
                       {% endif %}
+
+                      <form action="" method="post" class="inline">
+                        {% csrf_token %}
+                        <button class="btn btn-warning btn-xs" type="submit" name="remove_item{{item.4}}">
+                          <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                      </form>
 
                     </div>
                   </li>
@@ -188,11 +197,11 @@
                         {% if values|slice:"-2"|last == 'delivery_fee' %} <!-- if the total is under $30 there's a delivery fee -->
                           <p id="delivery_fee">A $5 delivery fee will be applied for any total under $30</p>
                         {% endif %}
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' user_zipcode key.pk %}">{{ key }}</a></p>
+                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' user_zipcode key.pk %}">{{key.store_name}}</a></p>
                       {% else %} <!-- if the store doesn't deliver the zipcode the user's address, use this zipcode to keep shopping in the same store -->
                         <p id="no_delivery">No delivery in {{ user_zipcode }}</p>
                         <!-- use the store zipcode to keep shopping in the same store on the next line -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{ key }}</a></p>
+                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{key.store_name}}</a></p>
                       {% endif %}
 
                     {% else %} <!-- if the user is anonymous -->
@@ -205,9 +214,9 @@
 
                       {% if values|slice:"-1"|last == 'pickup' %} <!-- if the store doesn't deliver the area the user is shopping in -->
                         <!-- use the store zipcode to keep shopping in the same store (see below) -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{ key }}</a></p>
+                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{key.store_name}}</a></p>
                       {% else %} <!-- if the store delivers the zipcode the user is shopping in, use this zipcode to keep shopping in the same store -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}">{{ key }}</a></p>
+                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}">{{key.store_name}}</a></p>
                       {% endif %}
 
                     {% endif %}
