@@ -70,7 +70,7 @@
       {% endif %}
 
       {% if username %}
-        <div class="personal-welcome">
+        <div id="authenticated-welcome">
           <p><a href="{% url 'grocerystore:start' zipcode %}" class="btn btn-success btn-md" role="button">Shop in {{ zipcode }}</a></p>
           <form class="zipcode_choice" action="" method="post">
             {% csrf_token %}
@@ -88,7 +88,7 @@
         </div>
 
       {% else %}
-        <div class="personal-welcome">
+        <div id="anonymous-welcome">
           <form class="zipcode_choice" action="" method="post">
             {% csrf_token %}
             <select name="zipcode_choice" onchange='if(this.value != "-- Choose a ZIP code area to shop in --") { this.form.submit(); }'>

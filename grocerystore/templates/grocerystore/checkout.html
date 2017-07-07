@@ -112,38 +112,38 @@
                         {% endif %}
                     </div>
                     <div class="col-xs-8 col-sm-10">
-                      {{ item.0 }}</a> | {{ item.1 }} x ${{item.2}}/{{ item.3 }}
+                      <p class="font_size_1em">{{ item.0 }}</a> | {{ item.1 }} x ${{item.2}}/{{ item.3 }}</p>
                     </div>
                     <div class="col-xs-2 col-sm-1">
-                      <b>${{ item.4 }}</b>
+                      <p class="font_size_0_8em"><b>${{ item.4 }}</b></p>
                     </div>
                   </li>
                 {% endfor %}
                 <li class="list-group-item row vertical-align">
                   <div class="col-xs-2 col-sm-1"></div>
-                  <div class="col-xs-8 col-sm-10">Personal shopper fee (10%)</div>
-                  <div class="col-xs-2 col-sm-1"><b>${{ service }}</b></div>
+                  <div class="col-xs-8 col-sm-10"><p class="margin_0 font_size_0_8em">Personal shopper fee (10%)</p></div>
+                  <div class="col-xs-2 col-sm-1"><p class="font_size_1em"><b>${{ service }}</b></p></div>
                 </li>
                 {% if sales_tax %}
                   <li class="list-group-item row vertical-align">
                     <div class="col-xs-2 col-sm-1"></div>
-                    <div class="col-xs-8 col-sm-10">San Francisco county sales tax (8.50% when applicable)</div>
-                    <div class="col-xs-2 col-sm-1"><b>${{ sales_tax }}</b></div>
+                    <div class="col-xs-8 col-sm-10"><p class="margin_0 font_size_0_8em">San Francisco county sales tax (8.50% when applicable)</p></div>
+                    <div class="col-xs-2 col-sm-1"><p class="font_size_1em"><b>${{ sales_tax }}</b></p></div>
                   </li>
                 {% endif %}
 
                 {% if delivery_fee %}
                   <li class="list-group-item row vertical-align">
                     <div class="col-xs-2 col-sm-1"></div>
-                    <div class="col-xs-8 col-sm-10">Delivery fee for an order under $30</div>
-                    <div class="col-xs-2 col-sm-1"><b>$5.00</b></div>
+                    <div class="col-xs-8 col-sm-10"><p class="margin_0 font_size_0_8em">Delivery fee for an order under $30</p></div>
+                    <div class="col-xs-2 col-sm-1"><p class="font_size_1em"><b>$5.00</b></p></div>
                   </li>
                 {% endif %}
               </ul>
               <div class="panel-footer row vertical-align">
                 <div class="col-xs-2 col-sm-1"></div>
-                <div class="col-xs-5 col-sm-5" id="change_cart"><a href="{% url 'grocerystore:cart' zipcode %}?open_cart={{store.pk}}">Change your cart</a></div>
-                <div class="col-xs-5 col-sm-6" id="cart-total"><b>Cart total: ${{ cart_total }}</b></div>
+                <div class="col-xs-5 col-sm-5" id="change_cart"><p class="margin_0 font_size_0_8em"><a href="{% url 'grocerystore:cart' zipcode %}?open_cart={{store.pk}}">Change your cart</a></p></div>
+                <div class="col-xs-5 col-sm-6" id="cart-total"><p class="margin_0 font_size_1em"><b>Cart total: ${{ cart_total }}</b></p></div>
               </div>
             </div>
           </div>
@@ -154,7 +154,7 @@
         <form id="payment_form" action="" method="post">
           {% csrf_token %}
           {% if not pickup %}
-            <div id="delivery_choice">
+            <div id="delivery_choice" class="font_size_1em">
               <select name="delivery_time" autofocus>
                 <option disabled selected value>--- Choose a delivery time ---</option>
                 {% for delivery_time in delivery_time_set %}

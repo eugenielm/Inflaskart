@@ -2121,15 +2121,12 @@ class OrdersHistory(LoginRequiredMixin, View):
 
         user = self.request.user
 
-        quantity_set = QUANTITY_SET[:]
-        quantity_set.insert(0, "---")
-
         context = {
             'user': user,
             'store_id': store_id,
             'store': Store.objects.get(pk=store_id),
             'zipcode': zipcode,
-            'quantity_set': quantity_set,
+            'quantity_set': QUANTITY_SET,
         }
 
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)

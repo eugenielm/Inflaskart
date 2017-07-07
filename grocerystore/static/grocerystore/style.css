@@ -171,7 +171,15 @@ p#footer_contact {
 
 .right_align {text-align: right;}
 
+.text-center {text-align: center;}
+
 .inline {display: inline;}
+
+.margin_0 {margin: 0;}
+
+.font_size_0_8em {font-size: 0.8em}
+
+.font_size_1em {font-size: 1em}
 
 /* in orders.html, instock.html, detail.html, search.html and buyagain.html */
 .quantity_input {
@@ -184,7 +192,8 @@ p#footer_contact {
   font-size: 10px;
 }
 
-/* in detail.html, search.html, buyagain.html, orders.html and instock.html - when displayed */
+/* in detail.html, search.html, buyagain.html, orders.html and instock.html
+(when displayed) */
 .qty_selection select {
   width:4em;
   height: 24px;
@@ -192,11 +201,25 @@ p#footer_contact {
   font-size: 10px;
 }
 
-.list-group-item div {font-size:10px;}
+h4.panel-title {font-size: 1em}
+
+.list-group-item p {margin: 0;}
+
+.list-group-item div:nth-child(3) {font-size:0.8em}
 
 .panel-group .panel-heading {border-bottom: solid thin #c5c5c5}
 
 .btn-xs {font-size: 10px;}
+
+/* in instock.html, detail.html, search.html, buyagain.html, orders.html,
+cart.html and instock.html */
+.btn.btn-info.btn-xs.quantity_input_button {
+  display:inline-block;
+  height: 24px;
+  width: 24px;
+  padding: 0px;
+  text-align: center;
+}
 
 /*****************************************************************************/
 /* index.html */
@@ -258,45 +281,54 @@ ul.dropdown-menu.dropdown-menu-right {
   font-size: 2vh;
 }
 
-.personal-welcome {
+#authenticated-welcome, #anonymous-welcome {
   margin-top: 25vh;
+  margin-bottom: 5vh;
   text-align: center;
 }
 
-.personal-welcome p {margin: 0px auto 5px auto}
+#authenticated-welcome p, #anonymous-welcome p {margin: 0px auto 5px auto}
 
-.personal-welcome a.btn.btn-success.btn-md {color: white;}
-
-.personal-welcome>p:nth-child(1) {margin:0px auto 3vh auto}
-
-p#this_map {
-  font-size:1.8vh;
-  font-style:italic;
+#authenticated-welcome a.btn.btn-success.btn-md,
+#anonymous-welcome a.btn.btn-success.btn-md {
+  color: white;
+  text-decoration: none;
 }
 
-#this_map a {text-decoration:underline}
+#authenticated-welcome>p:nth-child(1),
+#anonymous-welcome>p:nth-child(1) {margin:0px auto 3vh auto}
 
-.personal-welcome>p:nth-child(4) {
-  font-size:10px;
-  margin: 30px auto 5px auto;
+#authenticated-welcome>form, #anonymous-welcome>form {font-size: 1em}
+
+#authenticated-welcome>p#this_map, #anonymous-welcome>p#this_map {
+  font-size: 0.8em;
+  font-style:italic;
+  display:block;
+}
+
+#authenticated-welcome>p>a, #anonymous-welcome>p>a {text-decoration:underline}
+
+#authenticated-welcome>p:nth-child(4) {
+  font-size: 0.8em;
+  margin: 2em auto;
   letter-spacing:10px;
   display:block;
 }
 
-.personal-welcome>p:nth-child(5) {
-  font-size:10px;
-  margin: 25px 5px 0px 5px;
+#authenticated-welcome>p:nth-child(5) {
+  font-size: 0.8em;
+  margin: -5px 5px 5px 5px;
   display:block;
 }
 
-.personal-welcome>p:nth-child(6), .personal-welcome>p:nth-child(7) {
-  font-size:10px;
+#authenticated-welcome>p:nth-child(6), #authenticated-welcome>p:nth-child(7) {
+  font-size: 0.8em;
   margin: 0px 5px;
   display:block;
 }
 
 #index-identification>p:nth-child(3) {
-  font-size:10px;
+  font-size: 0.8em;
   margin: 15px auto 10px auto;
   letter-spacing:10px;
   display:block;
@@ -304,7 +336,7 @@ p#this_map {
 
 #index-identification>p:nth-child(4), #index-identification>p:nth-child(5),
 #index-identification>p:nth-child(6) {
-  font-size:10px;
+  font-size: 0.8em;
   margin: 0px 5px;
   display:block;
 }
@@ -325,8 +357,8 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 /* if hire_me */
 .hire_me {
   width: 94%;
-  max-width: 400px;
-  margin: 15vh auto -20vh auto;
+  max-width: 30em;
+  margin: 6em auto -4em auto;
 }
 
 .hire_me .panel-heading {
@@ -337,7 +369,7 @@ a#login.btn.btn-info.btn-md, a#register.btn.btn-info.btn-md {color: white}
 }
 
 .hire_me .panel-heading>h5 {
-  font-size: 2.5vh;
+  font-size: 1em;
   text-align: center;
 }
 
@@ -415,26 +447,25 @@ p.store_name {
 /* detail.html */
 
 #product-details-section {
-  margin: 10px 3%;
-  max-width: 800px;
+  margin: 10px auto;
+  width: 94%;
+  max-width: 40em;
   padding: 10px 20px;
   background-color: white;
   border-style: none;
   border-radius: 5px;
+  box-shadow: 2px 2px 15px #c5c1c1;
 }
 
-#product-details-section .product-pic img {height: 15vh}
+#product-details-section .product-pic img {height: 5em}
 
 div.product_details p {
   margin-top: 5px;
-  font-size: 12px;
+  font-size: 0.8em;
 }
 
 div.product_details a {font-style: oblique;}
-div.qty_selection {
-  margin: 10px 3%;
-  font-size: 2vh;
-}
+div.qty_selection {margin: 20px 0 10px 0}
 
 #other_availabilities {
   margin: 0px;
@@ -547,7 +578,6 @@ div#buy_again:hover, div#old_order:hover {
 
 .panel.panel-default.single-cart {
   display: block;
-  font-size: 1.8vh;
   border-style: none;
   box-shadow: 1px 1px 8px 0 grey;
   margin: 10px 0px;
@@ -598,7 +628,7 @@ li.list-group-item.row>div:nth-child(4) {
 .all_carts form.qty_update {text-align: right}
 
 .all_carts form.qty_update select {
-  width:60px;
+  /*width:60px;*/
   height: 24px;
   background-color: white;
   font-size: 10px;
@@ -639,20 +669,21 @@ li.list-group-item.row>div:nth-child(4) {
   float: right;
   font-weight: bold;
   margin-bottom: 0px;
-  font-size: 10px;
+  margin-right: -5px;
+  font-size: 12px;
 }
 
 p.empty_cart {
   margin: 10px 3% 0px 3%;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .empty_cart a {text-decoration: underline;}
 .empty_cart a:hover {text-decoration: none;}
 
 p#keep_shopping {
-  margin: 10px 0px 5px 0px;
-  font-size: 10px;
+  margin: 10px 0 0 0;
+  font-size: 12px;
 }
 
 p#keep_shopping>a {
@@ -669,7 +700,7 @@ p#keep_shopping>a:hover {
 
 p#no_delivery, p#delivery_fee {
   color: red;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: bold;
   font-style: oblique;
 }
@@ -683,31 +714,15 @@ p#no_delivery, p#delivery_fee {
 
 .available_product {
   display: inline-block;
-  margin: 1vh 2vh 1vh 0vh;
-}
-
-/* the following is also in detail.html, search.html, buyagain.html, orders.html
-cart.html and instock.html */
-.btn.btn-info.btn-xs.quantity_input_button {
-  display:inline-block;
-  height: 24px;
-  width: 24px;
-  padding: 0px;
-  text-align: center;
-}
-
-/* the following is also in search.html, buyagain.html, and detail.html */
-form.qty_selection {
-  font-size: 1.8vh;
-  text-align: center;
+  margin: 0 0.5em 0.5em 0;
 }
 
 .product_button {
   border: solid thin #9e9e9e;
   border-radius: 3px;
   background-color: white;
-  width: 8em;
-  height: 8em;
+  width: 10em;
+  height: 10em;
   box-shadow: 1px 1px 20px 0;
   padding: 0px 5px;
   margin-bottom: 0.5em;
@@ -716,14 +731,14 @@ form.qty_selection {
 
 .product_button img {
   display: block;
-  height: 40px;
+  height: 3.5em;
   margin: 0px auto 5px auto;
   text-align: center;
 }
 
 div.product_button_content {
-  height: 8em;
-  width: 8em;
+  height: 10em;
+  width: 10em;
   overflow: hidden;
   background-color: white;
   /* needed to center vertically the div inside ie. .product_button_content */
@@ -734,10 +749,13 @@ div.product_button_content {
 
 div.product_button_content p {
   margin: 0px;
-  font-size: 0.6em;
+  font-size: 0.7em;
 }
 
-.available_product form {text-align: center;}
+.available_product form {
+  text-align: center;
+  margin-bottom: 0.5em;
+}
 
 /*****************************************************************************/
 
@@ -753,6 +771,8 @@ div.product_button_content p {
   display: inline-block;
   margin: 5px;
 }
+
+.search_product .qty_selection {text-align: center}
 
 /*****************************************************************************/
 /* login.html */
@@ -1031,21 +1051,20 @@ form#profile_form > input.btn.btn-info.btn-md.submit {
   padding: 7px;
 }
 
-.panel-group.checkout .panel-heading>h4 {font-size: 2vh}
+.panel-group.checkout .panel-heading>h4 {font-size: 1em}
 
 .panel-group.checkout {
   box-shadow: 1px 1px 8px 0 grey;
-  font-size:1.8vh;
 }
 
-.single-cart.checkout li.list-group-item {text-align: left;}
+.single-cart.checkout li.list-group-item {
+  text-align: left;
+}
 
 .single-cart.checkout li.list-group-item.row>div:nth-child(4) {padding-right: 5px}
 
 .single-cart.checkout .list-group-item div:last-child b,
 .single-cart.checkout .panel-footer b {float:right}
-
-#delivery_choice {font-size: 1.8vh;}
 
 #delivery_choice>select {background-color: white;}
 
@@ -1059,7 +1078,7 @@ form#payment_form {width: 100%}
 #cc_submission input.btn.btn-success.btn-xs.submit {
   margin-top: 20px;
   float: right;
-  font-size: 1.8vh;
+  font-size: 0.8em;
 }
 
 table.payment_table {width: 100%}
@@ -1070,7 +1089,7 @@ table.payment_table {width: 100%}
 }
 
 #ckt_form p {
-  font-size: 1.8vh;
+  font-size: 0.8em;
   font-style: italic;
   margin: 20px 0px;
 }
@@ -1079,7 +1098,7 @@ table.payment_table {width: 100%}
   display: inline-block;
   margin-bottom: 10px;
   padding: 0px;
-  font-size: 1.8vh;
+  font-size: 0.8em;
 }
 
 #ckt_form td.field_label {
@@ -1140,14 +1159,14 @@ p#pickup {color: red;}
   text-align: left;
 }
 
-#change_cart>a {
+#change_cart a {
   border: solid thin #9e9e9e;
   border-radius: 3px;
   background-color: #ffffff;
   padding:2px 5px;
 }
 
-#change_cart>a:hover {
+#change_cart a:hover {
   background-color: #f7f7f7;
   color: black;
 }
@@ -1161,19 +1180,13 @@ p#pickup {color: red;}
   max-width: 800px;
 }
 
-.panel-group.orders .panel-heading>h4 {font-size: 7em}
-
-.panel-group.orders li.list-group-item {
-  font-size: 1.8vh;
-}
-
 .panel-group.orders .panel-footer {font-size: 1.8vh}
 
 .add_everything>form {display: inline-block;}
 
 .add_everything>form>input.btn.btn-success.btn-sm {
   padding: 3px 5px;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .panel.panel-default.single-order {
@@ -1200,7 +1213,7 @@ p#pickup {color: red;}
 #no_orders a {text-decoration: underline}
 
 .panel.panel-default.single-order {
-  font-size: 1.8px;
+  /*font-size: 1.8px;*/
   top: 0px;
   border-style: none;
   box-shadow: 1px 1px 8px 0 grey;
@@ -1232,8 +1245,8 @@ p#pickup {color: red;}
 #order_total {
   display: inline-block;
   float: right;
-  font-size: 10px;
-  line-height: 4vh;
+  font-size: 12px;
+  margin-top: 5px;
 }
 
 .orders form.qty_update {
@@ -1250,4 +1263,4 @@ span#not_available_anymore {
   font-size: 10px;
 }
 
-p#if_different_prices {font-size:7px}
+p#if_different_prices {font-size:8px}

@@ -127,56 +127,25 @@
                     </div>
 
                     <div class="col-xs-4 col-sm-2 right_align"> <!-- quantity update button -->
-                      {% if item.1 in quantity_set %}
-                        <form class="qty_update inline float_left" action="" method="post">
-                          {% csrf_token %}
-                          <select id="input_{{item.4}}" name="{{item.4}}" onchange="if (value == 'other') {
-                            document.getElementById('input_{{item.4}}').style.display = 'none';
-                            document.getElementById('other_qty_{{item.4}}').style.display = 'inline-block';
-                            document.getElementById('input_{{item.4}}').setAttribute('name', '');
-                            document.getElementById('other_qty_input_{{item.4}}').setAttribute('name', '{{item.4}}');} else {this.form.submit();}">
-                            {% for quantity in quantity_set %}
-                              <option value="{{quantity}}" {% if quantity == item.1 %} selected="selected" {% endif %}>{{ quantity }}</option>
-                            {% endfor %}
-                          </select>
-
-                          <div id="other_qty_{{item.4}}" style="display:none;">
-                            {% if item.2 == "lb" and item.0.product_category.parent.top_category|lower == "produce" %}
-                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
-                            {% elif item.2 == "lb" and "counter" in item.0.product_category.sub_category_name|lower %}
-                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
-                            {% else %}
-                              <input class="quantity_input" id="other_qty_input_{{item.4}}" type="text" name="" value="" pattern="[1-9]{1}[0-9]?" autofocus>
-                            {% endif %}
-                            <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok">
-                          </div>
-
-                        </form>
-
-                      {% else %}
-                        <form class="qty_update inline float_left" action="" method="post">
+                        <form class="qty_update inline" action="" method="post">
                           {% csrf_token %}
                           {% if item.2 == "lb" and item.0.product_category.parent.top_category|lower == "produce" %}
-                            <input class="quantity_input" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
+                            <input class="quantity_input inline" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
                           {% elif item.2 == "lb" and "counter" in item.0.product_category.sub_category_name|lower %}
-                            <input class="quantity_input" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
+                            <input class="quantity_input inline" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
                           {% else %}
-                            <input class="quantity_input" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[1-9]{1}[0-9]?">
+                            <input class="quantity_input inline" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[1-9]{1}[0-9]?">
                           {% endif %}
-                          <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok">
+                          <input class="btn btn-info btn-xs quantity_input_button inline" type="submit" value="ok">
+
+                          <button class="btn btn-warning btn-xs inline" type="submit" name="remove_item{{item.4}}">
+                            <span class="glyphicon glyphicon-trash"></span>
+                          </button>
                         </form>
-                      {% endif %}
-
-                      <form action="" method="post" class="inline">
-                        {% csrf_token %}
-                        <button class="btn btn-warning btn-xs" type="submit" name="remove_item{{item.4}}">
-                          <span class="glyphicon glyphicon-trash"></span>
-                        </button>
-                      </form>
-
                     </div>
                   </li>
                 {% endfor %}
+
                 </ul>
                 <div class="panel-footer">
                   <div class="checkout-empty">

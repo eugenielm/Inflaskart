@@ -134,23 +134,24 @@
                     {% if item.availability == 'not_available' %}
                       <span id="not_available_anymore">Not available </span>
                     {% else %}
-                      <select id="input_{{item.availability_pk}}" name="{{item.availability_pk}}" onchange="if (value == 'other') {
-                        document.getElementById('input_{{item.availability_pk}}').style.display = 'none';
-                        document.getElementById('other_qty_{{item.availability_pk}}').style.display = 'inline-block';
-                        document.getElementById('input_{{item.availability_pk}}').setAttribute('name', '');
-                        document.getElementById('other_qty_input_{{item.availability_pk}}').setAttribute('name', '{{item.availability_pk}}');}">
+                      <select id="input_{{order.pk}}_{{item.availability_pk}}" name="{{order.pk}}_{{item.availability_pk}}" onchange="if (value == 'other') {
+                        document.getElementById('input_{{order.pk}}_{{item.availability_pk}}').style.display = 'none';
+                        document.getElementById('other_qty_{{order.pk}}_{{item.availability_pk}}').style.display = 'inline-block';
+                        document.getElementById('input_{{order.pk}}_{{item.availability_pk}}').setAttribute('name', '');
+                        document.getElementById('other_qty_input_{{order.pk}}_{{item.availability_pk}}').setAttribute('name', '{{order.pk}}_{{item.availability_pk}}');}">
+                        <option disabled selected value> --- </option>
                         {% for quantity in quantity_set %}
                           <option value="{{quantity}}">{{ quantity }}</option>
                         {% endfor %}
                       </select>
 
-                      <div id="other_qty_{{item.availability_pk}}" style="display:none;">
+                      <div id="other_qty_{{order.pk}}_{{item.availability_pk}}" style="display:none;">
                         {% if item.product_unit == "lb" and item.availability.product.product_category.parent.top_category|lower == "produce" %}
-                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
+                          <input class="quantity_input" id="other_qty_input_{{order.pk}}_{{item.availability_pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
                         {% elif item.product_unit == "lb" and "counter" in item.availability.product.product_category.sub_category_name|lower %}
-                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
+                          <input class="quantity_input" id="other_qty_input_{{order.pk}}_{{item.availability_pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
                         {% else %}
-                          <input class="quantity_input" id="other_qty_input_{{item.availability_pk}}" type="text" name="" value="" pattern="[1-9]{1}[0-9]?" autofocus>
+                          <input class="quantity_input" id="other_qty_input_{{order.pk}}_{{item.availability_pk}}" type="text" name="" value="" pattern="[1-9]{1}[0-9]?" autofocus>
                         {% endif %}
                       </div>
                       <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="add">
