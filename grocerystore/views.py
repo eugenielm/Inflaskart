@@ -45,12 +45,14 @@ This module contains 17 views:
 - PageNotFound
 - ServerError
 
-This module contains the function search_item, which is used in the search tool
-(in the navigation menu bar once the user has chosen a store to shop in).
+This module contains 2 functions:
+- search_item(): used in the search tool in the navigation menu bar after the user
+has chosen a store to shop in);
+- convert_qty_to_float(): function used to store product quantities as floats
 """
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-MAX_QTY = float(99.9) # the maximum units of an item the user is allowed to put in their cart
+MAX_QTY = float(99) # the maximum units of an item the user is allowed to put in their cart
 QUANTITY_SET = range(1, 12)
 QUANTITY_SET.append('other')
 
@@ -69,15 +71,16 @@ def search_item(searched_item, store_id):
     return search_result
 
 
-def ConvertQtyToFloat(quantity):
-    """Takes a string as a parameter and returns a float if conversion is possible,
-    otherwise returns None"""
+def convert_qty_to_float(quantity):
+    """Takes a string as a parameter and returns a float if conversion is
+    possible, otherwise returns None.
+    """
     try: return float(quantity.replace(",", "."))
     except ValueError: return None
 
 
 class UserRegisterView(View):
-    """Allow the user to create an account."""
+    """Allow the user to create an account"""
     form_class1 = UserForm
     form_class2 = AddressForm
     template_name = 'grocerystore/registration.html'
@@ -85,14 +88,18 @@ class UserRegisterView(View):
     def get(self, request):
         user_form = self.form_class1(None)
         address_form = self.form_class2(None)
-        return render(self.request, self.template_name, {'user_form': user_form, 'address_form': address_form})
+        return render(self.request,
+                      self.template_name,
+                      {'user_form': user_form, 'address_form': address_form},
+                      )
 
     def post(self, request):
         if 'login' in self.request.POST:
             try:
                 redirect_to = self.request.GET['redirect_to']
                 # use of HttpResponseRedirect to avoid DisallowedRedirect warning
-                return HttpResponseRedirect(reverse('grocerystore:login') + '?redirect_to=' + str(redirect_to))
+                return HttpResponseRedirect(reverse('grocerystore:login') \
+                                            + '?redirect_to=' + str(redirect_to))
             except:
                 return redirect('grocerystore:login')
 
@@ -107,7 +114,8 @@ class UserRegisterView(View):
 
         except: pass
 
-        if form1.is_valid() and form2.is_valid(): # if the username is available and all the information is valid
+        if form1.is_valid() and form2.is_valid():
+            # if the username is available and all the information is valid
             inflauser_address = form2.save(commit=False)
 
             city = ""
@@ -131,22 +139,26 @@ class UserRegisterView(View):
             if "-" in form1.cleaned_data['last_name']:
                 for part in form1.cleaned_data['last_name'].split("-")[:-1]:
                     capitalized_last_name += (part.capitalize() + "-")
-                capitalized_last_name += form1.cleaned_data['last_name'].split("-")[-1].capitalize()
+                capitalized_last_name += form1.cleaned_data['last_name']\
+                                         .split("-")[-1].capitalize()
             else:
                 for part in form1.cleaned_data['last_name'].split()[:-1]:
                     capitalized_last_name += (part.capitalize() + " ")
-                capitalized_last_name += form1.cleaned_data['last_name'].split()[-1].capitalize()
+                capitalized_last_name += form1.cleaned_data['last_name']\
+                                         .split()[-1].capitalize()
 
             capitalized_first_name = ""
             # a last name can contain either white spaces or hyphens (but not both)
             if "-" in form1.cleaned_data['first_name']:
                 for part in form1.cleaned_data['first_name'].split("-")[:-1]:
                     capitalized_first_name += (part.capitalize() + "-")
-                capitalized_first_name += form1.cleaned_data['first_name'].split("-")[-1].capitalize()
+                capitalized_first_name += form1.cleaned_data['first_name']\
+                                          .split("-")[-1].capitalize()
             else:
                 for part in form1.cleaned_data['first_name'].split()[:-1]:
                     capitalized_first_name += (part.capitalize() + " ")
-                capitalized_first_name += form1.cleaned_data['first_name'].split()[-1].capitalize()
+                capitalized_first_name += form1.cleaned_data['first_name']\
+                                          .split()[-1].capitalize()
 
             user.username = form1.cleaned_data['username']
             user.email = form1.cleaned_data['email']
@@ -163,14 +175,18 @@ class UserRegisterView(View):
             if user is not None:
                 # updating the user's cart if they added products in their cart
                 # before registering
-                inflauser_zipcode = Inflauser.objects.get(infla_user=user).inflauser_address.zip_code
+                inflauser_zipcode = Inflauser.objects.get(infla_user=user)\
+                                    .inflauser_address.zip_code
                 not_available = False
                 try: # need try in case self.request.session is empty
                     for elt in self.request.session.keys():
-                        availability = Availability.objects.get(pk=int(self.request.session[elt]["name"]))
+                        availability = Availability.objects.get(
+                                       pk=int(self.request.session[elt]["name"])
+                                       )
                         # check if the item is already in the cart and update its quantity
                         try:
-                            item = ItemInCart.objects.filter(incart_user=user).get(incart_availability=availability)
+                            item = ItemInCart.objects.filter(incart_user=user)\
+                                   .get(incart_availability=availability)
                             item.incart_quantity = int(self.request.session[elt]["qty"])
                             item.save()
                         # create an ItemInCart instance if the item isn't in the
@@ -179,7 +195,8 @@ class UserRegisterView(View):
                             ItemInCart.objects.create(incart_user=user,
                                                       incart_availability=availability,
                                                       incart_quantity=int(self.request.session[elt]["qty"]))
-                        if not availability.store.delivery_area.all().filter(zipcode=inflauser_zipcode):
+                        if not availability.store.delivery_area.all()\
+                               .filter(zipcode=inflauser_zipcode):
                             not_available = True
                 except: # if the user didn't put anything in their cart before signing up
                     pass
@@ -189,7 +206,9 @@ class UserRegisterView(View):
                     "items in a store that doesn't deliver your current address.")
 
                 login(self.request, user)
-                messages.success(self.request, "You're now registered and logged in, %s" % user.username)
+                messages.success(self.request,
+                                 "You're now registered and logged in, %s" % user.username,
+                                 )
                 try:
                     return redirect(self.request.GET['redirect_to'])
                 except:
@@ -216,7 +235,7 @@ class UserRegisterView(View):
 
 
 class UserLoginView(View):
-    """Allow the user to login if they're already registered."""
+    """Allow the user to login if they are already registered."""
     form_class = LoginForm
     template_name = 'grocerystore/login.html'
 
@@ -298,22 +317,29 @@ class UserLoginView(View):
 
 @csrf_protect
 def log_out(request):
-    messages.success(request, "You've been logged out, %s. See ya!" % request.user.username, fail_silently=True)
+    messages.success(request,
+                     "You've been logged out, %s. See ya!" % request.user.username,
+                     fail_silently=True,
+                     )
     logout(request)
     return redirect('grocerystore:index')
 
 
 class ProfileView(LoginRequiredMixin, View):
-    """Where an authenticated user can see their profile information."""
+    """Allow an authenticated user to see their profile information."""
     template_name = 'grocerystore/profile.html'
     login_url = 'grocerystore:login'
     redirect_field_name = 'redirect_to'
 
     def get(self, request):
-        inflauser_address = Inflauser.objects.get(infla_user=self.request.user).inflauser_address
+        inflauser_address = Inflauser.objects.get(infla_user=self.request.user)\
+                                             .inflauser_address
         user = self.request.user
         zipcode = inflauser_address.zip_code
-        context = {'user': user, 'user_address': inflauser_address, 'zipcode': zipcode}
+        context = {'user': user,
+                   'user_address': inflauser_address,
+                   'zipcode': zipcode,
+                   }
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if available_stores:
             context['available_stores'] = available_stores
@@ -322,7 +348,8 @@ class ProfileView(LoginRequiredMixin, View):
 
 class ProfileUpdateView(LoginRequiredMixin, View):
     """Allow an authenticated user to edit their profile info - except their
-    username and password."""
+    username and password.
+    """
     template_name = 'grocerystore/profile_update.html'
     login_url = 'grocerystore:login'
     redirect_field_name = 'redirect_to'
@@ -330,7 +357,8 @@ class ProfileUpdateView(LoginRequiredMixin, View):
 
     def get(self, request):
         inflauser = Inflauser.objects.get(infla_user=self.request.user)
-        inflauser_address = Inflauser.objects.get(infla_user=self.request.user).inflauser_address
+        inflauser_address = Inflauser.objects.get(infla_user=self.request.user)\
+                                             .inflauser_address
         address_form = self.form_class(instance=inflauser_address)
         zipcode = inflauser_address.zip_code
         context = {'address_form': address_form, 'zipcode': zipcode}
@@ -374,9 +402,12 @@ class ProfileUpdateView(LoginRequiredMixin, View):
                 user.first_name = capitalized_first_name
                 user.save()
         else:
-            # keep the invalid first name the user has just entered - without saving it in the db
+            # keep the invalid first name the user has just entered (without saving it)
             user.first_name = new_first_name
-            messages.error(self.request, "Please enter a valid first name.", fail_silently=True)
+            messages.error(self.request,
+                           "Please enter a valid first name.",
+                           fail_silently=True,
+                           )
 
         if new_last_name.replace(" ", "").replace("-","").isalpha() and len(new_last_name) < 30:
             if not new_last_name == user.last_name:
@@ -393,9 +424,12 @@ class ProfileUpdateView(LoginRequiredMixin, View):
                 user.last_name = capitalized_last_name
                 user.save()
         else:
-            # keep the invalid last name the user has just entered - without saving it in the db
+            # keep the invalid last name the user has just entered (without saving it)
             user.last_name = new_last_name
-            messages.error(self.request, "Please enter a valid last name.", fail_silently=True)
+            messages.error(self.request,
+                           "Please enter a valid last name.",
+                           fail_silently=True,
+                           )
 
         if not new_address.is_valid() \
            or not new_first_name.replace(" ", "").replace("-", "").isalpha() \
@@ -411,7 +445,10 @@ class ProfileUpdateView(LoginRequiredMixin, View):
                     er = "address"
                 if er == "street_address2":
                     er = "address (line 2)"
-                messages.error(self.request, "Please enter a valid %s." % er, fail_silently=True)
+                messages.error(self.request,
+                               "Please enter a valid %s." % er,
+                               fail_silently=True,
+                               )
 
             return render(self.request, self.template_name, context=context)
 
@@ -431,7 +468,10 @@ class ProfileUpdateView(LoginRequiredMixin, View):
         inflauser_address.zip_code = new_address.cleaned_data['zip_code']
         inflauser_address.state = new_address.cleaned_data['state']
         inflauser_address.save()
-        messages.success(self.request, "Your profile has been successfully updated.", fail_silently=True)
+        messages.success(self.request,
+                         "Your profile has been successfully updated.",
+                         fail_silently=True,
+                         )
         return redirect('grocerystore:profile')
 
 
@@ -439,7 +479,8 @@ class IndexView(View):
     """This is the Inflaskart index page, where the user chooses an area to shop in.
     Display a drop down menu with all available ZIP codes (located in SF), and
     either a login and register buttons, or -if the user is authenticated- a
-    shortcut button to shop in the area where they live."""
+    shortcut button to shop in the area where they live.
+    """
     template_name = 'grocerystore/index.html'
 
     def get(self, request):
@@ -464,11 +505,13 @@ class IndexView(View):
         return render(self.request, self.template_name, context=context)
 
     def post(self, request):
-        return redirect('grocerystore:start', zipcode=self.request.POST.get('zipcode_choice'))
+        return redirect('grocerystore:start',
+                        zipcode=self.request.POST.get('zipcode_choice'),
+                        )
 
 
 class StartView(View):
-    """Where the user selects a store, depending on the zip code they've selected."""
+    """Where the user selects a store, depending on the zip code they've selected"""
     template_name = 'grocerystore/start.html'
     context_object_name = "available_stores"
 
@@ -476,17 +519,24 @@ class StartView(View):
         try: # check if there's at least one store that delivers the chosen zipcode
             # Zipcode objects are instanciated when a store wants to add it to its deliveray area
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
-        except: # if there aren't any stores that deliver the chosen zipcode area
-            messages.error(self.request, "There's no store available in the area "\
-                                         "you've chosen.", fail_silently=True)
+
+        except:
+            # if there aren't any stores that deliver the chosen zipcode area
+            messages.error(self.request,
+                           "There's no store available in the area you've chosen.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:index')
 
         context = {}
         try:
             context['zipcode'] = Zipcode.objects.get(zipcode=zipcode)
         except: # if there's no store that delivers the requested zipcode
-            messages.error(self.request, "There is no store available in the %s area, "\
-                          "please try another zip code" % zipcode, fail_silently=True)
+            messages.error(self.request,
+                           "There is no store available in the %s area, "\
+                           "please try another zip code" % zipcode,
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:index')
 
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
@@ -499,7 +549,8 @@ class StartView(View):
         try:
             store_id = self.request.POST['stores'] # type unicode
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
-        except: # in case the user selects the --Choose below-- label
+        except:
+            # in case the user selects the --Choose below-- label
             return redirect('grocerystore:start', zipcode=zipcode)
 
 
@@ -507,33 +558,44 @@ class StoreView(View):
     """This is the store index page.
     Display the categories and sub-categories if/for available products, and -
     for authenticated users-, a link to re-place previous orders in this store
-    and a shortcut to see/add products already bought in this store."""
+    and a shortcut to see/add products already bought in this store.
+    """
     template_name = 'grocerystore/store.html'
 
     def get(self, request, zipcode, store_id):
         try:
             store = Store.objects.get(pk=store_id)
         except: # if the user try to access a non-existent store page
-            messages.error(self.request, "The store you're looking for doesn't exist.", fail_silently=True)
+            messages.error(self.request,
+                           "The store you're looking for doesn't exist.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
-                                             "deliver in the area you've chosen.", fail_silently=True)
+                messages.error(self.request,
+                               "The store you're looking for doesn't deliver "\
+                               "the area you've chosen.",
+                               fail_silently=True,
+                               )
                 return redirect('grocerystore:start', zipcode=zipcode)
-        except: # if there aren't any stores that deliver the chosen zipcode area
+
+        except:
+            # if there aren't any stores that deliver the chosen zipcode area
             messages.error(self.request, "There's no store available in the area "\
                                          "you've chosen.", fail_silently=True)
             return redirect('grocerystore:start', zipcode=zipcode)
 
         all_categories = {}
         # = {'category1': [subcat1, ..., subcatN], 'category2': [subcat1, ..., subcatN], etc.}
+
         for category in ProductCategory.objects.all():
             for subcat in category.productsubcategory_set.all():
                 # a category shouldn't be displayed if the store has nothing in stock for it
-                if Availability.objects.filter(store=store).filter(product__product_category=subcat):
+                if Availability.objects.filter(store=store)\
+                                       .filter(product__product_category=subcat):
                     try:
                         all_categories[category].append(subcat)
                     except KeyError:
@@ -562,47 +624,73 @@ class StoreView(View):
         if searched_item.replace(" ", "").replace("-", "").isalpha():
             return redirect('grocerystore:search', zipcode=zipcode,
                                                    store_id=store_id,
-                                                   searched_item=urllib.quote(searched_item.encode('utf8')))
+                                                   searched_item=urllib.quote(
+                                                   searched_item.encode('utf8')
+                                                   ))
         else:
-            messages.error(self.request, "You must enter only alphabetical characters", fail_silently=True)
+            messages.error(self.request,
+                           "You must enter only alphabetical characters",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
 
 class Instock(View):
-    """This page displays all the available products in a given sub-category chosen
-    by the user."""
+    """Display all the available products in a given sub-category chosen by the user"""
     template_name = 'grocerystore/instock.html'
 
     def get(self, request, zipcode, store_id, category_id, subcategory_id):
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
+
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.", fail_silently=True)
+            messages.error(self.request,
+                           "Sorry, the requested store doesn't exist.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
-                                             "deliver in the area you've chosen.", fail_silently=True)
+                messages.error(self.request,
+                               "The store you're looking for doesn't deliver "\
+                               " the area you've chosen.",
+                               fail_silently=True,
+                               )
                 return redirect('grocerystore:start', zipcode=zipcode)
+
         except: # check if there're stores available in the chosen zipcode
-            messages.error(self.request, "There's no store available in the area "\
-                                         "you've chosen.", fail_silently=True)
+            messages.error(self.request,
+                           "There's no store available in the area you've chosen.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the category_id does exist
             category = ProductCategory.objects.get(pk=category_id)
         except:
-            messages.error(self.request, "Sorry, the requested category doesn't exist.", fail_silently=True)
+            messages.error(self.request,
+                           "Sorry, the requested category doesn't exist.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+
         try: # check if the subcategory_id does exist
             subcategory = ProductSubCategory.objects.get(pk=subcategory_id)
             if subcategory.parent != category:
-                messages.error(self.request, "Sorry, the requested sub-category doesn't exist)", fail_silently=True)
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                messages.error(self.request,
+                               "Sorry, the requested sub-category doesn't exist)",
+                               fail_silently=True,
+                               )
+                return redirect('grocerystore:store', zipcode=zipcode,
+                                                      store_id=store_id,
+                                                      )
         except:
-            messages.error(self.request, "Sorry, the requested sub-category doesn't exist.", fail_silently=True)
+            messages.error(self.request,
+                           "Sorry, the requested sub-category doesn't exist.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         context = {}
@@ -629,10 +717,17 @@ class Instock(View):
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 return redirect('grocerystore:search', zipcode=zipcode,
                                                        store_id=store_id,
-                                                       searched_item=urllib.quote(searched_item.encode('utf8')))
+                                                       searched_item=urllib.quote(
+                                                       searched_item.encode('utf8')
+                                                       ))
             else:
-                messages.error(self.request, "You must enter only alphabetical characters", fail_silently=True)
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                messages.error(self.request,
+                               "You must enter only alphabetical characters",
+                               fail_silently=True,
+                               )
+                return redirect('grocerystore:store', zipcode=zipcode,
+                                                      store_id=store_id,
+                                                      )
 
         except: pass
 
@@ -641,13 +736,18 @@ class Instock(View):
 
         for availability in available_products: # list of Availability instances
             if self.request.POST.get(str(availability.pk)):
-                quantity_to_add = ConvertQtyToFloat(str(self.request.POST.get(str(availability.pk))))
+                quantity_to_add = convert_qty_to_float(str(
+                                  self.request.POST.get(str(availability.pk))))
                 if not quantity_to_add and quantity_to_add != float(0):
-                    messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                    messages.error(self.request,
+                                   "Sorry, something went wrong... " \
+                                   "Please check your quantity input.",
+                                   )
                     return redirect('grocerystore:instock', zipcode=zipcode,
                                                             store_id=store_id,
                                                             category_id=category_id,
-                                                            subcategory_id=subcategory_id)
+                                                            subcategory_id=subcategory_id,
+                                                            )
             else: continue
 
             if self.request.user.is_authenticated:
@@ -659,51 +759,100 @@ class Instock(View):
                     # can't buy more than a certain quantity of an item
                     if item.incart_quantity > MAX_QTY:
                         item.incart_quantity = MAX_QTY
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated to its maximum value (%i)." \
+                             % (availability.product, MAX_QTY),
+                             fail_silently=True,
+                             )
+                    else:
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated" \
+                             % availability.product,
+                             fail_silently=True,
+                             )
+
                     item.save()
-                    messages.success(self.request, "'%s' quantity successfully updated."\
-                                                % availability.product, fail_silently=True)
-                # create an ItemInCart instance if the item isn't in the
-                # database, and save it in the database
+
                 except:
+                    # create an ItemInCart instance if the item isn't in the
+                    # database, and save it in the database
                     ItemInCart.objects.create(incart_user=self.request.user,
                                               incart_availability=availability,
-                                              incart_quantity=quantity_to_add)
+                                              incart_quantity=quantity_to_add
+                                              )
 
-                    messages.success(self.request, "'%s' successfully added in your cart."\
-                                                % availability.product, fail_silently=True)
+                    messages.success(self.request,
+                                     "'%s' successfully added in your cart." \
+                                     % availability.product,
+                                     fail_silently=True,
+                                     )
 
-                messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
+                messages.info(self.request,
+                              "%s" % Store.objects.get(pk=store_id),
+                              fail_silently=True,
+                              )
+
                 return redirect('grocerystore:instock', zipcode=zipcode,
                                                         store_id=store_id,
                                                         category_id=category_id,
-                                                        subcategory_id=subcategory_id)
+                                                        subcategory_id=subcategory_id
+                                                        )
 
             else: # if the user isn't authenticated
                 try: # check if the item is already in the user's cart
-                    new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
+                    new_qty = (self.request.session[str(availability.pk)]['qty']
+                              + quantity_to_add)
                     if new_qty > MAX_QTY: # can't buy more than a certain quantity of an item
                         new_qty = MAX_QTY
-                    self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': new_qty}
-                    messages.success(self.request, "'%s' quantity successfully updated."\
-                                                % availability.product, fail_silently=True)
-                except:
-                    self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': quantity_to_add}
-                    messages.success(self.request, "'%s' successfully added in your cart."\
-                                                % availability.product, fail_silently=True)
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated to its maximum value (%i)." \
+                             % (availability.product, MAX_QTY),
+                             fail_silently=True,
+                             )
+                    else:
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated" \
+                             % availability.product,
+                             fail_silently=True,
+                             )
+                    self.request.session[str(availability.pk)] = {
+                                                   'name': str(availability.pk),
+                                                   'qty': new_qty,
+                                                   }
 
-                messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
+                except:
+                    self.request.session[str(availability.pk)] = {
+                                                   'name': str(availability.pk),
+                                                   'qty': quantity_to_add,
+                                                   }
+                    messages.success(
+                        self.request,
+                        "'%s' successfully added in your cart." % availability.product,
+                        fail_silently=True,
+                        )
+
+                messages.info(self.request,
+                              "%s" % Store.objects.get(pk=store_id),
+                              fail_silently=True,
+                              )
+
                 return redirect('grocerystore:instock', zipcode=zipcode,
                                                         store_id=store_id,
                                                         category_id=category_id,
-                                                        subcategory_id=subcategory_id)
+                                                        subcategory_id=subcategory_id,
+                                                        )
         messages.error(self.request, "Sorry, an error has occured...")
-        return redirect('grocerystore:instock', zipcode=zipcode, store_id=store_id,
-                                                category_id=category_id, subcategory_id=subcategory_id)
+        return redirect('grocerystore:instock', zipcode=zipcode,
+                                                store_id=store_id,
+                                                category_id=category_id,
+                                                subcategory_id=subcategory_id,
+                                                )
 
 
 class BuyAgainView(LoginRequiredMixin, View):
-    """This page lists all the available products in a given store that the user
-    (who must be authenticated) has bought at least once in this store."""
+    """List of all the available products in a given store that the (authemticated)
+    user has bought at least once in this store>
+    """
     template_name = 'grocerystore/buyagain.html'
     login_url = 'grocerystore:login'
     redirect_field_name = 'redirect_to'
@@ -711,16 +860,24 @@ class BuyAgainView(LoginRequiredMixin, View):
     def get(self, request, zipcode, store_id):
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
+
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.", fail_silently=True)
+            messages.error(self.request,
+                           "Sorry, the requested store doesn't exist.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
-                                             "deliver in the area you've chosen.", fail_silently=True)
+                messages.error(self.request,
+                               "The store you're looking for doesn't deliver "\
+                               "the area you've chosen.",
+                               fail_silently=True,
+                               )
                 return redirect('grocerystore:start', zipcode=zipcode)
+
         except: # if there aren't any stores that deliver the chosen zipcode area
             messages.error(self.request, "There's no store available in the area "\
                                          "you've chosen.", fail_silently=True)
@@ -740,7 +897,8 @@ class BuyAgainView(LoginRequiredMixin, View):
             # keep only the available products already bought in this store
             for item in bought_here:
                 try:
-                    if Availability.objects.filter(store=store).get(product=item.bought_product) not in available_here:
+                    if Availability.objects.filter(store=store)\
+                    .get(product=item.bought_product) not in available_here:
                         available_here.append(Availability.objects.filter(store=store)\
                         .get(product=item.bought_product))
                     else: pass
@@ -764,31 +922,43 @@ class BuyAgainView(LoginRequiredMixin, View):
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 return redirect('grocerystore:search', zipcode=zipcode,
                                                        store_id=store_id,
-                                                       searched_item=urllib.quote(searched_item.encode('utf8')))
+                                                       searched_item=urllib.quote(
+                                                       searched_item.encode('utf8')))
             else:
-                messages.error(self.request, "You must enter only alphabetical characters", fail_silently=True)
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                messages.error(self.request,
+                               "You must enter only alphabetical characters",
+                               fail_silently=True,
+                               )
+                return redirect('grocerystore:store', zipcode=zipcode,
+                                                      store_id=store_id,
+                                                      )
 
         except: pass # if the user doesn't use the search tool
 
         # get list of the products bought by the user in this specific store
-        bought_here = ProductPurchase.objects.filter(purchaser=user).filter(purchase_store=store)
+        bought_here = ProductPurchase.objects.filter(purchaser=user)\
+                      .filter(purchase_store=store)
 
         # filter the available products
         available_here = []
         for item in bought_here:
             try:
-                if Availability.objects.filter(store=store).get(product=item.bought_product) not in available_here:
+                if Availability.objects.filter(store=store).get(
+                   product=item.bought_product) not in available_here:
                     available_here.append(Availability.objects.filter(store=store)\
                     .get(product=item.bought_product))
             except: continue
 
         for availability in available_here: # list of Availability instances
             if self.request.POST.get(str(availability.pk)):
-                quantity_to_add = ConvertQtyToFloat(str(self.request.POST.get(str(availability.pk))))
+                quantity_to_add = convert_qty_to_float(str(
+                                  self.request.POST.get(str(availability.pk))))
                 if not quantity_to_add and quantity_to_add != float(0):
-                    messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
-                    return redirect('grocerystore:buyagain', zipcode=zipcode, store_id=store_id)
+                    messages.error(self.request, "Sorry, something went wrong..."\
+                    " Please check your quantity input.")
+                    return redirect('grocerystore:buyagain', zipcode=zipcode,
+                                                             store_id=store_id,
+                                                             )
 
                 try:
                     item = ItemInCart.objects.filter(incart_user=user)\
@@ -797,23 +967,41 @@ class BuyAgainView(LoginRequiredMixin, View):
                     # can't buy more than a certain quantity of an item
                     if item.incart_quantity > MAX_QTY:
                         item.incart_quantity = MAX_QTY
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated to its maximum value (%i)." \
+                             % (availability.product, MAX_QTY),
+                             fail_silently=True,
+                             )
+                    else:
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated" \
+                             % availability.product,
+                             fail_silently=True,
+                             )
                     item.save()
-                    messages.success(self.request, "'%s' quantity successfully updated" \
-                                     % availability.product, fail_silently=True)
 
-                # create an ItemInCart instance if the item isn't in the
-                # cart, and save it in the database
                 except:
+                    # create an ItemInCart instance if the item isn't in the
+                    # cart, and save it in the database
                     ItemInCart.objects.create(incart_user=user,
                                               incart_availability=availability,
-                                              incart_quantity=quantity_to_add)
+                                              incart_quantity=quantity_to_add,
+                                              )
 
-                    messages.success(self.request, "'%s' successfully added in your cart."\
-                                     % availability.product, fail_silently=True)
+                    messages.success(self.request,
+                                     "'%s' successfully added in your cart." \
+                                     % availability.product,
+                                     fail_silently=True,
+                                     )
 
-                messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
-                return redirect('grocerystore:buyagain', zipcode=zipcode,
-                                                     store_id=store_id)
+                messages.info(self.request,
+                              "%s" % Store.objects.get(pk=store_id),
+                              fail_silently=True,
+                              )
+                return redirect('grocerystore:buyagain',
+                                zipcode=zipcode,
+                                store_id=store_id,
+                                )
 
             else: continue
 
@@ -822,23 +1010,30 @@ class BuyAgainView(LoginRequiredMixin, View):
 
 
 class SearchView(View):
-    """Display a list of available products (in a given store) after the user
-    uses the search tool in the navigation menu bar.
-    This view uses the search_item function."""
+    """Display a list of available products in a given store after the user has
+    used the search tool in the navigation menu bar.
+    This view uses the search_item function.
+    """
     template_name = 'grocerystore/search.html'
 
     def get(self, request, zipcode, store_id, searched_item):
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.", fail_silently=True)
+            messages.error(self.request,
+                           "Sorry, the requested store doesn't exist.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
-                                             "deliver in the area you've chosen.", fail_silently=True)
+                messages.error(self.request,
+                               "The store you're looking for doesn't deliver"\
+                               " the area you've chosen.",
+                               fail_silently=True,
+                               )
                 return redirect('grocerystore:start', zipcode=zipcode)
         except: # if there aren't any stores that deliver the chosen zipcode area
             messages.error(self.request, "There's no store available in the area "\
@@ -865,39 +1060,55 @@ class SearchView(View):
 
         elif len(search_result) > 0:
             available_products = []
-            for availability in search_result: # NB: availablity is an Availability instance
+            for availability in search_result:
+                # NB: availablity is an Availability instance
                 product_price = availability.product_price
                 product_unit = availability.product_unit
                 product_id = availability.product.pk
-                available_products.append([availability, product_price, product_unit, product_id])
+                available_products.append([availability,
+                                           product_price,
+                                           product_unit,
+                                           product_id,
+                                           ])
 
             context['available_products'] = available_products
 
             return render(self.request, self.template_name, context=context)
 
-        else: # in case the search result is empty, search in other stores in the same zipcode area
+        # in case the search result is empty, search in other stores in the same zipcode area
+        else:
             search_result = []
-            stores_around = Store.objects.filter(delivery_area=zipcode_obj).exclude(pk=store_id)
+            stores_around = Store.objects.filter(delivery_area=zipcode_obj)\
+                                         .exclude(pk=store_id)
             for help_store in stores_around:
                 search_result.extend(search_item(searched_item, help_store.pk))
 
             if search_result:
                 other_availabilities = []
-                for availability in search_result: # NB: availablity is an Availability instance
+                for availability in search_result:
+                    # NB: availablity is an Availability instance
                     product_price = float(availability.product_price)
                     product_unit = availability.product_unit
                     product_id = availability.product.pk
                     product_store = availability.store
                     product_store_id = product_store.pk
-                    other_availabilities.append([availability, product_price, product_unit,
-                                               product_id, product_store, product_store_id])
+                    other_availabilities.append([availability,
+                                                 product_price,
+                                                 product_unit,
+                                                 product_id,
+                                                 product_store,
+                                                 product_store_id,
+                                                 ])
 
                 context['other_availabilities'] = other_availabilities
                 return render(self.request, self.template_name, context=context)
 
             else:
-                messages.error(self.request, "unfortunately no available item matches your research at %s" \
-                              % store, fail_silently=True)
+                messages.error(self.request,
+                               "unfortunately no available item matches your "\
+                               "research at %s" % store,
+                               fail_silently=True,
+                               )
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
     def post(self, request, zipcode, store_id, searched_item):
@@ -908,10 +1119,15 @@ class SearchView(View):
             if new_searched_item.replace(" ", "").replace("-", "").isalpha():
                 return redirect('grocerystore:search', zipcode=zipcode,
                                                        store_id=store_id,
-                                                       searched_item=urllib.quote(new_searched_item.encode('utf8')))
+                                                       searched_item=urllib.quote(
+                                                       new_searched_item.encode('utf8')))
             else:
-                messages.error(self.request, "You must enter only alphabetical characters", fail_silently=True)
+                messages.error(self.request,
+                               "You must enter only alphabetical characters",
+                               fail_silently=True,
+                               )
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+
         except: pass
 
         # if the user wants to add one of the displayed products in their cart
@@ -922,7 +1138,9 @@ class SearchView(View):
             # ie. check if there're results in other stores that deliver the same zipcode area
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             search_result = []
-            stores_around = Store.objects.filter(delivery_area=zipcode_obj).exclude(pk=store_id)
+            stores_around = Store.objects.filter(delivery_area=zipcode_obj)\
+                                         .exclude(pk=store_id)
+
             for store in stores_around:
                 search_result.extend(search_item(searched_item, store.pk))
 
@@ -932,22 +1150,34 @@ class SearchView(View):
                 except: continue
 
                 new_store = result.store
-                messages.warning(self.request, "You're now shopping at %s." % new_store, fail_silently=True)
+                messages.warning(self.request,
+                                 "You're now shopping at %s." % new_store,
+                                 fail_silently=True,
+                                 )
                 return HttpResponseRedirect(reverse('grocerystore:detail', kwargs={
                                                     'zipcode': zipcode,
                                                     'store_id': new_store.pk,
-                                                    'product_id': result.product.pk,}) \
-                                                    + '?go_back=' + str(store_id)\
-                                                    + '&searched_item=' + str(urllib.quote(searched_item.encode('utf8'))))
+                                                    'product_id': result.product.pk,
+                                                    }) \
+                                                    + '?go_back=' \
+                                                    + str(store_id) \
+                                                    + '&searched_item=' \
+                                                    + str(urllib.quote(searched_item.encode('utf8')))
+                                            )
 
         for availability in search_result:
             try:
-                quantity_to_add = ConvertQtyToFloat(str(self.request.POST.get(str(availability.pk))))
+                quantity_to_add = convert_qty_to_float(str(self.request.POST\
+                                  .get(str(availability.pk))))
                 if not quantity_to_add and quantity_to_add != float(0):
-                    messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                    messages.error(self.request,
+                                   "Sorry, something went wrong..."\
+                                   " Please check your quantity input.",
+                                   )
                     return redirect('grocerystore:search', zipcode=zipcode,
                                                            store_id=store_id,
-                                                           searched_item=searched_item)
+                                                           searched_item=searched_item,
+                                                           )
             except TypeError:
                 continue
 
@@ -957,12 +1187,23 @@ class SearchView(View):
                     item = ItemInCart.objects.filter(incart_user=self.request.user)\
                            .get(incart_availability=availability)
                     item.incart_quantity += quantity_to_add
+
                     # can't buy more than a certain quantity of an item
                     if item.incart_quantity > MAX_QTY:
                         item.incart_quantity = MAX_QTY
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated to its maximum value (%i)." \
+                             % (availability.product, MAX_QTY),
+                             fail_silently=True,
+                             )
+                    else:
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated" \
+                             % availability.product,
+                             fail_silently=True,
+                             )
                     item.save()
-                    messages.success(self.request, "'%s' quantity successfully updated."\
-                                                % availability.product, fail_silently=True)
+
                 # create an ItemInCart instance if the item isn't in the
                 # database, and save it in the database
                 except:
@@ -971,64 +1212,108 @@ class SearchView(View):
                                               incart_quantity=quantity_to_add)
                     messages.success(self.request, "'%s' successfully added in your cart" \
                                      % availability.product, fail_silently=True)
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+
+                return redirect('grocerystore:store', zipcode=zipcode,
+                                                      store_id=store_id)
 
             else: # if the user is anonymous
                 try: # check if the item is already in the user's cart
-                    new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
+                    new_qty = (self.request.session[str(availability.pk)]['qty']
+                               + quantity_to_add)
+
                     # can't buy more than a certain quantity of an item
                     if new_qty > MAX_QTY:
                         new_qty = MAX_QTY
-                    self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': new_qty}
-                    messages.success(self.request, "'%s' quantity successfully updated."\
-                                     % availability.product, fail_silently=True)
-                except:
-                    self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': quantity_to_add}
-                    messages.success(self.request, "'%s' successfully added in your cart."\
-                                     % availability.product, fail_silently=True)
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated to its maximum" \
+                             " value (%i)." % (availability.product, MAX_QTY),
+                             fail_silently=True,
+                             )
+                    else:
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated" \
+                             % availability.product,
+                             fail_silently=True,
+                             )
+                    self.request.session[str(availability.pk)] = {
+                                                   'name': str(availability.pk),
+                                                   'qty': new_qty,
+                                                   }
 
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                except: # add the item in the user's cart
+                    self.request.session[str(availability.pk)] = {
+                                                   'name': str(availability.pk),
+                                                   'qty': quantity_to_add,
+                                                   }
+                    messages.success(self.request,
+                                     "'%s' successfully added in your cart." \
+                                     % availability.product,
+                                     fail_silently=True,
+                                     )
+
+                return redirect('grocerystore:store', zipcode=zipcode,
+                                                      store_id=store_id,
+                                                      )
 
         # in case the product the user wants to put in their cart isn't available anymore
         # (eg: if the product availability was removed while the user was looking at the page)
         messages.error(self.request, "Sorry, an error has occured...")
-        return redirect('grocerystore:search', zipcode=zipcode, store_id=store_id, searched_item=searched_item)
+
+        return redirect('grocerystore:search', zipcode=zipcode,
+                                               store_id=store_id,
+                                               searched_item=searched_item,
+                                               )
 
 
 class ProductDetailView(View):
-    """Display all the details about a given item, including other availabilities
-    in other stores in the same zip code area."""
+    """Display all the details about a given item"""
     template_name = 'grocerystore/detail.html'
 
     def get(self, request, zipcode, store_id, product_id):
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.", fail_silently=True)
+            messages.error(self.request,
+                           "Sorry, the requested store doesn't exist.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
-                                             "deliver in the area you've chosen.", fail_silently=True)
+                messages.error(self.request,
+                               "The store you're looking for doesn't "\
+                               "deliver in the area you've chosen.",
+                               fail_silently=True,
+                               )
                 return redirect('grocerystore:start', zipcode=zipcode)
         except: # if there aren't any stores that deliver the chosen zipcode area
-            messages.error(self.request, "There's no store available in the area "\
-                                         "you've chosen.", fail_silently=True)
+            messages.error(self.request,
+                           "There's no store available in the area "\
+                           "you've chosen.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the product_id does exist
             product = Product.objects.get(pk=product_id)
         except:
-            messages.error(self.request, "Sorry, the requested product doesn't exist.", fail_silently=True)
+            messages.error(self.request,
+                           "Sorry, the requested product doesn't exist.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         try: # check if the product is available in the chosen store
-            product_availability = Availability.objects.filter(product=product).get(store=store)
+            product_availability = Availability.objects.filter(product=product)\
+                                   .get(store=store)
         except:
-            messages.error(self.request, "Sorry, the requested product isn't available in "\
-                           "the store you've chosen.", fail_silently=True)
+            messages.error(self.request,
+                           "Sorry, the requested product isn't available in "\
+                           "the store you've chosen.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         context = {}
@@ -1059,20 +1344,27 @@ class ProductDetailView(View):
         """When an item is added to the user cart, its "name" key is the
         corresponding Availability object pk turned into a string"""
         if self.request.POST.get(str(product_id)):
-            quantity_to_add = ConvertQtyToFloat(str(self.request.POST.get(str(product_id))))
+            quantity_to_add = convert_qty_to_float(str(self.request.POST.get(str(product_id))))
             if not quantity_to_add and quantity_to_add != float(0):
-                messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                messages.error(self.request,
+                               "Sorry, something went wrong... "\
+                               "Please check your quantity input.")
                 return redirect('grocerystore:detail', zipcode=zipcode,
                                                        store_id=store_id,
-                                                       product_id=product_id)
+                                                       product_id=product_id,
+                                                       )
         else: # if the user uses the search tool in the navigation bar
             searched_item = self.request.POST.get('search')
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 return redirect('grocerystore:search', zipcode=zipcode,
                                                        store_id=store_id,
-                                                       searched_item=urllib.quote(searched_item.encode('utf8')))
+                                                       searched_item=urllib.quote(
+                                                       searched_item.encode('utf8')))
             else:
-                messages.error(self.request, "You must enter only alphabetical characters", fail_silently=True)
+                messages.error(self.request,
+                               "You must enter only alphabetical characters",
+                               fail_silently=True,
+                               )
                 return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         store = Store.objects.get(pk=store_id)
@@ -1088,61 +1380,119 @@ class ProductDetailView(View):
                 # can't buy more than a certain quantity of an item
                 if item.incart_quantity > MAX_QTY:
                     item.incart_quantity = MAX_QTY
+                    messages.success(self.request,
+                         "'%s' quantity successfully updated to its maximum" \
+                         " value (%i)." % (product, MAX_QTY),
+                         fail_silently=True,
+                         )
+                else:
+                    messages.success(self.request,
+                         "'%s' quantity successfully updated" % product,
+                         fail_silently=True,
+                         )
+
                 item.save()
-                messages.success(self.request, "'%s' quantity successfully updated" \
-                                 % product, fail_silently=True)
+
             # create an ItemInCart instance if the item isn't in the
             # database, and save it in the database
             except:
                 ItemInCart.objects.create(incart_user=self.request.user,
                                           incart_availability=availability,
-                                          incart_quantity=quantity_to_add)
-                messages.success(self.request, "'%s' successfully added in your cart" % product, fail_silently=True)
+                                          incart_quantity=quantity_to_add,
+                                          )
+                messages.success(self.request,
+                                 "'%s' successfully added in your cart" % product,
+                                 fail_silently=True,
+                                 )
             try:
                 go_back_to = self.request.GET['go_back']
-                messages.info(self.request, "Go back to %s" % Store.objects.get(pk=int(go_back_to)), fail_silently=True)
-                messages.info(self.request, "Keep shopping at %s" % store, fail_silently=True)
+                messages.info(self.request,
+                              "Go back to %s" % Store.objects.get(pk=int(go_back_to)),
+                              fail_silently=True,
+                              )
+                messages.info(self.request,
+                              "Keep shopping at %s" % store,
+                              fail_silently=True,
+                              )
                 return HttpResponseRedirect(reverse('grocerystore:detail', kwargs={
                                                     'zipcode': zipcode,
                                                     'store_id': store_id,
-                                                    'product_id': product_id,}) \
-                                                    + '?go_back=' + str(go_back_to))
+                                                    'product_id': product_id,
+                                                    }) \
+                                                    + '?go_back=' + str(go_back_to)
+                                                    )
             except:
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                return redirect('grocerystore:store', zipcode=zipcode,
+                                                      store_id=store_id,
+                                                      )
 
         else: # if the user is anonymous
             try: # check if the item is already in the user's cart
-                new_qty = self.request.session[str(availability.pk)]['qty'] + quantity_to_add
+                new_qty = (self.request.session[str(availability.pk)]['qty']
+                           + quantity_to_add)
                 # can't buy more than a certain quantity of an item
                 if new_qty > MAX_QTY:
                     new_qty = MAX_QTY
-                self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': new_qty}
-                messages.success(self.request, "'%s' quantity successfully updated."\
-                                                % product, fail_silently=True)
-            except:
-                self.request.session[str(availability.pk)] = {'name': str(availability.pk), 'qty': quantity_to_add}
-                messages.success(self.request, "'%s' successfully added in your cart."\
-                                                % product, fail_silently=True)
+                    messages.success(self.request,
+                         "'%s' quantity successfully updated to its maximum" \
+                         " value (%i)." % (product, MAX_QTY),
+                         fail_silently=True,
+                         )
+                else:
+                    messages.success(self.request,
+                         "'%s' quantity successfully updated" % product,
+                         fail_silently=True,
+                         )
+
+                self.request.session[str(availability.pk)] = {
+                                                   'name': str(availability.pk),
+                                                   'qty': new_qty,
+                                                   }
+
+            except: # add the item in the user's cart
+                self.request.session[str(availability.pk)] = {
+                                                   'name': str(availability.pk),
+                                                   'qty': quantity_to_add,
+                                                   }
+                messages.success(self.request,
+                                 "'%s' successfully added in your cart." % product,
+                                 fail_silently=True,
+                                 )
             try:
                 go_back_to = self.request.GET['go_back']
-                messages.info(self.request, "Go back to %s" % Store.objects.get(pk=int(go_back_to)), fail_silently=True)
-                messages.info(self.request, "Keep shopping at %s" % store, fail_silently=True)
-                return HttpResponseRedirect(reverse('grocerystore:detail', kwargs={
+                messages.info(self.request,
+                              "Go back to %s" % Store.objects.get(pk=int(go_back_to)),
+                              fail_silently=True,
+                              )
+                messages.info(self.request,
+                              "Keep shopping at %s" % store,
+                              fail_silently=True,
+                              )
+                return HttpResponseRedirect(reverse('grocerystore:detail',
+                                                    kwargs={
                                                     'zipcode': zipcode,
                                                     'store_id': store_id,
-                                                    'product_id': product_id,}) \
-                                                    + '?go_back=' + str(go_back_to))
+                                                    'product_id': product_id,
+                                                    }) \
+                                                    + '?go_back=' + str(go_back_to)
+                                                    )
             except:
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                return redirect('grocerystore:store', zipcode=zipcode,
+                                                      store_id=store_id,
+                                                      )
 
         messages.error(self.request, "Sorry, an error has occured...")
-        return redirect('grocerystore:detail', zipcode=zipcode, store_id=store_id, product_id=product_id)
+        return redirect('grocerystore:detail', zipcode=zipcode,
+                                               store_id=store_id,
+                                               product_id=product_id,
+                                               )
 
 
 class CartView(View):
     """Display the user's cart(s), ie. everything they've shopped in different
     stores and different zip code areas (if the user is authenticated, this
-    includes their carts in stores that may not deliver their home address)."""
+    includes their carts in stores that may not deliver their home address).
+    """
     template_name = 'grocerystore/cart.html'
 
     def get(self, request, zipcode):
@@ -1160,7 +1510,8 @@ class CartView(View):
 
         if self.request.user.is_authenticated:
             context['username'] = self.request.user.username
-            user_zipcode = Inflauser.objects.get(infla_user=self.request.user).inflauser_address.zip_code
+            user_zipcode = Inflauser.objects.get(infla_user=self.request.user)\
+                           .inflauser_address.zip_code
             context['user_zipcode'] = user_zipcode
 
             user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
@@ -1172,10 +1523,18 @@ class CartView(View):
                 else:
                     item_qty = float(item.incart_quantity)
                 item_unit = item_availability.product_unit
-                item_price = "%.2f" % (float(item_qty) * float(item_availability.product_price))
-                elt = [item_product, item_qty, item_unit, item_price,
-                       item_availability.pk, item_product.pk, item_availability.product_price,
-                       item_availability.store.store_zipcode]
+                item_price = "%.2f" % (float(item_qty)
+                                       * float(item_availability.product_price)
+                                       )
+                elt = [item_product,
+                       item_qty,
+                       item_unit,
+                       item_price,
+                       item_availability.pk,
+                       item_product.pk,
+                       item_availability.product_price,
+                       item_availability.store.store_zipcode,
+                       ]
                 item_store = item_availability.store
 
                 try:
@@ -1212,9 +1571,15 @@ class CartView(View):
                     item_qty = float(self.request.session[item]["qty"])
                 item_price = "%.2f" % (float(self.request.session[item]["qty"])\
                 * float(item_availability.product_price))
-                elt = [item_product, item_qty, item_availability.product_unit, item_price,
-                       item_availability_pk, item_product.pk, item_availability.product_price,
-                       item_availability.store.store_zipcode]
+                elt = [item_product,
+                       item_qty,
+                       item_availability.product_unit,
+                       item_price,
+                       item_availability_pk,
+                       item_product.pk,
+                       item_availability.product_price,
+                       item_availability.store.store_zipcode,
+                       ]
                 try:
                     all_carts[item_store].append(elt)
                 except KeyError:
@@ -1236,20 +1601,21 @@ class CartView(View):
                         cart.append('pickup')
                     cart.append("%.2f" % cart_total)
 
-        if all_carts: # if the user has put at least one item in their cart
+        # if the user has put at least one item in their cart
+        if all_carts:
             context['all_carts'] = all_carts
-            context['quantity_set'] = QUANTITY_SET
 
             try:
                 last_active_cart = Store.objects.get(pk=self.request.GET['open_cart'])
-                if last_active_cart in all_carts.keys(): # check if there's at least one item in this store cart
+                # check if there's at least one item in this store cart
+                if last_active_cart in all_carts.keys():
                     context['open_cart'] = last_active_cart.pk
                 elif all_carts.keys():
                     context['open_cart'] = all_carts.keys()[0].pk
                 else: pass
             except: pass
 
-        else: # if the user hasn't put anything in their cart
+        else:
             try:
                 context['area'] = Zipcode.objects.get(zipcode=zipcode)
             except: pass
@@ -1276,31 +1642,48 @@ class CartView(View):
 
             for i in store_pks: # if the user wants to checkout in a given store
                 if self.request.POST.get('checkout '+str(i)) is not None:
-                    return redirect('grocerystore:checkout', zipcode=Store.objects.get(pk=i).store_zipcode, store_id=i)
+                    return redirect('grocerystore:checkout',
+                                    zipcode=Store.objects.get(pk=i).store_zipcode,
+                                    store_id=i,
+                                    )
                 else: continue
 
             for elt in user_cart: # if the user wants to update an item quantity
                 product_to_update = elt.incart_availability
                 if self.request.POST.get('remove_item' + str(product_to_update.pk)) is not None:
                     elt.delete()
-                    return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
-                                                        'zipcode': zipcode,}) \
-                                                        + '?open_cart=' + str(product_to_update.store.pk))
+                    return HttpResponseRedirect(reverse('grocerystore:cart',
+                                                        kwargs={
+                                                        'zipcode': zipcode,
+                                                        }) \
+                                                        + '?open_cart=' \
+                                                        + str(product_to_update.store.pk)
+                                                        )
 
                 elif self.request.POST.get(str(product_to_update.pk)):
-                    qty_to_change = ConvertQtyToFloat(str(self.request.POST.get(str(product_to_update.pk))))
+                    qty_to_change = convert_qty_to_float(
+                                    str(self.request.POST.get(str(product_to_update.pk))))
                     if not qty_to_change and qty_to_change != float(0):
-                        messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
-                        return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
-                                                            'zipcode': zipcode,}) \
-                                                            + '?open_cart=' + str(product_to_update.store.pk))
+                        messages.error(self.request,
+                                       "Sorry, something went wrong... "\
+                                       "Please check your quantity input.",
+                                       )
+                        return HttpResponseRedirect(reverse('grocerystore:cart',
+                                                            kwargs={
+                                                            'zipcode': zipcode,
+                                                            }) \
+                                                            + '?open_cart=' \
+                                                            + str(product_to_update.store.pk))
 
                     elt.incart_quantity = qty_to_change
                     elt.save()
 
-                    return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
-                                                        'zipcode': zipcode,}) \
-                                                        + '?open_cart=' + str(product_to_update.store.pk))
+                    return HttpResponseRedirect(reverse('grocerystore:cart',
+                                                        kwargs={
+                                                        'zipcode': zipcode,
+                                                        }) \
+                                                        + '?open_cart=' \
+                                                        + str(product_to_update.store.pk))
                 else: continue
 
         else: # if anonymous user
@@ -1308,43 +1691,66 @@ class CartView(View):
             # getting a list of all the stores'pk from which the user has added
             # items in their cart (the cart being stored in request.session)
             for item in self.request.session.keys():
-                if Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk not in store_pks:
-                    store_pks.append(Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk)
+                if Availability.objects.get(pk=int(self.request.session[item]["name"]))\
+                .store.pk not in store_pks:
+                    store_pks.append(
+                    Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk
+                    )
 
             for i in store_pks: # if the user wants to empty a cart, iterate through all stores involved
                 if self.request.POST.get('empty '+str(i)) is not None:
                     for item in self.request.session.keys():
-                        if Availability.objects.get(pk=int(self.request.session[item]["name"])).store.pk == i:
+                        if Availability.objects.get(pk=int(self.request.session[item]["name"]))\
+                        .store.pk == i:
                             del self.request.session[item]
                     return redirect('grocerystore:cart', zipcode=zipcode)
                 else: continue
 
             for i in store_pks: # if the user wants to checkout in a given store
                 if self.request.POST.get('checkout '+str(i)) is not None:
-                    return redirect('grocerystore:checkout', zipcode=Store.objects.get(pk=i).store_zipcode, store_id=i)
+                    return redirect('grocerystore:checkout',
+                                    zipcode=Store.objects.get(pk=i).store_zipcode,
+                                    store_id=i)
                 else: continue
 
             for item in self.request.session.keys():
-                product_to_update = Availability.objects.get(pk=int(self.request.session[item]["name"]))
+                product_to_update = Availability.objects.get(
+                                    pk=int(self.request.session[item]["name"])
+                                    )
                 if self.request.POST.get('remove_item' + str(self.request.session[item]["name"])) is not None:
                     del self.request.session[item]
-                    return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
-                                                        'zipcode': zipcode,}) \
-                                                        + '?open_cart=' + str(product_to_update.store.pk))
+                    return HttpResponseRedirect(reverse('grocerystore:cart',
+                                                        kwargs={
+                                                        'zipcode': zipcode,
+                                                        }) \
+                                                        + '?open_cart=' \
+                                                        + str(product_to_update.store.pk)
+                                                        )
 
                 elif self.request.POST.get(str(product_to_update.pk)):
-                    qty_to_change = ConvertQtyToFloat(str(self.request.POST.get(str(product_to_update.pk))))
+                    qty_to_change = convert_qty_to_float(str(self.request.POST.get(str(product_to_update.pk))))
                     if not qty_to_change and qty_to_change != float(0):
-                        messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
-                        return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
-                                                            'zipcode': zipcode,}) \
-                                                            + '?open_cart=' + str(product_to_update.store.pk))
+                        messages.error(self.request,
+                                       "Sorry, something went wrong... "\
+                                       "Please check your quantity input.",
+                                       )
+                        return HttpResponseRedirect(reverse('grocerystore:cart',
+                                                            kwargs={
+                                                            'zipcode': zipcode,
+                                                            }) \
+                                                            + '?open_cart=' \
+                                                            + str(product_to_update.store.pk))
 
-                    self.request.session[item] = {"name": str(product_to_update.pk), "qty": qty_to_change}
+                    self.request.session[item] = {"name": str(product_to_update.pk),
+                                                  "qty": qty_to_change,
+                                                  }
 
-                    return HttpResponseRedirect(reverse('grocerystore:cart', kwargs={
-                                                    'zipcode': zipcode,}) \
-                                                    + '?open_cart=' + str(product_to_update.store.pk))
+                    return HttpResponseRedirect(reverse('grocerystore:cart',
+                                                        kwargs={
+                                                        'zipcode': zipcode,
+                                                        }) \
+                                                        + '?open_cart=' \
+                                                        + str(product_to_update.store.pk))
                 else: continue
 
         messages.error(self.request, "Sorry, an error has occured...")
@@ -1355,7 +1761,8 @@ class CheckoutView(LoginRequiredMixin, View):
     """Last page where the user can check their cart before placing their order;
     the user enters their credit card info and chooses a delivery time (if delivery
     is available - otherwise they're given the location where they can pick up
-    their order and when)."""
+    their order and when).
+    """
     form_class = PaymentForm
     template_name = 'grocerystore/checkout.html'
     login_url = 'grocerystore:login'
@@ -1371,7 +1778,8 @@ class CheckoutView(LoginRequiredMixin, View):
 
         user_cart = ItemInCart.objects.filter(incart_user=self.request.user)
         if not user_cart: # if the user's cart is totally empty
-            messages.error(self.request, "You need to put items in your cart to checkout!", fail_silently=True)
+            messages.error(self.request, "You need to put items in your cart to checkout!", \
+                           fail_silently=True)
             return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
 
         context = {'zipcode': zipcode,
@@ -1426,12 +1834,14 @@ class CheckoutView(LoginRequiredMixin, View):
 
         try: # check wether the customer can be delivered or not, and if they heve
              # to pay a delivery fee or not
-            user_zipcode = Zipcode.objects.get(zipcode=self.request.user.inflauser.inflauser_address.zip_code)
+            user_zipcode = Zipcode.objects.get(
+                 zipcode=self.request.user.inflauser.inflauser_address.zip_code
+                 )
             if cart_total < 30 and user_zipcode in store.delivery_area.all():
                 cart_total += 5.00
                 context['delivery_fee'] = True
             elif user_zipcode not in store.delivery_area.all():
-                # if the user's address can't be delivered by the store they're checking out at
+                # if the user's address can't be delivered by the store
                 one_day_delta = timedelta(hours=24)
                 deadline = now + one_day_delta
                 context['pickup'] = True
@@ -1446,27 +1856,68 @@ class CheckoutView(LoginRequiredMixin, View):
         context['in_cart'] = in_cart
 
         today = str(now.month) + "/" + str(now.day)
-        tomorrow = str((now.today() + timedelta(days=1)).month) + "/" + str((now.today() + timedelta(days=1)).day)
+        tomorrow = str((now.today() + timedelta(days=1)).month) + "/" \
+                   + str((now.today() + timedelta(days=1)).day)
         if now.hour >= 19 and now.hour < 24:
-            delivery_time_set = ["tomorrow %s, 11am-1pm" % tomorrow, "tomorrow %s, 1pm-3pm" % tomorrow, "tomorrow %s, 3pm-5pm" % tomorrow, "tomorrow %s, 5pm-8pm" % tomorrow]
+            delivery_time_set = ["tomorrow %s, 11am-1pm" % tomorrow,
+                                 "tomorrow %s, 1pm-3pm" % tomorrow,
+                                 "tomorrow %s, 3pm-5pm" % tomorrow,
+                                 "tomorrow %s, 5pm-8pm" % tomorrow,
+                                 ]
         elif now.hour >= 18:
-            delivery_time_set = ["today %s, 7pm-9pm" % today, "tomorrow %s, 11am-1pm" % tomorrow, "tomorrow %s, 1pm-3pm" % tomorrow, "tomorrow %s, 3pm-5pm" % tomorrow]
+            delivery_time_set = ["today %s, 7pm-9pm" % today,
+                                 "tomorrow %s, 11am-1pm" % tomorrow,
+                                 "tomorrow %s, 1pm-3pm" % tomorrow,
+                                 "tomorrow %s, 3pm-5pm" % tomorrow,
+                                 ]
         elif now.hour >= 17:
-            delivery_time_set = ["today %s, 6pm-8pm" % today, "tomorrow %s, 11am-1pm" % tomorrow, "tomorrow %s, 1pm-3pm" % tomorrow, "tomorrow %s, 3pm-5pm" % tomorrow]
+            delivery_time_set = ["today %s, 6pm-8pm" % today,
+                                 "tomorrow %s, 11am-1pm" % tomorrow,
+                                 "tomorrow %s, 1pm-3pm" % tomorrow,
+                                 "tomorrow %s, 3pm-5pm" % tomorrow,
+                                 ]
         elif now.hour >= 16:
-            delivery_time_set = ["today %s, 5pm-7pm" % today, "today %s, 7pm-9pm" % today, "tomorrow %s, 11am-1pm" % tomorrow, "tomorrow %s, 1pm-3pm" % tomorrow]
+            delivery_time_set = ["today %s, 5pm-7pm" % today,
+                                 "today %s, 7pm-9pm" % today,
+                                 "tomorrow %s, 11am-1pm" % tomorrow,
+                                 "tomorrow %s, 1pm-3pm" % tomorrow,
+                                 ]
         elif now.hour >= 15:
-            delivery_time_set = ["today %s, 4pm-6pm" % today, "today %s, 6pm-8pm" % today, "tomorrow %s, 11am-1pm" % tomorrow, "tomorrow %s, 1pm-3pm" % tomorrow]
+            delivery_time_set = ["today %s, 4pm-6pm" % today,
+                                 "today %s, 6pm-8pm" % today,
+                                 "tomorrow %s, 11am-1pm" % tomorrow,
+                                 "tomorrow %s, 1pm-3pm" % tomorrow,
+                                 ]
         elif now.hour >= 14:
-            delivery_time_set = ["today %s, 3pm-5pm" % today, "today %s, 5pm-7pm" % today, "today %s, 7pm-9pm" % today, "tomorrow %s, 11am-1pm" % tomorrow]
+            delivery_time_set = ["today %s, 3pm-5pm" % today,
+                                 "today %s, 5pm-7pm" % today,
+                                 "today %s, 7pm-9pm" % today,
+                                 "tomorrow %s, 11am-1pm" % tomorrow,
+                                 ]
         elif now.hour >= 13:
-            delivery_time_set = ["today %s, 2pm-4pm" % today, "today %s, 4pm-6pm" % today, "today %s, 6pm-8pm" % today, "tomorrow %s, 11am-1pm" % tomorrow]
+            delivery_time_set = ["today %s, 2pm-4pm" % today,
+                                 "today %s, 4pm-6pm" % today,
+                                 "today %s, 6pm-8pm" % today,
+                                 "tomorrow %s, 11am-1pm" % tomorrow,
+                                 ]
         elif now.hour >= 12:
-            delivery_time_set = ["today %s, 1pm-3pm" % today, "today %s, 3pm-5pm" % today, "today %s, 5pm-7pm" % today, "today %s, 7pm-9pm" % today]
+            delivery_time_set = ["today %s, 1pm-3pm" % today,
+                                 "today %s, 3pm-5pm" % today,
+                                 "today %s, 5pm-7pm" % today,
+                                 "today %s, 7pm-9pm" % today,
+                                 ]
         elif now.hour >= 11:
-            delivery_time_set = ["today %s, noon-2pm" % today, "today %s, 2pm-4pm" % today, "today %s, 4pm-6pm" % today, "today %s, 6pm-8pm" % today]
+            delivery_time_set = ["today %s, noon-2pm" % today,
+                                 "today %s, 2pm-4pm" % today,
+                                 "today %s, 4pm-6pm" % today,
+                                 "today %s, 6pm-8pm" % today,
+                                 ]
         else:
-            delivery_time_set = ["today %s, 11am-1pm" % today, "today %s, 1pm-3pm" % today, "today %s, 3pm-5pm" % today, "today %s, 5pm-7pm" % today]
+            delivery_time_set = ["today %s, 11am-1pm" % today,
+                                 "today %s, 1pm-3pm" % today,
+                                 "today %s, 3pm-5pm" % today,
+                                 "today %s, 5pm-7pm" % today,
+                                 ]
 
         context['delivery_time_set'] = delivery_time_set
 
@@ -1480,20 +1931,32 @@ class CheckoutView(LoginRequiredMixin, View):
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 return redirect('grocerystore:search', zipcode=zipcode,
                                                        store_id=store_id,
-                                                       searched_item=urllib.quote(searched_item.encode('utf8')))
+                                                       searched_item=urllib.quote(
+                                                       searched_item.encode('utf8')))
             else:
-                messages.error(self.request, "You must enter only alphabetical characters", fail_silently=True)
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                messages.error(self.request,
+                               "You must enter only alphabetical characters",
+                               fail_silently=True,
+                               )
+                return redirect('grocerystore:store', zipcode=zipcode,
+                                                      store_id=store_id,
+                                                      )
 
         except: pass
 
         store = Store.objects.get(pk=store_id)
         try:
-            user_zipcode = Zipcode.objects.get(zipcode=self.request.user.inflauser.inflauser_address.zip_code)
+            user_zipcode = Zipcode.objects.get(zipcode=
+                           self.request.user.inflauser.inflauser_address.zip_code)
             if user_zipcode in store.delivery_area.all():
                 if self.request.POST.get('delivery_time') is None:
-                    messages.error(self.request, "Please select a delivery time.", fail_silently=True)
-                    return redirect('grocerystore:checkout', zipcode=zipcode, store_id=store_id)
+                    messages.error(self.request,
+                                   "Please select a delivery time.",
+                                   fail_silently=True,
+                                   )
+                    return redirect('grocerystore:checkout', zipcode=zipcode,
+                                                             store_id=store_id,
+                                                             )
                 else:
                     delivery_time = self.request.POST.get('delivery_time')
 
@@ -1520,13 +1983,20 @@ class CheckoutView(LoginRequiredMixin, View):
                             'product_pk': item.incart_availability.product.pk,
                             'availability_pk': item.incart_availability.pk,
                             'product_name': item.incart_availability.product.product_name,
-                            'unit_price': "%.2f" % float(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
+                            # float and decimal types aren't JSON serializable
+                            'unit_price': "%.2f" % float(
+                                        item.incart_availability.product_price
+                                        ),
                             'product_qty': item.incart_quantity,
-                            'total_item_price': "%.2f" % (float(item.incart_availability.product_price) * float(item.incart_quantity)),
+                            'total_item_price': "%.2f" % (
+                                 float(item.incart_availability.product_price)
+                                 * float(item.incart_quantity)
+                                 ),
                             'product_unit': item.incart_availability.product_unit,
                             })
-                        order_total += float(item.incart_availability.product_price) * float(item.incart_quantity)
-                    except: # if order_data hasn't been declared yet, ie. it's the first loop of the iteration
+                        order_total += (float(item.incart_availability.product_price)
+                                       * float(item.incart_quantity))
+                    except: # if order_data hasn't been declared yet
                         # a datetime.datetime object isn't JSON serializable
                         purchase_date = []
                         purchase_date.append(datetime.now().year)
@@ -1572,38 +2042,55 @@ class CheckoutView(LoginRequiredMixin, View):
                             'product_pk': item.incart_availability.product.pk,
                             'availability_pk': item.incart_availability.pk,
                             'product_name': item.incart_availability.product.product_name,
-                            'unit_price': "%.2f" % float(item.incart_availability.product_price), # float and decimal types aren't JSON serializable
+                            # float and decimal types aren't JSON serializable
+                            'unit_price': "%.2f" % float(
+                                        item.incart_availability.product_price),
                             'product_qty': item.incart_quantity,
-                            'total_item_price': "%.2f" % (float(item.incart_availability.product_price) * float(item.incart_quantity)),
+                            'total_item_price': "%.2f" % (
+                                   float(item.incart_availability.product_price)
+                                   * float(item.incart_quantity)
+                                   ),
                             'product_unit': item.incart_availability.product_unit,
                             }],
                         }
-                        order_total += float(item.incart_availability.product_price) * float(item.incart_quantity)
+                        order_total += (float(item.incart_availability.product_price)
+                                        * float(item.incart_quantity))
 
                     item_purchase = ProductPurchase.objects.create(
                                     bought_product=item.incart_availability.product,
-                                    bought_product_category=item.incart_availability.product.product_category,
+                                    bought_product_category=(
+                                    item.incart_availability.product.product_category
+                                    ),
                                     purchaser=user,
                                     purchase_store=store,
                                     purchase_date=datetime.now(),
-                                    purchase_amount=float(item.incart_availability.product_price) *\
-                                                    float(item.incart_quantity))
+                                    purchase_amount=(
+                                    float(item.incart_availability.product_price)
+                                    * float(item.incart_quantity)
+                                    ))
                     item.delete()
 
             order = Order.objects.create(data=order_data)
             order.data['order_nb'] = int(10000 + order.pk)
             order.data['order_total'] = "%.2f" % order_total
             order.save()
-            messages.info(self.request, "Congratulations for your virtual purchase!", fail_silently=True)
+            messages.info(self.request,
+                          "Congratulations for your virtual purchase!",
+                          fail_silently=True,
+                          )
             return redirect('grocerystore:index')
 
-        messages.error(self.request, "Please make sure you enter valid credit cart information.", fail_silently=True)
+        messages.error(self.request,
+                       "Please make sure you enter valid credit cart information.",
+                       fail_silently=True,
+                       )
         return redirect('grocerystore:checkout', zipcode=zipcode, store_id=store_id)
 
 
 class OrdersHistory(LoginRequiredMixin, View):
     """List all the previous orders that the (authenticated) user has placed in
-    this store, and allow them to replace an entire order."""
+    this store, and allow them to replace an entire order.
+    """
     template_name = 'grocerystore/orders.html'
     login_url = 'grocerystore:login'
     redirect_field_name = 'redirect_to'
@@ -1612,14 +2099,20 @@ class OrdersHistory(LoginRequiredMixin, View):
         try: # check if the store_id does exist
             store = Store.objects.get(pk=store_id)
         except:
-            messages.error(self.request, "Sorry, the requested store doesn't exist.", fail_silently=True)
+            messages.error(self.request,
+                           "Sorry, the requested store doesn't exist.",
+                           fail_silently=True,
+                           )
             return redirect('grocerystore:start', zipcode=zipcode)
 
         try: # check if the chosen store delivers the chosen zipcode
             zipcode_obj = Zipcode.objects.get(zipcode=int(zipcode))
             if zipcode_obj not in store.delivery_area.all():
-                messages.error(self.request, "The store you're looking for doesn't "\
-                                             "deliver in the area you've chosen.", fail_silently=True)
+                messages.error(self.request,
+                               "The store you're looking for doesn't "\
+                               "deliver in the area you've chosen.",
+                               fail_silently=True,
+                               )
                 return redirect('grocerystore:start', zipcode=zipcode)
         except: # if there aren't any stores that deliver the chosen zipcode area
             messages.error(self.request, "There's no store available in the area "\
@@ -1649,7 +2142,9 @@ class OrdersHistory(LoginRequiredMixin, View):
         if user_orders:
             for order in user_orders:
                 for product in order.data['items']:
-                    product['product_pic'] = Product.objects.get(pk=int(product['product_pk'])).product_pic
+                    product['product_pic'] = Product.objects.get(
+                                             pk=int(product['product_pk'])
+                                             ).product_pic
                     if product['product_qty'] % 1:
                         product['product_qty'] = float(product['product_qty'])
                     else:
@@ -1677,10 +2172,16 @@ class OrdersHistory(LoginRequiredMixin, View):
             if searched_item.replace(" ", "").replace("-", "").isalpha():
                 return redirect('grocerystore:search', zipcode=zipcode,
                                                        store_id=store_id,
-                                                       searched_item=urllib.quote(searched_item.encode('utf8')))
+                                                       searched_item=urllib.quote(
+                                                       searched_item.encode('utf8')))
             else:
-                messages.error(self.request, "You must enter only alphabetical characters", fail_silently=True)
-                return redirect('grocerystore:store', zipcode=zipcode, store_id=store_id)
+                messages.error(self.request,
+                               "You must enter only alphabetical characters",
+                               fail_silently=True,
+                               )
+                return redirect('grocerystore:store', zipcode=zipcode,
+                                                      store_id=store_id,
+                                                      )
 
         except: pass
 
@@ -1710,69 +2211,136 @@ class OrdersHistory(LoginRequiredMixin, View):
                     except:
                         ItemInCart.objects.create(incart_user=user,
                                                   incart_availability=availability,
-                                                  incart_quantity=float(elt['product_qty']))
+                                                  incart_quantity=float(elt['product_qty']),
+                                                  )
                         items_added = True
 
                 if items_added and not unavailable_items:
-                    messages.success(self.request, "All the items of your previous order have been put in your cart.", fail_silently=True)
+                    messages.success(self.request,
+                                     "All the items of your previous order have " \
+                                     "been put in your cart.",
+                                     fail_silently=True,
+                                     )
+
                 elif items_added and unavailable_items:
-                    messages.success(self.request, "The available items of your previous order have been put in your cart.", fail_silently=True)
+                    messages.success(self.request,
+                                     "The available items of your previous order" \
+                                     " have been put in your cart.",
+                                     fail_silently=True,
+                                     )
+
                     unavailable = ""
                     for elt in unavailable_items[:-1]:
                         unavailable += (str(elt) + ", ")
                     unavailable += str(unavailable_items[-1])
-                    messages.error(self.request, "The following item(s) aren't available anymore at %s: %s"\
-                                                 % (order.data['store']['store_name'], unavailable), fail_silently=True)
+                    messages.error(self.request,
+                                   "The following item(s) aren't available anymore " \
+                                   " at %s: %s" % (order.data['store']['store_name'],
+                                                   unavailable
+                                                   ),
+                                   fail_silently=True,
+                                   )
                 else:
-                    messages.error(self.request, "Sorry, the item(s) of your previous order aren't available anymore at %s" \
-                                   % order.data['store']['store_name'], fail_silently=True)
-                messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
-                return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
+                    messages.error(self.request,
+                                   "Sorry, the item(s) of your previous order " \
+                                   "aren't available anymore at %s" \
+                                   % order.data['store']['store_name'],
+                                   fail_silently=True,
+                                   )
+
+                messages.info(self.request,
+                              "%s" % Store.objects.get(pk=store_id),
+                              fail_silently=True,
+                              )
+
+                return redirect('grocerystore:orders', zipcode=zipcode,
+                                                       store_id=store_id,
+                                                       )
 
             for elt in order.data['items']:
-                if self.request.POST.get(str(elt['availability_pk'])):
-                    quantity_to_add = ConvertQtyToFloat(str(self.request.POST.get(str(elt['availability_pk']))))
+                if self.request.POST.get(str(order.pk) + "_" + str(elt['availability_pk'])):
+                    quantity_to_add = convert_qty_to_float(str(
+                    self.request.POST.get(str(order.pk) + "_" + str(elt['availability_pk']))
+                    ))
+
                     if not quantity_to_add and quantity_to_add != float(0):
-                        messages.error(self.request, "Sorry, something went wrong... Please check your quantity input.")
+                        messages.error(self.request,
+                                       "Sorry, something went wrong..." \
+                                       " Please check your quantity input.",
+                                       )
                         return redirect('grocerystore:orders', zipcode=zipcode,
-                                                               store_id=store_id)
+                                                               store_id=store_id,
+                                                               )
                 else: continue
 
                 try:
                     availability = Availability.objects.get(pk=elt['availability_pk'])
+
                 except Availability.DoesNotExist:
-                    messages.error(self.request, "Sorry, %s isn't available anymore at %s" \
-                    % (elt['product_name'], order.data['store']['store_name']), fail_silently=True)
+                    messages.error(self.request,
+                                   "Sorry, %s isn't available anymore at %s" \
+                                   % (elt['product_name'],
+                                      order.data['store']['store_name']
+                                      ),
+                                   fail_silently=True,
+                                   )
 
                     return HttpResponseRedirect(reverse('grocerystore:orders', kwargs={
                                                         'zipcode': zipcode,
-                                                        'store_id': store_id,}) \
-                                                        + '?open_order=' + str(order.pk))
+                                                        'store_id': store_id,
+                                                        }) \
+                                                        + '?open_order=' + str(order.pk)
+                                                        )
 
-                try: # if the item is in stock in the store and it's already in the user's cart
+                try: # if the item is in stock and is already in the user's cart
                     item = ItemInCart.objects.filter(incart_user=user)\
                            .get(incart_availability=availability)
                     item.incart_quantity += quantity_to_add
                     # can't buy more than a certain quantity of an item
                     if item.incart_quantity > MAX_QTY:
                         item.incart_quantity = MAX_QTY
-                    item.save()
-                    messages.success(self.request, "'%s' quantity successfully updated" \
-                    % item.incart_availability.product, fail_silently=True)
-                    messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated to its maximum" \
+                             " value (%i)." % (availability.product, MAX_QTY),
+                             fail_silently=True,
+                             )
+                    else:
+                        messages.success(self.request,
+                             "'%s' quantity successfully updated" \
+                             % availability.product,
+                             fail_silently=True,
+                             )
 
-                except: # if the item is in stock in the store and it's NOT already in the user's cart
+                    item.save()
+
+                    messages.info(self.request,
+                                  "%s" % Store.objects.get(pk=store_id),
+                                  fail_silently=True,
+                                  )
+
+                except:
+                    # if the item is in stock and is NOT already in the user's cart
                     item = ItemInCart.objects.create(incart_user=user,
                                                      incart_availability=availability,
-                                                     incart_quantity=quantity_to_add)
-                    messages.success(self.request, "'%s' successfully added in your cart" \
-                                     % item.incart_availability.product, fail_silently=True)
-                    messages.info(self.request, "%s" % Store.objects.get(pk=store_id), fail_silently=True)
+                                                     incart_quantity=quantity_to_add,
+                                                     )
+                    messages.success(self.request,
+                                     "'%s' successfully added in your cart" \
+                                     % availability.product,
+                                     fail_silently=True,
+                                     )
+                    messages.info(self.request,
+                                  "%s" % Store.objects.get(pk=store_id),
+                                  fail_silently=True,
+                                  )
 
-                return HttpResponseRedirect(reverse('grocerystore:orders', kwargs={
-                                                        'zipcode': zipcode,
-                                                        'store_id': store_id,}) \
-                                                        + '?open_order=' + str(order.pk))
+                return HttpResponseRedirect(reverse('grocerystore:orders',
+                                                    kwargs={
+                                                    'zipcode': zipcode,
+                                                    'store_id': store_id,
+                                                    }) \
+                                                    + '?open_order=' + str(order.pk)
+                                                    )
 
         messages.error(self.request, "Sorry, an error has occured...")
         return redirect('grocerystore:orders', zipcode=zipcode, store_id=store_id)
