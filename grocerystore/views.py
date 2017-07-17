@@ -21,7 +21,7 @@ from django.contrib.messages import get_messages
 from django.template import RequestContext
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
                     Availability, Address, Store, Inflauser, State, Zipcode, \
-                    ItemInCart, Order, ProductPurchase
+                    ItemInCart, Order, ProductPurchaseHistory
 from .forms import LoginForm, PaymentForm, UserForm, AddressForm
 
 
@@ -893,7 +893,7 @@ class BuyAgainView(LoginRequiredMixin, View):
 
         available_here = []
         try:
-            bought_here = ProductPurchase.objects.filter(purchaser=user)\
+            bought_here = ProductPurchaseHistory.objects.filter(purchaser=user)\
                           .filter(purchase_store=store)
             # keep only the available products already bought in this store
             for item in bought_here:
@@ -937,7 +937,7 @@ class BuyAgainView(LoginRequiredMixin, View):
         except: pass # if the user doesn't use the search tool
 
         # get list of the products bought by the user in this specific store
-        bought_here = ProductPurchase.objects.filter(purchaser=user)\
+        bought_here = ProductPurchaseHistory.objects.filter(purchaser=user)\
                       .filter(purchase_store=store)
 
         # filter the available products
@@ -2057,7 +2057,7 @@ class CheckoutView(LoginRequiredMixin, View):
                         order_total += (float(item.incart_availability.product_price)
                                         * float(item.incart_quantity))
 
-                    item_purchase = ProductPurchase.objects.create(
+                    item_purchase = ProductPurchaseHistory.objects.create(
                                     bought_product=item.incart_availability.product,
                                     bought_product_category=(
                                     item.incart_availability.product.product_category

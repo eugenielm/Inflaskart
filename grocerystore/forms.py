@@ -4,7 +4,6 @@ from datetime import date
 from calendar import monthrange
 from django import forms
 from django.contrib.auth.models import User
-# from django.core.validators import RegexValidator
 from .models import Product, ProductCategory, ProductSubCategory, Dietary, \
                     Store, Address, Availability, Inflauser, State, Zipcode
 

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Product, Store, Availability, Inflauser, Address, Dietary,\
                     ProductCategory, ProductSubCategory, State, Zipcode, Order,\
-                    ProductPurchase
+                    ProductPurchaseHistory
 
 
 class InflauserAdmin(admin.ModelAdmin):
@@ -82,7 +82,7 @@ class AvailabilityAdmin(admin.ModelAdmin):
         return obj.product.product_category
 
 
-class ProductPurchaseAdmin(admin.ModelAdmin):
+class ProductPurchaseHistoryAdmin(admin.ModelAdmin):
     list_display = ('purchaser', 'purchase_store', 'purchase_date', 'bought_product', 'bought_product_category', 'total_amount')
 
     def total_amount(self, obj):
@@ -125,5 +125,5 @@ admin.site.register(Store, StoreAdmin)
 admin.site.register(ProductSubCategory, CategoriesAdmin)
 admin.site.register(ProductCategory, TopCategoriesAdmin)
 admin.site.register(Availability, AvailabilityAdmin)
-admin.site.register(ProductPurchase, ProductPurchaseAdmin)
+admin.site.register(ProductPurchaseHistory, ProductPurchaseHistoryAdmin)
 admin.site.register(Order, OrderAdmin)

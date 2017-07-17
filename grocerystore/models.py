@@ -23,7 +23,7 @@ Availability model's store field)
 - Availability (used by the ItemInCart model's incart_availability field)
 - ItemInCart
 - Order
-- ProductPurchase
+- ProductPurchaseHistory
 """
 
 
@@ -246,8 +246,8 @@ class Order(models.Model):
         ordering = ['-pk']
 
 
-class ProductPurchase(models.Model):
-    """All bought items are stored as ProductPurchase instances - for data
+class ProductPurchaseHistory(models.Model):
+    """All bought items are stored as ProductPurchaseHistory instances - for data
     analysis purposes."""
     bought_product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     bought_product_category = models.ForeignKey(ProductSubCategory, on_delete=models.SET_NULL, null=True)
