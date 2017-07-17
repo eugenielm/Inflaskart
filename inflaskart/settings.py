@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'favicon',
     'storages',
+    'session_security',
 ]
 
 
