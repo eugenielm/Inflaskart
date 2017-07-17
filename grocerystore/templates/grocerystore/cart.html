@@ -1,228 +1,152 @@
-<!DOCTYPE html>
+{% extends 'grocerystore/base_without_search.html' %}
+{% load static from staticfiles %}
 
-<html lang="en">
+{% block content %}
 
-  <head>
-    <title>Inflaskart | Cart</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-    <!-- Latest compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    {% load static from staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
-  </head>
+  <div class="page-header">
+    <h4>Your cart(s)</h4>
+  </div>
 
 
-  <body>
+  <div class="container"> <!-- beginning of main content -->
 
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation"> <!-- beginning of nav bar -->
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="{% url 'grocerystore:index' %}"><img src="{% static 'grocerystore/logo.png' %}" alt="Inflaskart logo" height="31"></a>
-        </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-          <ul class="nav navbar-nav">
-            {% if available_stores %}
-              <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores in {{zipcode}} <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  {% for store in available_stores %}
-                    <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
-                  {% endfor %}
-                  <li><a href="{% url 'grocerystore:index' %}"><i>> stores elsewhere</i></a></li>
-                </ul>
-              </li>
-            {% endif %}
-            <li><a href="{% url 'grocerystore:cart' zipcode %}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                {% if request.user.is_authenticated %}
-                  <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
-                  <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'error' %}
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% else %}
+          <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+
+    {% if all_carts %}
+    <div class="panel-group all_carts" id="accordion">
+      {% for key, values in all_carts.items %}
+          <div class="panel panel-default single-cart">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                {% if open_cart and key.pk == open_cart %}
+                  <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">
                 {% else %}
-                  <li><a href="{% url 'grocerystore:login' %}">Login</a></li>
-                  <li><a href="{% url 'grocerystore:register' %}">Sign up</a></li>
+                  <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">
                 {% endif %}
-              </ul>
-            </li>
-          </ul>
-
-        </div>
-      </div>
-    </nav> <!-- end of nav bar -->
-
-
-    <div class="page-header">
-      <h4>Your cart(s)</h4>
-    </div>
-
-
-    <div class="container"> <!-- beginning of main content -->
-
-      {% if messages %}
-        {% for message in messages %}
-          {% if message.tags == 'error' %}
-            <div class="alert alert-danger" role="alert">{{ message }}</div>
-          {% else %}
-            <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-
-
-      {% if all_carts %}
-      <div class="panel-group all_carts" id="accordion">
-        {% for key, values in all_carts.items %}
-            <div class="panel panel-default single-cart">
-              <div class="panel-heading">
-                <h4 class="panel-title">
-                  {% if open_cart and key.pk == open_cart %}
-                    <a class="accordion-toggle btn-block" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="true">
-                  {% else %}
-                    <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">
+                  <span class="glyphicon glyphicon-shopping-cart"></span> {{ key }}
+                  {% if values|slice:"-1"|last == 'pickup' %}
+                    {% if username %}
+                    <span class="glyphicon glyphicon-exclamation-sign"></span>
+                    {% endif %}
                   {% endif %}
-                    <span class="glyphicon glyphicon-shopping-cart"></span> {{ key }}
-                    {% if values|slice:"-1"|last == 'pickup' %}
-                      {% if username %}
-                      <span class="glyphicon glyphicon-exclamation-sign"></span>
-                      {% endif %}
+                </a>
+              </h4>
+            </div>
+            {% if open_cart and key.pk == open_cart %}
+              <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
+            {% else %}
+              <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
+            {% endif %}
+              <ul class="list-group">
+              {% for item in values|slice:":-3" %}
+                <li class="list-group-item row vertical-align">
+                  <div class="col-xs-2 col-sm-1"> <!-- product picture -->
+                    {% if values|slice:"-1"|last %} <!-- ie. if the user is shopping in an area where this given store delivers -->
+                      <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
+                    {% else %}
+                      <a href="{% url 'grocerystore:detail' item.7 key.pk item.5 %}">
                     {% endif %}
-                  </a>
-                </h4>
-              </div>
-              {% if open_cart and key.pk == open_cart %}
-                <div id="collapse{{key.pk}}" class="panel-collapse collapse in" aria-expanded="true">
-              {% else %}
-                <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
-              {% endif %}
-                <ul class="list-group">
-                {% for item in values|slice:":-3" %}
-                  <li class="list-group-item row vertical-align">
-                    <div class="col-xs-2 col-sm-1"> <!-- product picture -->
-                      {% if values|slice:"-1"|last %} <!-- ie. if the user is shopping in an area where this given store delivers -->
-                        <a href="{% url 'grocerystore:detail' zipcode key.pk item.5 %}">
-                      {% else %}
-                        <a href="{% url 'grocerystore:detail' item.7 key.pk item.5 %}">
-                      {% endif %}
-                      {% if item.0.product_pic %}
-                        <img src="{{item.0.product_pic.url}}" title="{{item.0}}" alt="{{item.0.product_name}}" />
-                      {% else %}
-                        <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
-                      {% endif %}
-                    </div>
-                    <div class="col-xs-6 col-sm-9"> <!-- product name -->
-                      {{ item.0 }}</a>: {{ item.1 }} {{ item.2 }} x ${{item.6}} - <b>${{ item.3 }}</b>
-                    </div>
-
-                    <div class="col-xs-4 col-sm-2 right_align"> <!-- quantity update button -->
-                        <form class="qty_update inline" action="" method="post">
-                          {% csrf_token %}
-                          {% if item.2 == "lb" and item.0.product_category.parent.top_category|lower == "produce" %}
-                            <input class="quantity_input inline" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
-                          {% elif item.2 == "lb" and "counter" in item.0.product_category.sub_category_name|lower %}
-                            <input class="quantity_input inline" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
-                          {% else %}
-                            <input class="quantity_input inline" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[1-9]{1}[0-9]?">
-                          {% endif %}
-                          <input class="btn btn-info btn-xs quantity_input_button inline" type="submit" value="ok">
-
-                          <button class="btn btn-warning btn-xs inline" type="submit" name="remove_item{{item.4}}">
-                            <span class="glyphicon glyphicon-trash"></span>
-                          </button>
-                        </form>
-                    </div>
-                  </li>
-                {% endfor %}
-
-                </ul>
-                <div class="panel-footer">
-                  <div class="checkout-empty">
-                    <form action="" method="post">
-                      {% csrf_token %}
-                      <input class="btn btn-success btn-xs" name="checkout {{key.pk}}" type="submit" value="Checkout" />
-                    </form>
-                    <form action="" method="post">
-                      {% csrf_token %}
-                      <input class="btn btn-warning btn-xs" name="empty {{key.pk}}" type="submit" value="Empty cart" />
-                    </form>
+                    {% if item.0.product_pic %}
+                      <img src="{{item.0.product_pic.url}}" title="{{item.0}}" alt="{{item.0.product_name}}" />
+                    {% else %}
+                      <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{item.0.product_name}}"/>
+                    {% endif %}
                   </div>
-                  <p id="cart-total">Cart total: ${{ values|last }}</p>
+                  <div class="col-xs-6 col-sm-9"> <!-- product name -->
+                    {{ item.0 }}</a>: {{ item.1 }} {{ item.2 }} x ${{item.6}} - <b>${{ item.3 }}</b>
+                  </div>
 
-                    {% if user_zipcode %} <!-- if the user is authenticated -->
-
-                      {% if values|slice:"-1"|last == 'delivery' %} <!-- if the store delivers the the user'address' -->
-                        {% if values|slice:"-2"|last == 'delivery_fee' %} <!-- if the total is under $30 there's a delivery fee -->
-                          <p id="delivery_fee">A $5 delivery fee will be applied for any total under $30</p>
+                  <div class="col-xs-4 col-sm-2 right_align"> <!-- quantity update button -->
+                      <form class="qty_update inline" action="" method="post">
+                        {% csrf_token %}
+                        {% if item.2 == "lb" and item.0.product_category.parent.top_category|lower == "produce" %}
+                          <input class="quantity_input inline" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
+                        {% elif item.2 == "lb" and "counter" in item.0.product_category.sub_category_name|lower %}
+                          <input class="quantity_input inline" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?">
+                        {% else %}
+                          <input class="quantity_input inline" type="text" name="{{item.4}}" value="{{item.1}}" pattern="[1-9]{1}[0-9]?">
                         {% endif %}
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' user_zipcode key.pk %}">{{key.store_name}}</a></p>
-                      {% else %} <!-- if the store doesn't deliver the zipcode the user's address, use this zipcode to keep shopping in the same store -->
-                        <p id="no_delivery">No delivery in {{ user_zipcode }}</p>
-                        <!-- use the store zipcode to keep shopping in the same store on the next line -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{key.store_name}}</a></p>
-                      {% endif %}
+                        <input class="btn btn-info btn-xs quantity_input_button inline" type="submit" value="ok">
 
-                    {% else %} <!-- if the user is anonymous -->
+                        <button class="btn btn-warning btn-xs inline" type="submit" name="remove_item{{item.4}}">
+                          <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                      </form>
+                  </div>
+                </li>
+              {% endfor %}
 
-                      {% if values|slice:"-2"|last == 'delivery_fee' %} <!-- if the cart total is under $30 -->
-                        <p id="delivery_fee">If delivery is available for your address, a $5 delivery fee will be applied for any total under $30</p>
-                      {% else %}
-                        <p id="no_delivery">Delivery may not be available depending on your address</p>
-                      {% endif %}
-
-                      {% if values|slice:"-1"|last == 'pickup' %} <!-- if the store doesn't deliver the area the user is shopping in -->
-                        <!-- use the store zipcode to keep shopping in the same store (see below) -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{key.store_name}}</a></p>
-                      {% else %} <!-- if the store delivers the zipcode the user is shopping in, use this zipcode to keep shopping in the same store -->
-                        <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}">{{key.store_name}}</a></p>
-                      {% endif %}
-
-                    {% endif %}
+              </ul>
+              <div class="panel-footer">
+                <div class="checkout-empty">
+                  <form action="" method="post">
+                    {% csrf_token %}
+                    <input class="btn btn-success btn-xs" name="checkout {{key.pk}}" type="submit" value="Checkout" />
+                  </form>
+                  <form action="" method="post">
+                    {% csrf_token %}
+                    <input class="btn btn-warning btn-xs" name="empty {{key.pk}}" type="submit" value="Empty cart" />
+                  </form>
                 </div>
+                <p id="cart-total">Cart total: ${{ values|last }}</p>
+
+                  {% if user_zipcode %} <!-- if the user is authenticated -->
+
+                    {% if values|slice:"-1"|last == 'delivery' %} <!-- if the store delivers the the user'address' -->
+                      {% if values|slice:"-2"|last == 'delivery_fee' %} <!-- if the total is under $30 there's a delivery fee -->
+                        <p id="delivery_fee">A $5 delivery fee will be applied for any total under $30</p>
+                      {% endif %}
+                      <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' user_zipcode key.pk %}">{{key.store_name}}</a></p>
+                    {% else %} <!-- if the store doesn't deliver the zipcode the user's address, use this zipcode to keep shopping in the same store -->
+                      <p id="no_delivery">No delivery in {{ user_zipcode }}</p>
+                      <!-- use the store zipcode to keep shopping in the same store on the next line -->
+                      <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{key.store_name}}</a></p>
+                    {% endif %}
+
+                  {% else %} <!-- if the user is anonymous -->
+
+                    {% if values|slice:"-2"|last == 'delivery_fee' %} <!-- if the cart total is under $30 -->
+                      <p id="delivery_fee">If delivery is available for your address, a $5 delivery fee will be applied for any total under $30</p>
+                    {% else %}
+                      <p id="no_delivery">Delivery may not be available depending on your address</p>
+                    {% endif %}
+
+                    {% if values|slice:"-1"|last == 'pickup' %} <!-- if the store doesn't deliver the area the user is shopping in -->
+                      <!-- use the store zipcode to keep shopping in the same store (see below) -->
+                      <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' values|first|last key.pk %}">{{key.store_name}}</a></p>
+                    {% else %} <!-- if the store delivers the zipcode the user is shopping in, use this zipcode to keep shopping in the same store -->
+                      <p id="keep_shopping">Keep shopping at <a href="{% url 'grocerystore:store' zipcode key.pk %}">{{key.store_name}}</a></p>
+                    {% endif %}
+
+                  {% endif %}
               </div>
             </div>
-        {% endfor %}
-      </div>
+          </div>
+      {% endfor %}
+    </div>
 
+    {% else %}
+      <p class="empty_cart">Your cart is empty.</p>
+      {% if area %}
+        <p class="empty_cart">Keep shopping in <a href="{% url 'grocerystore:start' zipcode %}">{{ area }}.</a></p>
       {% else %}
-        <p class="empty_cart">Your cart is empty.</p>
-        {% if area %}
-          <p class="empty_cart">Keep shopping in <a href="{% url 'grocerystore:start' zipcode %}">{{ area }}.</a></p>
+        {% if request.user.is_authenticated %}
+          <p class="empty_cart">There is no store available in {{ zipcode }}, you can choose another area <a href="{% url 'grocerystore:index' %}">here</a>.</p>
         {% else %}
-          {% if request.user.is_authenticated %}
-            <p class="empty_cart">There is no store available in {{ zipcode }}, you can choose another area <a href="{% url 'grocerystore:index' %}">here</a>.</p>
-          {% else %}
-            <p class="empty_cart">Choose an area to shop in <a href="{% url 'grocerystore:index' %}">here</a>.</p>
-          {% endif %}
+          <p class="empty_cart">Choose an area to shop in <a href="{% url 'grocerystore:index' %}">here</a>.</p>
         {% endif %}
       {% endif %}
+    {% endif %}
 
     </div> <!-- end of main content -->
 
-    <footer class="footer"> <!-- beginning of footer -->
-      <div id="footer_links">
-        <a target="_blank" href="https://www.github.com/eugenielm/">Github</a>
-        |
-        <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
-        |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
-        |
-        <p id="footer_contact"><span class="glyphicon glyphicon-envelope"></span> eugenie.le.moulec@gmail.com</p>
-      </div>
-    </footer> <!-- end of footer -->
-
-
-  </body>
-
-</html>
+{% endblock %}

@@ -530,7 +530,7 @@ class StartView(View):
 
         context = {}
         try:
-            context['zipcode'] = Zipcode.objects.get(zipcode=zipcode)
+            context['zipcode_obj'] = Zipcode.objects.get(zipcode=zipcode)
         except: # if there's no store that delivers the requested zipcode
             messages.error(self.request,
                            "There is no store available in the %s area, "\
@@ -539,6 +539,7 @@ class StartView(View):
                            )
             return redirect('grocerystore:index')
 
+        context['zipcode'] = zipcode
         available_stores = Store.objects.filter(delivery_area__zipcode=zipcode)
         if len(available_stores) > 0:
             context['available_stores'] = available_stores

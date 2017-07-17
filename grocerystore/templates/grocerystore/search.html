@@ -1,183 +1,95 @@
-<!DOCTYPE html>
+{% extends 'grocerystore/base_with_search.html' %}
+{% load static from staticfiles %}
 
-<html lang="en">
+{% block content %}
 
-  <head>
-    <title>Inflaskart | Search result</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-    <!-- Latest compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    {% load static from staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
-  </head>
+  <div class="page-header">
+    <h4>Looking for '{{ searched_item }}'</h4> <h6>at <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></h6>
+  </div>
 
 
-  <body>
+  <div class="container"> <!-- beginning of main content -->
 
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation"> <!-- beginning of nav bar -->
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="{% url 'grocerystore:index' %}"><img src="{% static 'grocerystore/logo.png' %}" alt="Inflaskart logo" height="31"></a>
-        </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-          <ul class="nav navbar-nav">
-            {% if available_stores %}
-              <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores in {{zipcode}} <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  {% for store in available_stores %}
-                    <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
-                  {% endfor %}
-                  <li><a href="{% url 'grocerystore:index' %}"><i>> stores elsewhere</i></a></li>
-                </ul>
-              </li>
-            {% endif %}
-            <li><a href="{% url 'grocerystore:cart' zipcode %}?open_cart={{store.pk}}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
-          </ul>
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'error' %}
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% else %}
+          <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
 
-          <form class="nav navbar-nav navbar-form" role="search" action="" method="post">
-            {% csrf_token %}
-              <div class="input-group">
-                  <input type="text" class="form-control" placeholder="{{store}}" name="search">
-                  <div class="input-group-btn">
-                      <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                  </div>
-              </div>
-          </form>
+    <div id="search_result">
+      {% if available_products %}
+        {% for product in available_products %} <!-- product.0 is an availability instance -->
+          <div class="search_product">
+            <a href="{% url 'grocerystore:detail' zipcode store_id product.3 %}">
+              <div class="product_button">
+                <div class="product_button_content"> <!-- div needed to center vertically -->
+                  {% if product.0.product.product_pic %}
+                    <img src="{{ product.0.product.product_pic.url }}" alt="{{availability.product.product_name}}"/>
+                  {% else %}
+                    <img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{availability.product.product_name}}"/>
+                  {% endif %}
+                  <p>{{ product.0.product }}</p>
+                  <p><b>${{ product.1 }} / {{ product.2 }}</b></a></p>
+                </div>
+              </div></a>
 
-          <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                {% if request.user.is_authenticated %}
-                  <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
-                  <li><a href="{% url 'grocerystore:orders' zipcode store.pk %}">Your orders in this store</a></li>
-                  <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+            <form class="qty_selection" action="" method="post">
+              {% csrf_token %}
+              <select id="input_{{product.0.pk}}" name="{{product.0.pk}}" onchange="if (value == 'other') {
+                document.getElementById('input_{{product.0.pk}}').style.display = 'none';
+                document.getElementById('other_qty_{{product.0.pk}}').style.display = 'inline-block';
+                document.getElementById('input_{{product.0.pk}}').setAttribute('name', '');
+                document.getElementById('other_qty_input_{{product.0.pk}}').setAttribute('name', '{{product.0.pk}}');}">
+                {% for quantity in quantity_set %}
+                  <option value="{{quantity}}">{{ quantity }}</option>
+                {% endfor %}
+              </select>
+
+              <div id="other_qty_{{product.0.pk}}" style="display:none;">
+                {% if product.2 == "lb" and product.0.product.product_category.parent.top_category|lower == "produce" %}
+                  <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
+                {% elif product.2 == "lb" and "counter" in product.0.product.product_category.sub_category_name|lower %}
+                  <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
                 {% else %}
-                  <li><a href="{% url 'grocerystore:login' %}">Login</a></li>
-                  <li><a href="{% url 'grocerystore:register' %}">Sign up</a></li>
+                  <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="text" name="" value="" pattern="[1-9]{1}[0-9]?" autofocus>
                 {% endif %}
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav> <!-- end of nav bar -->
+              </div>
+              <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok">
 
-
-    <div class="page-header">
-      <h4>Looking for '{{ searched_item }}'</h4> <h6>at <a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></h6>
-    </div>
-
-
-    <div class="container"> <!-- beginning of main content -->
-
-      {% if messages %}
-        {% for message in messages %}
-          {% if message.tags == 'error' %}
-            <div class="alert alert-danger" role="alert">{{ message }}</div>
-          {% else %}
-            <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
-          {% endif %}
+            </form>
+          </div>
         {% endfor %}
       {% endif %}
 
-      <div id="search_result">
-        {% if available_products %}
-          {% for product in available_products %} <!-- product.0 is an availability instance -->
-            <div class="search_product">
-              <a href="{% url 'grocerystore:detail' zipcode store_id product.3 %}">
-                <div class="product_button">
-                  <div class="product_button_content"> <!-- div needed to center vertically -->
-                    {% if product.0.product.product_pic %}
-                      <p class="product-pic"><img src="{{ product.0.product.product_pic.url }}" alt="{{availability.product.product_name}}"/></p>
-                    {% else %}
-                      <p class="product-pic"><img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{availability.product.product_name}}"/></p>
-                    {% endif %}
-                    <p>{{ product.0.product }}</p>
-                    <p><b>${{ product.1 }} / {{ product.2 }}</b></a></p>
-                  </div>
-                </div></a>
+      {% if other_availabilities %} <!-- if there's no availability in this store but there're in other stores in the same zipcode area  -->
+        <p id="other_availabilities">There's no match for '{{ searched_item }}' at {{store}}, but we found the following result(s) in (a) store(s) delivering the {{zipcode}} area:<p>
 
-              <form class="qty_selection" action="" method="post">
-                {% csrf_token %}
-                <select id="input_{{product.0.pk}}" name="{{product.0.pk}}" onchange="if (value == 'other') {
-                  document.getElementById('input_{{product.0.pk}}').style.display = 'none';
-                  document.getElementById('other_qty_{{product.0.pk}}').style.display = 'inline-block';
-                  document.getElementById('input_{{product.0.pk}}').setAttribute('name', '');
-                  document.getElementById('other_qty_input_{{product.0.pk}}').setAttribute('name', '{{product.0.pk}}');}">
-                  {% for quantity in quantity_set %}
-                    <option value="{{quantity}}">{{ quantity }}</option>
-                  {% endfor %}
-                </select>
-
-                <div id="other_qty_{{product.0.pk}}" style="display:none;">
-                  {% if product.2 == "lb" and product.0.product.product_category.parent.top_category|lower == "produce" %}
-                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
-                  {% elif product.2 == "lb" and "counter" in product.0.product.product_category.sub_category_name|lower %}
-                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="text" name="" value="" pattern="[0-9]{1,2}([.,]{1}[0-9]{1})?" autofocus>
+        {% for product in other_availabilities %}
+          <div class="search_product">
+            <form action="" method="post">
+              {% csrf_token %}
+              <button class="product_button" name="{{product.0.pk}}" onclick="this.form.submit();"> <!-- product.0 is an availability instance -->
+                <div class="product_button_content"> <!-- div needed to center vertically -->
+                  {% if product.0.product.product_pic %}
+                    <p class="product-pic"><img src="{{ product.0.product.product_pic.url }}" alt="{{product.0.product.product_name}}"/></p>
                   {% else %}
-                    <input class="quantity_input" id="other_qty_input_{{product.0.pk}}" type="text" name="" value="" pattern="[1-9]{1}[0-9]?" autofocus>
+                    <p class="product-pic"><img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{product.0.product.product_name}}"/></p>
                   {% endif %}
+                  <p>{{ product.0.product }}</a></p>
+                  <p><b>${{ product.1 }} @ {{ product.4 }}</b></p>
                 </div>
-                <input class="btn btn-info btn-xs quantity_input_button" type="submit" value="ok">
+              </button>
+            </form>
+          </div>
+        {% endfor %}
+      {% endif %}
 
-              </form>
-            </div>
-          {% endfor %}
-        {% endif %}
+    </div>
 
-        {% if other_availabilities %} <!-- if there's no availability in this store but there're in other stores in the same zipcode area  -->
-          <p id="other_availabilities">There's no match for '{{ searched_item }}' at {{store}}, but we found the following result(s) in (a) store(s) delivering the {{zipcode}} area:<p>
+  </div> <!-- end of main content -->
 
-          {% for product in other_availabilities %}
-            <div class="search_product">
-              <form action="" method="post">
-                {% csrf_token %}
-                <button class="product_button" name="{{product.0.pk}}" onclick="this.form.submit();"> <!-- product.0 is an availability instance -->
-                  <div class="product_button_content"> <!-- div needed to center vertically -->
-                    {% if product.0.product.product_pic %}
-                      <p class="product-pic"><img src="{{ product.0.product.product_pic.url }}" alt="{{product.0.product.product_name}}"/></p>
-                    {% else %}
-                      <p class="product-pic"><img src="{% static 'grocerystore/no_pic_available.jpg' %}" alt="{{product.0.product.product_name}}"/></p>
-                    {% endif %}
-                    <p>{{ product.0.product }}</a></p>
-                    <p><b>${{ product.1 }} @ {{ product.4 }}</b></p>
-                  </div>
-                </button>
-              </form>
-            </div>
-          {% endfor %}
-        {% endif %}
-
-      </div>
-
-    </div> <!-- end of main content -->
-
-
-    <footer class="footer"> <!-- beginning of footer -->
-      <div id="footer_links">
-        <a target="_blank" href="https://www.github.com/eugenielm/">Github</a>
-        |
-        <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
-        |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
-        |
-        <p id="footer_contact"><span class="glyphicon glyphicon-envelope"></span> eugenie.le.moulec@gmail.com</p>
-      </div>
-    </footer> <!-- end of footer -->
-
-
-  </body>
-
-</html>
+{% endblock %}

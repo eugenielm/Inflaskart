@@ -101,11 +101,18 @@ a.navbar-brand {
 /* background color of dropdown menus in navbar */
 ul.dropdown-menu {border-radius: 0px}
 .navbar-inverse, .navbar-inverse .navbar-toggle:focus {background-color: #444444}
+
 /* color of the dropdown menus header and dropdown links */
-.navbar-inverse .navbar-nav>li>a, .dropdown-menu>li>a, .navbar-inverse .navbar-nav .open .dropdown-menu>li>a {color: #eee}
-.nav>li:hover, .navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:focus, .navbar-inverse .navbar-nav>.open>a:hover, .nav>li.dropdown.open>ul.dropdown-menu, .navbar-inverse .navbar-toggle:hover {background-color: #656565}
+.navbar-inverse .navbar-nav>li>a, .dropdown-menu>li>a,
+.navbar-inverse .navbar-nav .open .dropdown-menu>li>a {color: #eee}
+
+.nav>li:hover, .navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:focus,
+.navbar-inverse .navbar-nav>.open>a:hover, .nav>li.dropdown.open>ul.dropdown-menu,
+.navbar-inverse .navbar-toggle:hover {background-color: #656565}
+
 /* background color when hovering over sub-menus */
-.nav>li.dropdown.open>ul.dropdown-menu>li:hover, .dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {background-color: #a8abab}
+.nav>li.dropdown.open>ul.dropdown-menu>li:hover, .dropdown-menu>li>a:focus,
+.dropdown-menu>li>a:hover {background-color: #a8abab}
 
 /*****************************************************************************/
 /* page footer */
@@ -132,7 +139,6 @@ ul.dropdown-menu {border-radius: 0px}
   display:flex;
   align-items:center;
   justify-content:center;
-  overflow: scroll;
 }
 
 p#footer_contact {
@@ -215,7 +221,7 @@ h4.panel-title {font-size: 1em}
 cart.html and instock.html */
 .btn.btn-info.btn-xs.quantity_input_button {
   display:inline-block;
-  height: 24px;
+  height: 23px;
   width: 24px;
   padding: 0px;
   text-align: center;
@@ -278,7 +284,7 @@ button#index_profile_button {
 
 ul.dropdown-menu.dropdown-menu-right {
   background-color: #656565;
-  font-size: 2vh;
+  font-size: 1vh;
 }
 
 #authenticated-welcome, #anonymous-welcome {
@@ -642,7 +648,7 @@ li.list-group-item.row>div:nth-child(4) {
 
 .single-cart .checkout-empty form {display: inline;}
 
-.single-cart .checkout-empty input.btn.btn-xs {font-size: 10px;}
+.single-cart .checkout-empty input.btn.btn-xs {font-size: 12px;}
 
 .single-order .panel-heading {border-bottom: none;}
 
@@ -731,7 +737,7 @@ p#no_delivery, p#delivery_fee {
 
 .product_button img {
   display: block;
-  height: 3.5em;
+  height: 3em;
   margin: 0px auto 5px auto;
   text-align: center;
 }
@@ -749,7 +755,7 @@ div.product_button_content {
 
 div.product_button_content p {
   margin: 0px;
-  font-size: 0.7em;
+  font-size: 0.85em;
 }
 
 .available_product form {
@@ -1039,6 +1045,12 @@ form#profile_form > input.btn.btn-info.btn-md.submit {
   max-width: 800px;
   text-align: center;
   margin: 1vh auto;
+}
+
+#cart_total {
+  text-align: center;
+  font-size: 14px;
+  font-style: normal;
 }
 
 .single-cart.checkout {margin: 1.5vh auto 0px auto;}

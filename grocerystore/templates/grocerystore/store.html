@@ -1,159 +1,71 @@
-<!DOCTYPE html>
+{% extends 'grocerystore/base_with_search.html' %}
+{% load static from staticfiles %}
 
-<html lang="en">
+{% block content %}
 
-  <head>
-    <title>Inflaskart | {{store.store_name}}</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-    <!-- Latest compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    {% load static from staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'grocerystore/style.css' %}" />
-  </head>
+  <div class="page-header">
+    <h4>{{ store.store_name }}</h4> <h6>({{store.store_location}})</h6>
+    <a href="{% url 'grocerystore:checkout' zipcode store.pk %}" class="btn btn-success btn-xs">Checkout</a>
+  </div>
 
 
-  <body>
+  <div class="container"> <!-- beginning of main content -->
 
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation"> <!-- beginning of nav bar -->
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="{% url 'grocerystore:index' %}"><img src="{% static 'grocerystore/logo.png' %}" alt="Inflaskart logo" height="31"></a>
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'error' %}
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% else %}
+          <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    <div id="store_categories">
+      {% if purchases_here %}
+      <a href="{% url 'grocerystore:buyagain' zipcode store_id %}">
+        <div id="buy_again">
+          <h4>BUY IT AGAIN</h4>
         </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-          <ul class="nav navbar-nav">
-            {% if available_stores %}
-              <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Stores in {{zipcode}} <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  {% for store in available_stores %}
-                    <li><a href="{% url 'grocerystore:store' zipcode store.pk %}">{{ store }}</a></li>
-                  {% endfor %}
-                  <li><a href="{% url 'grocerystore:index' %}"><i>> Stores elsewhere</i></a></li>
-                </ul>
-              </li>
-            {% endif %}
-            <li><a href="{% url 'grocerystore:cart' zipcode %}?open_cart={{store.pk}}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
-          </ul>
+      </a>
+      <a href="{% url 'grocerystore:orders' zipcode store_id %}">
+        <div id="old_order">
+          <h4>RE-PLACE A PREVIOUS ORDER</h4>
+        </div>
+      </a>
+      {% endif %}
 
-          <form class="nav navbar-nav navbar-form" role="search" action="" method="post">
-            {% csrf_token %}
-              <div class="input-group">
-                  <input type="text" class="form-control" placeholder="{{store}}" name="search">
-                  <div class="input-group-btn">
-                      <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                  </div>
+      {% if all_categories %}
+        <div class="panel-group category" id="accordion">
+        {% for key, values in all_categories.items %}
+          <div class="panel panel-default">
+            <div class="link_div">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
+                </h4>
               </div>
-          </form>
-
-          <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                {% if request.user.is_authenticated %}
-                  <li><a href="{% url 'grocerystore:profile' %}">Your profile</a></li>
-                  <li><a href="{% url 'grocerystore:orders' zipcode store.pk %}">Your orders in this store</a></li>
-                  <li><a href="{% url 'grocerystore:logout' %}"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
-                {% else %}
-                  <li><a href="{% url 'grocerystore:login' %}">Login</a></li>
-                  <li><a href="{% url 'grocerystore:register' %}">Sign up</a></li>
-                {% endif %}
+            </div>
+            <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
+              <ul class="list-group">
+                {% for item in values %}
+                  <a href="{% url 'grocerystore:instock' zipcode store_id key.pk item.pk %}">
+                    <li class="list-group-item">
+                      {{ item.sub_category_name }}
+                    </li>
+                  </a>
+              {% endfor %}
               </ul>
-            </li>
-          </ul>
+            </div>
+          </div>
+        {% endfor %}
         </div>
-      </div>
-    </nav> <!-- end of nav bar -->
-
-
-    <div class="page-header">
-      <h4>{{ store.store_name }}</h4> <h6>({{store.store_location}})</h6>
-      <a href="{% url 'grocerystore:checkout' zipcode store.pk %}" class="btn btn-success btn-xs">Checkout</a>
+      {% else %}
+        <p>Sorry, there's nothing in stock at {{ store }} at the moment. Please come back later!</p>
+      {% endif %}
     </div>
 
 
-    <div class="container"> <!-- beginning of main content -->
+  </div> <!-- end of main content -->
 
-      {% if messages %}
-        {% for message in messages %}
-          {% if message.tags == 'error' %}
-            <div class="alert alert-danger" role="alert">{{ message }}</div>
-          {% else %}
-            <div class="alert alert-{{message.tags}}" role="alert">{{ message }}</div>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-
-      <div id="store_categories">
-        {% if purchases_here %}
-        <a href="{% url 'grocerystore:buyagain' zipcode store_id %}">
-          <div id="buy_again">
-            <h4>BUY IT AGAIN</h4>
-          </div>
-        </a>
-        <a href="{% url 'grocerystore:orders' zipcode store_id %}">
-          <div id="old_order">
-            <h4>RE-PLACE A PREVIOUS ORDER</h4>
-          </div>
-        </a>
-        {% endif %}
-
-        {% if all_categories %}
-          <div class="panel-group category" id="accordion">
-          {% for key, values in all_categories.items %}
-            <div class="panel panel-default">
-              <div class="link_div">
-                <div class="panel-heading">
-                  <h4 class="panel-title">
-                    <a class="accordion-toggle btn-block collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{key.pk}}" aria-expanded="false">{{ key.top_category }}</a>
-                  </h4>
-                </div>
-              </div>
-              <div id="collapse{{key.pk}}" class="panel-collapse collapse" aria-expanded="false">
-                <ul class="list-group">
-                  {% for item in values %}
-                    <a href="{% url 'grocerystore:instock' zipcode store_id key.pk item.pk %}">
-                      <li class="list-group-item">
-                        {{ item.sub_category_name }}
-                      </li>
-                    </a>
-                {% endfor %}
-                </ul>
-              </div>
-            </div>
-          {% endfor %}
-          </div>
-        {% else %}
-          <p>Sorry, there's nothing in stock at {{ store }} at the moment. Please come back later!</p>
-        {% endif %}
-      </div>
-
-
-    </div> <!-- end of main content -->
-
-
-    <footer class="footer"> <!-- beginning of footer -->
-      <div id="footer_links">
-        <a target="_blank" href="https://www.github.com/eugenielm/">Github</a>
-        |
-        <a target="_blank" href="https://www.linkedin.com/in/eugenie-le-moulec/">LinkedIn</a>
-        |
-        <a href="{% static 'grocerystore/LE_MOULEC_Eugenie-RESUME.pdf' %}" download="LE_MOULEC_eugenie_resume.pdf">Resume</a>
-        |
-        <p id="footer_contact"><span class="glyphicon glyphicon-envelope"></span> eugenie.le.moulec@gmail.com</p>
-      </div>
-    </footer> <!-- end of footer -->
-
-
-  </body>
-
-</html>
+{% endblock %}
