@@ -42,6 +42,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'session_security.middleware.SessionSecurityMiddleware',
 ]
 
 
@@ -191,3 +192,6 @@ except:
 #Simplified static file serving. https://warehouse.python.org/project/whitenoise/
 #Enabling gzip functionality
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SECURITY_EXPIRE_AFTER = 5*60

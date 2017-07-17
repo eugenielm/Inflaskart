@@ -29,4 +29,6 @@ urlpatterns = [
     # url(r'^grocerystore/', include('grocerystore.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^', include('favicon.urls')),
+    # for session security purposes (log out an authenticated user if inactive for too long)
+    url(r'session_security/', include('session_security.urls')),
 ]
